@@ -1,1 +1,4 @@
+*/migrations
 /db.sqlite3
+/staticfiles
+/files

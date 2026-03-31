@@ -23,7 +23,10 @@
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/../StarVPN\templates" />
+        <option value="$MODULE_DIR$/templates" />
+        <option value="$MODULE_DIR$/main/templates" />
+        <option value="$MODULE_DIR$/account/templates" />
+        <option value="$MODULE_DIR$/services/templates" />
       </list>
     </option>
   </component>
