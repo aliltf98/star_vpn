@@ -16,9 +16,18 @@ class Category(models.Model):
     def __str__(self):
         return self.title
 
+class Status(models.Model):
+    title = models.CharField(max_length=100)
+    def __str__(self):
+        return self.title
+
 class UriCode(models.Model):
     value = models.CharField(max_length=999)
     type = models.ForeignKey(Category, on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, on_delete=models.CASCADE)
+    volume = models.FloatField()
+    remainingVolume = models.FloatField()
+
     def __str__(self):
         return self.value
 
