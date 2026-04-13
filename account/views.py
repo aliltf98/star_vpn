@@ -55,7 +55,6 @@ def register(request):
 
             profile.save()
             messages.success(request, 'حساب کاربری شما با موفقیت ساخته شد')
-
             return redirect('/')
         else:
             return redirect('register')

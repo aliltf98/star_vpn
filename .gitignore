@@ -2,3 +2,8 @@
 /db.sqlite3
 /staticfiles
 /files
+
+
+# Log files
+*.log
+

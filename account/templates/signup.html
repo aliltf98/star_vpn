@@ -4,16 +4,16 @@
     {% csrf_token %}
     <div class="row gtr-uniform">
         <div class="col-6 col-12-xsmall">
-            <input type="text" name="username" value="" placeholder="نام کاربری" />
+            <input type="text" name="username" required value="" placeholder="نام کاربری" />
         </div>
         <div class="col-6 col-12-xsmall">
-            <input type="text" name="number" value="" placeholder="شماره تلفن" />
+            <input type="text" name="number" required value="" placeholder="شماره تلفن" />
         </div>
         <div class="col-6 col-12-xsmall">
-            <input type="password" name="pass1" value="" placeholder="کلمه عبور" />
+            <input type="password" name="pass1" required value="" placeholder="کلمه عبور" />
         </div>
         <div class="col-6 col-12-xsmall">
-            <input type="password" name="pass2" value="" placeholder="تکرار کلمه عبور" />
+            <input type="password" name="pass2" required value="" placeholder="تکرار کلمه عبور" />
         </div>
         <input type="hidden" name="reg" value="signup">
         <div class="col-12">
