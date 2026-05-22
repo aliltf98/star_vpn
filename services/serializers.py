@@ -11,8 +11,9 @@ class SigninSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=60, required=True, allow_null=False, allow_blank=False)
     password = serializers.CharField(max_length=60, required=True, allow_null=False, allow_blank=False)
 
-class ProfileSerializer(serializers.ModelSerializer):
+class UriCodeSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='type.title', read_only=True)
 
-    class Meta:
-        model = ServiceProfile
-        fields = ['profile', 'configs', 'connections', 'Logs']
+    class Meta: # اصلاح شده از File به Meta
+        model = UriCode
+        fields = ['id', 'value', 'category_name', 'remainingVolume']
