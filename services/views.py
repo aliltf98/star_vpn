@@ -187,3 +187,30 @@ class Signin(APIView):
             print(exc_type, fname, exc_tb.tb_lineno)
             print(1, e)
             return Response({'error': 'خطای داخلی سرور'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UserVolumeStatus(APIView):
+    """
+    Endpoint: /api/v1/vpn-usage/<username>/
+    """
+    def get(self, request, username):
+        try:
+            panel_info = PanelManager.get_user_info(username)
+            if not panel_info:
+                return Response({"status": "error", "message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            total_limit = panel_info.get('data_limit', 0)
+            used_traffic = panel_info.get('used_traffic', 0)
+            remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
+
+            # 🌟 Keys precisely mirror your Kotlin data class variables
+            return Response({
+                "status": "success",
+                "username": username,
+                "data_limit": total_limit,
+                "used_traffic": used_traffic,
+                "remaining_bytes": remaining_bytes
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"status": "error", "message": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
