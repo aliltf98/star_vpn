@@ -69,3 +69,8 @@ def signout(request):
         messages.error(request, str(e))
         print(e)
     return redirect("/")
+
+def subscription(request, username):
+    print(username)
+
+    return render(request, "subscription.html")

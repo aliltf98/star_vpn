@@ -47,72 +47,12 @@ class Signup(APIView):
 
 class Signin(APIView):
     def post(self, request):
-        # try:
-            # print(request.data)
-            # دریافت اطلاعات گوشی از بدنه درخواست (Request Body)
-            # device_id = request.data.get('device_id')
-            # model_name = request.data.get('model_name')
-            #
-            # serializer = SigninSerializer(data=request.data)
-            # if serializer.is_valid():
-            #     username = serializer.validated_data.get('username')
-            #     password = serializer.validated_data.get('password')
-            #
-            #     user = None
-            #     بررسی لاگین با نام کاربری یا شماره تلفن
-                # if UserProfile.objects.filter(profile__username=username).exists():
-                #     user = authenticate(request, username=username, password=password)
-                # elif UserProfile.objects.filter(phone_number=username).exists():
-                #     usr = UserProfile.objects.get(phone_number=username)
-                #     user = authenticate(request, username=usr.profile.username, password=password)
-                #
-                # if user is None:
-                #     return Response({"message": "حساب کاربری یا کلمه عبور اشتباه است"},
-                #                     status=status.HTTP_400_BAD_REQUEST)
-                #
-                # ۱. تولید یا دریافت توکن
-                # token, _ = Token.objects.get_or_create(user=user)
-                #
-                # ۲. مدیریت اطلاعات گوشی (Connection)
-                # اگر device_id فرستاده شده بود، آن را ثبت یا بروزرسانی کن
-                # configs_data = []
-                # if device_id:
-                #     connection, _ = Connection.objects.get_or_create(
-                #         device_id=device_id,
-                #         defaults={'model_name': model_name or "Unknown"}
-                #     )
-                #
-                    # ۳. پیدا کردن ServiceProfile و کانفیگ‌ها
-                #     service_prof = ServiceProfile.objects.filter(profile__profile__username=username).first()
-                #     if service_prof:
-                         # اضافه کردن گوشی به لیست اتصالات این پروفایل (اگر قبلاً نبود)
-                #         if connection not in service_prof.connections.all():
-                #             service_prof.connections.add(connection)
-                #
-                         # سریالایز کردن کانفیگ‌ها برای بازگشت به اندروید
-                #         configs_serializer = UriCodeSerializer(service_prof.configs.all(), many=True)
-                #         configs_data = configs_serializer.data
-
-                # return Response({
-                #     'token': token.key,
-                #     'message': "ورود با موفقیت انجام شد",
-                #     'configs': configs_data  # لیست کانفیگ‌ها در اینجا برمی‌گردد
-                # }, status=status.HTTP_200_OK)
-        #
-        # except Exception as e:
-        #     exc_type, exc_obj, exc_tb = sys.exc_info()
-        #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        #     print(exc_type, fname, exc_tb.tb_lineno)
-        #     print(1, e)
-        #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
         try:
-            # ۱. دریافت داده‌ها از اندروید
             username = request.data.get('username')
             password = request.data.get('password')
             device_id = request.data.get('device_id')
             model_name = request.data.get('model_name')
+
             user = None
             if UserProfile.objects.filter(profile__username=username).exists():
                 user = authenticate(request, username=username, password=password)
@@ -120,74 +60,74 @@ class Signin(APIView):
                 usr = UserProfile.objects.get(phone_number=username)
                 user = authenticate(request, username=usr.profile.username, password=password)
 
-            # ۲. احراز هویت (کاربری که قبلاً از سایت ثبت‌نام کرده)
-
             if not user:
                 return Response({"message": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            # ۳. استعلام وضعیت کاربر از پنل Marzban
-            panel_info = PanelManager.get_user_info(username)
+            panel_info = PanelManager.get_user_info(user.username)  # Use verified user.username
             if not panel_info:
                 return Response({"message": "سرویس شما در پنل یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
 
             if panel_info.get('status') != 'active':
                 return Response({"message": "اکانت شما غیرفعال یا منقضی شده است"}, status=status.HTTP_403_FORBIDDEN)
 
-            # ۴. مدیریت توکن و ثبت دستگاه
             token, _ = Token.objects.get_or_create(user=user)
-            # (در اینجا می‌توانید منطق ثبت Connection را که قبلاً نوشتیم اجرا کنید)
 
-            # ۵. آماده‌سازی خروجی برای اندروید
-            links = panel_info.get('links', [])
-            total_limit = panel_info.get('data_limit', 0)
-            used_traffic = panel_info.get('used_traffic', 0)
-            print("ta inja okaye")
-            # تبدیل بایت به گیگابایت
-            remaining_gb = round((total_limit - used_traffic) / (1024 ** 3), 2) if total_limit else 0
-            print(total_limit)
-            print(used_traffic)
-            print(remaining_gb)
+            # 🌟 Fixed Device Assignment Logic
             if device_id:
-                connection, _ = Connection.objects.get_or_create(
+                # Update or create the connection tracking entry
+                connection, created = Connection.objects.get_or_create(
                     device_id=device_id,
                     defaults={'model_name': model_name or "Unknown"}
                 )
+                if not created and model_name:
+                    connection.model_name = model_name
+                    connection.save()
 
+                # Find the user profile first
+                user_profile = UserProfile.objects.filter(profile=user).first()
+                if user_profile:
+                    # Get or create the ServiceProfile for this user profile instance
+                    service_prof, _ = ServiceProfile.objects.get_or_create(profile=user_profile)
 
-                # ۳. پیدا کردن ServiceProfile و کانفیگ‌ها
-                service_prof = ServiceProfile.objects.filter(profile__profile__username=username).first()
-                if service_prof:
-                    # اضافه کردن گوشی به لیست اتصالات این پروفایل (اگر قبلاً نبود)
+                    # Add device to ManyToMany list safely
                     if connection not in service_prof.connections.all():
                         service_prof.connections.add(connection)
 
-                    # سریالایز کردن کانفیگ‌ها برای بازگشت به اندروید
-                    configs_serializer = UriCodeSerializer(service_prof.configs.all(), many=True)
-                    configs_data = configs_serializer.data
+            links = panel_info.get('links', [])
+            total_limit = panel_info.get('data_limit', 0)
+            used_traffic = panel_info.get('used_traffic', 0)
+
+            remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
+            remaining_gb = round(remaining_bytes / (1024 ** 3), 2) if total_limit else 0
 
             configs = []
-            for link in links:
+            for index, link in enumerate(links):
+                category = "V2Ray"
+                if link.startswith("vless://"):
+                    category = "VLESS"
+                elif link.startswith("vmess://"):
+                    category = "VMESS"
+                elif link.startswith("trojan://"):
+                    category = "Trojan"
+
                 configs.append({
+                    "id": index,  # Provides the dynamic Int ID expected by Android VpnConfigResponse
                     "value": link,
-                    "category_name": "V2Ray",
+                    "category_name": category,
                     "remainingVolume": remaining_gb
                 })
-            print(configs)
 
             return Response({
                 'token': token.key,
                 'configs': configs,
-                'username': username,
+                'username': user.username,
+                'data_limit': total_limit,
+                'remaining_bytes': remaining_bytes,
                 'message': "خوش آمدید"
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            print(1, e)
-            return Response({'error': 'خطای داخلی سرور'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            return Response({'error': f'خطای داخلی سرور: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserVolumeStatus(APIView):
     """
@@ -214,3 +154,96 @@ class UserVolumeStatus(APIView):
 
         except Exception as e:
             return Response({"status": "error", "message": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class UserProfileView(APIView):
+    def get(self, request, username):
+        try:
+            # 🌟 Lookup profile cleanly via the username string passed from Android
+            user_profile = UserProfile.objects.filter(profile__username=username).first()
+
+            panel_info = PanelManager.get_user_info(username)
+            if not panel_info:
+                return Response({"error": "سرویس شما یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({
+                "username": username,
+                "phone_number": str(user_profile.phone_number) if user_profile else "بدون شماره",
+                "subscription_url": panel_info.get("subscription_url", ""),
+                "data_limit": panel_info.get("data_limit", 0),
+                "used_traffic": panel_info.get("used_traffic", 0)
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DeviceSessionView(APIView):
+    def get(self, request, username):
+        try:
+            # 🌟 Find the ServiceProfile using the explicit username parameter
+            service_prof = ServiceProfile.objects.filter(profile__profile__username=username).first()
+
+            if not service_prof:
+                return Response({"devices": []}, status=status.HTTP_200_OK)
+
+            devices_data = []
+            for conn in service_prof.connections.all():
+                devices_data.append({
+                    "device_id": conn.device_id,
+                    "model_name": conn.model_name,
+                    "is_blocked": conn.is_blocked,
+                    "traffic_used": conn.traffic_used
+                })
+
+            return Response({"devices": devices_data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ToggleBlockDeviceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        device_id = request.data.get("device_id")
+        if not device_id:
+            return Response({"error": "Device ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            connection = Connection.objects.get(device_id=device_id)
+            # Toggle the block state
+            connection.is_blocked = not connection.is_blocked
+            connection.save()
+
+            return Response({
+                "message": "وضعیت دستگاه با موفقیت تغییر کرد",
+                "is_blocked": connection.is_blocked
+            }, status=status.HTTP_200_OK)
+        except Connection.DoesNotExist:
+            return Response({"error": "دستگاه یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UpdateDeviceUsageView(APIView):
+    # 🌟 CRITICAL: Must be exact lowercase 'post'
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        device_id = request.data.get("device_id")
+        bytes_used = request.data.get("bytes_used", 0)
+
+        if not username or not device_id:
+            return Response({"error": "نام کاربری و شناسه دستگاه الزامی هستند"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            service_prof = ServiceProfile.objects.filter(profile__profile__username=username).first()
+            if not service_prof:
+                return Response({"error": "پروفایل کاربری یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+
+            connection = service_prof.connections.filter(device_id=device_id).first()
+            if not connection:
+                return Response({"error": "دستگاه به این حساب متصل نیست"}, status=status.HTTP_404_NOT_FOUND)
+
+            connection.traffic_used += int(bytes_used)
+            connection.save()
+
+            return Response({"message": "مصرف دستگاه با موفقیت بروزرسانی شد"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

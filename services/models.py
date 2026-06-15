@@ -10,6 +10,9 @@ class ConnectionsLog(models.Model):
 class Connection(models.Model):
     device_id = models.CharField(max_length=255) # همان ANDROID_ID یا UUID
     model_name = models.CharField(max_length=255) # مثال: Samsung SM-G991B
+    is_blocked = models.BooleanField(default=False)
+    # Add an implicit tracker for device footprint if desired
+    traffic_used = models.BigIntegerField(default=0)
     last_login = models.DateTimeField(auto_now=True)
 
     def __str__(self):
