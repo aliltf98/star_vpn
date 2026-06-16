@@ -1,5 +1,7 @@
 import os
 import sys
+import urllib.parse
+import re
 
 from django.contrib.auth import authenticate
 from django.db import transaction
@@ -63,7 +65,7 @@ class Signin(APIView):
             if not user:
                 return Response({"message": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            panel_info = PanelManager.get_user_info(user.username)  # Use verified user.username
+            panel_info = PanelManager.get_user_info(user.username)
             if not panel_info:
                 return Response({"message": "سرویس شما در پنل یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -72,9 +74,7 @@ class Signin(APIView):
 
             token, _ = Token.objects.get_or_create(user=user)
 
-            # 🌟 Fixed Device Assignment Logic
             if device_id:
-                # Update or create the connection tracking entry
                 connection, created = Connection.objects.get_or_create(
                     device_id=device_id,
                     defaults={'model_name': model_name or "Unknown"}
@@ -83,13 +83,9 @@ class Signin(APIView):
                     connection.model_name = model_name
                     connection.save()
 
-                # Find the user profile first
                 user_profile = UserProfile.objects.filter(profile=user).first()
                 if user_profile:
-                    # Get or create the ServiceProfile for this user profile instance
                     service_prof, _ = ServiceProfile.objects.get_or_create(profile=user_profile)
-
-                    # Add device to ManyToMany list safely
                     if connection not in service_prof.connections.all():
                         service_prof.connections.add(connection)
 
@@ -99,6 +95,15 @@ class Signin(APIView):
 
             remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
             remaining_gb = round(remaining_bytes / (1024 ** 3), 2) if total_limit else 0
+
+            # Dictionary to map country abbreviations inside brackets to real country displays
+            country_map = {
+                "GE": "Germany",
+                "NL": "Netherlands",
+                "TR": "Turkey",
+                "US": "United States",
+                "FI": "Finland"
+            }
 
             configs = []
             for index, link in enumerate(links):
@@ -110,24 +115,55 @@ class Signin(APIView):
                 elif link.startswith("trojan://"):
                     category = "Trojan"
 
+                # 🌟 EXTRACTING SERVER NAME & COUNTRY FROM THE URL FRAGMENT
+                parsed_url = urllib.parse.urlparse(link)
+                fragment = parsed_url.fragment  # Gets the string after the '#'
+
+                server_name = f"Server {index + 1}"
+                country = "Unknown"
+
+                if fragment:
+                    # Decodes URL codes like %20 to spaces, %28 to '(', and %29 to ')'
+                    decoded_fragment = urllib.parse.unquote(fragment) # e.g. "1-test_android (Ge)"
+
+                    # Regex search to extract code inside parenthesis, like (Ge) or (Nl)
+                    match = re.search(r'\((.*?)\)', decoded_fragment)
+                    if match:
+                        country_code = match.group(1).upper() # Converts "Ge" to "GE"
+                        country = country_map.get(country_code, country_code)
+
+                        # Clean the server name by removing the country brackets section
+                        server_name = decoded_fragment.split(" (")[0]
+                    else:
+                        server_name = decoded_fragment
+
+                # 🌟 Append variables directly into each specific server config object node!
                 configs.append({
-                    "id": index,  # Provides the dynamic Int ID expected by Android VpnConfigResponse
+                    "id": index,
                     "value": link,
                     "category_name": category,
-                    "remainingVolume": remaining_gb
+                    "remainingVolume": remaining_gb,
+                    "server_name": server_name,  # 👈 Passed seamlessly to Flutter now!
+                    "country": country            # 👈 Passed seamlessly to Flutter now!
                 })
+            print(configs)
 
             return Response({
                 'token': token.key,
-                'configs': configs,
+                'configs': configs, # Contains updated server names and countries per link
                 'username': user.username,
                 'data_limit': total_limit,
                 'remaining_bytes': remaining_bytes,
-                'message': "خوش آمدید"
+                'message': "Welcome"
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({'error': f'خطای داخلی سرور: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+
+            return Response({'error': f'internal server error{str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class UserVolumeStatus(APIView):
     """
@@ -246,4 +282,5 @@ class UpdateDeviceUsageView(APIView):
 
             return Response({"message": "مصرف دستگاه با موفقیت بروزرسانی شد"}, status=status.HTTP_200_OK)
         except Exception as e:
+            print(e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
