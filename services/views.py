@@ -210,6 +210,9 @@ class UserProfileView(APIView):
                 "used_traffic": panel_info.get("used_traffic", 0)
             }, status=status.HTTP_200_OK)
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -230,7 +233,6 @@ class DeviceSessionView(APIView):
                     "is_blocked": conn.is_blocked,
                     "traffic_used": conn.traffic_used
                 })
-
             return Response({"devices": devices_data}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
