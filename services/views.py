@@ -284,3 +284,4 @@ class UpdateDeviceUsageView(APIView):
         except Exception as e:
             print(e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
