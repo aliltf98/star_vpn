@@ -3760,7 +3760,6 @@ input, select, textarea {
 		margin: 0 auto;
 		width: calc(100% );
 		max-width: 72rem;
-		z-index: 2;
 	}
 
 		#main > * {
