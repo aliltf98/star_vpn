@@ -14,37 +14,59 @@
             </ul>
         </div>
         <header id="header" >
-        {% if user.is_authenticated %}
-            <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="admin" class="logo">پنل مدیریت</a>
-            <a style="border-color: transparent;position: fixed;top: 0;right: 0;display: block;margin: 20px;font-size: 1.5rem;background-color: #686868c7;backdrop-filter: blur(5px);border-radius: 25px;" href="logout" class="logo">خروج</a>
-        {% else %}
-            <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="register" class="logo">ورود / ثبت نام</a>
-        {% endif %}
+            {% if user.is_authenticated %}
+                <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="/admin" class="logo">مدیریت حساب کاربری</a>
+            {% else %}
+                <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="register" class="logo">ورود / ثبت نام</a>
+            {% endif %}
         </header>
         <nav id="nav" style="backdrop-filter: blur(8px)">
             <ul class="links">
-                <li class="active"><a href="">This is Massively</a></li>
-                <li><a href="generic.html">Generic Page</a></li>
-                <li><a href="elements.html">Elements Reference</a></li>
+                <li class="active"><a href="">خانه</a></li>
+                <li><a href="/about_us">درباره ما</a></li>
+{#                <li><a href="elements.html">Elements Reference</a></li>#}
             </ul>
-            <ul class="icons">
+            <ul class="icons alt">
                 {% for socials in SM %}
-                <li><a href="{{ socials.link }}" {% if socials.type is 'gb' %}class="icon brands fa-github" {% endif %}{% if socials.type is 'tg' %} class="icon brands fa-telegram"{% endif %}><span class="label">{{ socials.get_type_display }}</span></a></li>
+                <li>
+                    <a href="{{ socials.link }}"
+                       class="{% if socials.type == 'ei' %}brands alt fas fa-link
+                            {% elif socials.type == 'bl' %}brands alt fas fa-link
+                            {% elif socials.type == 'gb' %}icon brands alt fa-github
+                            {% elif socials.type == 'tg' %}icon brands alt fa-telegram
+                            {% elif socials.type == 'wp' %}icon brands alt fa-whatsapp
+                            {% elif socials.type == 'x' %}icon brands alt fa-twitter{% endif %}"
+                                {% if socials.type == 'ei' or 'bl'%}
+                                    style="width: 2.25rem;
+                                    height: 2.25rem;
+                                    line-height: 2.25rem;
+                                    display: inline-block;
+                                    text-align: center;
+                                    border-radius: 100%;
+                                    font-size: 1.25rem;"
+                                {% endif %}>
+                        <span class="label"></span>
+                    </a>
+                </li>
                 {% endfor %}
             </ul>
         </nav>
         <div id="main">
-            <article class="post featured">
-                <header class="major">
-                    <span class="date">April 25, 2017</span>
-                    <h2><a href="#">{{ MainSL.title }}</h2>
-                    <p>{{ MainSL.description|safe }}</p>
-                </header>
-                <a href="#" class="image main"><img src="{{ MainSL.cover.url }}" alt="" /></a>
-                <ul class="actions special">
-                    <li><a href="/about_us" class="button large">About us</a></li>
-                </ul>
-            </article>
+            {% for mainSection in MainSL %}
+                <article class="post featured">
+                    <header class="major">
+                        <h2><a href="#">{{ mainSection.title }}</a></h2>
+                    </header>
+                        <p>
+                            <span class="image left"><img src="{{ mainSection.cover.url }}" alt="" /></span>
+                            {{ mainSection.short_description|safe }}
+                        </p>
+                    <ul class="actions special">
+                        <li><a href="pages/{{ mainSection.id }}" class="button large">Read More</a></li>
+                    </ul>
+
+                </article>
+            {% endfor %}
             <section class="posts">
                 {% for plan in MainPL %}
                 <article>

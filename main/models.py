@@ -3,6 +3,11 @@ from ckeditor.fields import RichTextField
 
 # Create your models here.
 
+class Gallery(models.Model):
+    image = models.ImageField(upload_to='gallery')
+    def __str__(self):
+        return self.image.name
+
 class SocialMedia(models.Model):
     class SocialMediaTypes(models.TextChoices):
         telegram = 'tg', 'telegram'
@@ -28,9 +33,10 @@ class MainHeader(models.Model):
 
 class MainSectionLayout(models.Model):
     title = models.CharField(max_length=120)
-    description = RichTextField()
+    short_description = RichTextField()
     cover = models.ImageField(upload_to='main/cover')
     status = models.BooleanField(default=False)
+    page = models.ForeignKey('PageLayout', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -39,3 +45,7 @@ class MainPlansLayout(models.Model):
     title = models.CharField(max_length=120)
     description = RichTextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+class PageLayout(models.Model):
+    description = RichTextField()
+    image_gallery = models.ManyToManyField(Gallery)
