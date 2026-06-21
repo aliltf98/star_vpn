@@ -13,7 +13,5 @@ def home(request):
 
 def pages(request, id):
     page = MainSectionLayout.objects.get(page_id=id)
-    print(id)
-    print(page)
 
     return render(request, "pages.html", context={'page':page})

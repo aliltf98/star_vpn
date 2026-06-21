@@ -3,13 +3,11 @@ import requests
 
 class PanelManager:
     BASE_URL = "https://mediadownload.eu.org/api"
-    # اگر پنل نیاز به توکن ادمین دارد (معمولاً Marzban نیاز دارد)
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3NzY4NTExMjR9.90CzZtHSdb8I7PJUNs-nE7hrD1YRQ_b311zSCWY1lBA"
 
-    # تنظیمات پروکسی HTTP شما که از مسدود شدن درخواست‌ها جلوگیری می‌کند
     PROXIES = {
-        'http': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@vidaonline.ir:110',
-        'https': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@vidaonline.ir:110',
+        'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
+        'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
     }
 
     @classmethod
@@ -25,7 +23,7 @@ class PanelManager:
         url = f"{cls.BASE_URL}/user"
         payload = {
             "username": username,
-            "data_limit": data_limit_gb * 1024 * 1024 * 1024, # تبدیل گیگ به بایت
+            "data_limit": data_limit_gb * 1024 * 1024 * 1024,
             "status": "active",
             "proxies": {"vless": {}, "vmess": {}, "trojan": {}},
             "inbounds": {
@@ -33,7 +31,6 @@ class PanelManager:
                 "vmess": ["VMess TCP", "VMess Websocket"]
             }
         }
-        # اضافه شدن پروکسی و تایم‌اوت به درخواست POST
         response = requests.post(
             url,
             json=payload,
@@ -45,9 +42,7 @@ class PanelManager:
 
     @classmethod
     def get_user_info(cls, username):
-        """گرفتن اطلاعات کامل و لینک‌های کاربر"""
         url = f"{cls.BASE_URL}/user/{username}"
-        # اضافه شدن پروکسی و تایم‌اوت به درخواست GET
         response = requests.get(
             url,
             headers=cls.get_headers(),
@@ -60,9 +55,7 @@ class PanelManager:
 
     @classmethod
     def get_user_usage(cls, username):
-        """گرفتن میزان مصرف به تفکیک نودها"""
         url = f"{cls.BASE_URL}/user/{username}/usage"
-        # اضافه شدن پروکسی و تایم‌اوت به درخواست GET
         response = requests.get(
             url,
             headers=cls.get_headers(),
