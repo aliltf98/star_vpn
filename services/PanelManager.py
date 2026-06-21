@@ -6,8 +6,8 @@ class PanelManager:
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3NzY4NTExMjR9.90CzZtHSdb8I7PJUNs-nE7hrD1YRQ_b311zSCWY1lBA"
 
     PROXIES = {
-        'http': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@188.121.97.153:110',
-        'https': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@188.121.97.153:110',
+        'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
+        'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
     }
 
     @classmethod
