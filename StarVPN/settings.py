@@ -151,3 +151,8 @@ CKEDITOR_CONFIGS = {
         ]
     }
 }
+
+MY_CUSTOM_PROXY = {
+    'http': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@vidaonline.ir:110',
+    'https': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@vidaonline.ir:110',
+}
