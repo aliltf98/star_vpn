@@ -21,7 +21,6 @@ class Signup(APIView):
         try:
             serializer = SignupSerializer(data=request.data)
             print("SignUp API started")
-            print(request.data)
             if serializer.is_valid():
                 v_data = serializer.validated_data  # استفاده از داده‌های تایید شده
 
