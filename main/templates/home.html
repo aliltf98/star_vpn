@@ -4,6 +4,7 @@
 {% block title %}
     {{ MainH.title }}
 {% endblock title %}
+
 {% block body %}
         <div id="intro">
             <img src="{{ MainH.logo.url }}" style="width: 15%">
@@ -13,6 +14,7 @@
                 <li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
             </ul>
         </div>
+
         <header id="header" >
             {% if user.is_authenticated %}
                 <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="/admin" class="logo">مدیریت حساب کاربری</a>
@@ -20,11 +22,11 @@
                 <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="register" class="logo">ورود / ثبت نام</a>
             {% endif %}
         </header>
+
         <nav id="nav" style="backdrop-filter: blur(8px)">
             <ul class="links">
                 <li class="active"><a href="">خانه</a></li>
                 <li><a href="/about_us">درباره ما</a></li>
-{#                <li><a href="elements.html">Elements Reference</a></li>#}
             </ul>
             <ul class="icons alt">
                 {% for socials in SM %}
@@ -51,6 +53,7 @@
                 {% endfor %}
             </ul>
         </nav>
+
         <div id="main">
             {% for mainSection in MainSL %}
                 <article class="post featured">
@@ -64,27 +67,160 @@
                     <ul class="actions special">
                         <li><a href="pages/{{ mainSection.id }}" class="button large">Read More</a></li>
                     </ul>
-
                 </article>
             {% endfor %}
-            <section class="posts">
-                {% for plan in MainPL %}
-                <article>
-                    <header>
-                        <h2><a href="#">{{ plan.title }}</a></h2>
-                    </header>
-{#                    <a href="#" class="image fit"><img src="{{  }}" alt="" /></a>#}
-                    <p>{{ plan.description|safe }}</p>
-                    <span class="date">{{ plan.price }}</span>
-                    <ul class="actions special">
-                        <li><a href="#" class="button">Get Start Plan</a></li>
-                    </ul>
-                </article>
-                {% endfor %}
-            </section>
+
+            <h2 style="text-align: center; margin-top: 50px; margin-bottom: 40px; font-weight: 800; letter-spacing: 1px;">پلن‌های اشتراک</h2>
+
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper" style="bottom: 30px">
+                    {% for plan in MainPL %}
+                    <div class="swiper-slide">
+                        <div class="swiper-plan-card">
+                            <h3>{{ plan.title }}</h3>
+                            <div class="plan-desc">
+                                {{ plan.description|safe }}
+                            </div>
+                            <div class="card-footer-section">
+                                <span class="plan-price">{{ plan.price }}</span>
+                                <ul class="actions special">
+                                    <li><a href="#" class="button primary small plan-btn">خرید پلن</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
+            </div>
         </div>
 
         <div id="copyright">
             <ul><li>&copy; </li><li>Design: <a href="">HTML5 UP</a></li></ul>
         </div>
+
+        <style>
+            .swiper {
+                width: 100%;
+
+            }
+            .swiper-slide {
+                display: flex !important;
+                justify-content: center;
+                height: auto !important; /* هم‌اندازه کردن قد تمامی کارت‌ها به صورت اتوماتیک */
+            }
+            .swiper-plan-card {
+                background: rgba(255, 255, 255, 0.03) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 16px !important;
+                padding: 35px 30px !important;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: right;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+                display: flex;
+                flex-direction: column; /* چیدمان ستونی برای تراز کردن دکمه در پایین کارت */
+                justify-content: space-between;
+                transition: all 0.5s ease;
+            }
+            .swiper-plan-card:hover {
+                background: rgba(250, 250, 250, 0.9) !important;
+                border-color: rgba(255, 255, 255, 0.5) !important;
+                box-shadow: 0 35px 35px rgba(0, 0, 0, 0.5);
+                transition: all 0.5s ease-out;
+            }
+            .swiper-plan-card h3 {
+                margin-top: 0;
+                font-size: 1.4rem;
+                font-weight: 700;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-bottom: 15px;
+                letter-spacing: 0.5px;
+            }
+            .swiper-plan-card .plan-desc {
+                margin: 20px 0;
+                font-size: 0.9rem;
+                line-height: 1.8;
+                color: #364b5e;
+                flex-grow: 1; /* پر کردن فضا برای هماهنگ ماندن بخش قیمت و دکمه */
+            }
+            .card-footer-section {
+                margin-top: auto;
+                padding-top: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .swiper-plan-card .plan-price {
+                display: block;
+                margin-bottom: 20px;
+                font-weight: 800;
+                color: #dfb15b; /* طلایی ملایم و لوکس جایگزین زرد تند */
+                font-size: 1.3rem;
+                text-align: center;
+            }
+            .plan-btn {
+                display: block !important;
+                width: 100% !important;
+                border-radius: 8px !important;
+                height: 2rem !important;
+                line-height: 2rem !important;
+                font-weight: 300 !important;
+                letter-spacing: 0 !important;
+                background-color: #364b5e !important;
+                color: #c6e5ff !important; /* هماهنگ با تم دکمه‌های اصلی قالب */
+                transition: all 0.5s ease;
+                box-shadow: none !important;
+            }
+            .plan-btn:hover {
+                background-color: #a3caec !important;
+                font-weight: 900 !important;
+                transform: scale(1.2);
+                transition: all 0.5s ease-in-out;
+                color: #364b5e !important;
+            }
+
+            /* دکمه‌های ناوبری جانبی مچ شده با تم اصلی */
+            .swiper-button-next, .swiper-button-prev {
+                transform: scale(0.5);
+                transition: color 0.5s ease;
+            }
+            .swiper-button-next:hover, .swiper-button-prev:hover {
+                color: #ffd9d9 !important;
+                transform: scale(0.8);
+                transition: color 0.5s ease-in-out;
+            }
+            .swiper-pagination-bullet {
+                background: rgba(129, 129, 129, 0.49) !important;
+            }
+            .swiper-pagination-bullet-active {
+                background: #dfb15b !important;
+                width: 20px !important; /* کشیده شدن نقطه فعال برای زیبایی */
+                border-radius: 4px !important;
+            }
+        </style>
+
+        <script src="{% static 'js/swiper-bundle.min.js' %}"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var swiper = new Swiper(".mySwiper", {
+                    direction: "horizontal",
+                    loop: false,
+                    spaceBetween: 20,
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
+                    breakpoints: {
+                        0: { slidesPerView: 1 },
+                        768: { slidesPerView: 2 },
+                        1000: { slidesPerView: 3 }
+                    }
+                });
+            });
+        </script>
 {% endblock body %}
