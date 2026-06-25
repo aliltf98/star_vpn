@@ -1,6 +1,7 @@
 # panelmanager.py
 import requests
 
+
 class PanelManager:
     BASE_URL = "https://mediadownload.eu.org/api"
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3NzY4NTExMjR9.90CzZtHSdb8I7PJUNs-nE7hrD1YRQ_b311zSCWY1lBA"

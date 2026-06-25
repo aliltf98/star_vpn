@@ -3,19 +3,22 @@
 <html lang="en" dir="rtl">
 <head>
     <title>{% block title %}{% endblock title %}</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}"/>
 
-    <link rel="stylesheet" href="{% static 'css/swiper-bundle.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/swiper-bundle.min.css' %}"/>
 
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
-    <noscript><link rel="stylesheet" href="{% static 'css/noscript.css' %}" /></noscript>
+    <noscript>
+        <link rel="stylesheet" href="{% static 'css/noscript.css' %}"/>
+    </noscript>
 </head>
 <body class="is-preload">
 {% block default_messages %}
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="message" style="position: absolute;z-index: 999 !important;margin: 27px;backdrop-filter: blur(8px);background-color: #8a8a8a1c; width: fit-content">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" id="message"
+             style="position: absolute;z-index: 999 !important;margin: 27px;backdrop-filter: blur(8px);background-color: #8a8a8a1c; width: fit-content">
             <strong style="color: white">{{ message }}</strong>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span class="fas fa-window-close" aria-hidden="true"></span>
@@ -24,18 +27,18 @@
     {% endfor %}
 {% endblock default_messages %}
 
-    <script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/jquery.min.js' %}"></script>
 
-    <div id="wrapper" class="fade-in">
-        {% block body %}
-        {% endblock body %}
-    </div>
+<div id="wrapper" class="fade-in">
+    {% block body %}
+    {% endblock body %}
+</div>
 
-    <script src="{% static 'js/jquery.scrollex.min.js' %}"></script>
-    <script src="{% static 'js/jquery.scrolly.min.js' %}"></script>
-    <script src="{% static 'js/browser.min.js' %}"></script>
-    <script src="{% static 'js/breakpoints.min.js' %}"></script>
-    <script src="{% static 'js/util.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/jquery.scrollex.min.js' %}"></script>
+<script src="{% static 'js/jquery.scrolly.min.js' %}"></script>
+<script src="{% static 'js/browser.min.js' %}"></script>
+<script src="{% static 'js/breakpoints.min.js' %}"></script>
+<script src="{% static 'js/util.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

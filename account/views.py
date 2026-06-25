@@ -11,7 +11,6 @@ from django.shortcuts import render, redirect
 # Create your views here.
 
 
-
 def register(request):
     if request.method == 'POST':
         regtype = request.POST['reg']
@@ -61,6 +60,7 @@ def register(request):
 
     return render(request, "registration.html")
 
+
 def signout(request):
     try:
         logout(request)
@@ -69,6 +69,7 @@ def signout(request):
         messages.error(request, str(e))
         print(e)
     return redirect("/")
+
 
 def subscription(request, username):
     print(username)
