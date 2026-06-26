@@ -42,7 +42,7 @@ class Signup(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
-            print(1,e)
+            print(1, e)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -123,12 +123,12 @@ class Signin(APIView):
 
                 if fragment:
                     # Decodes URL codes like %20 to spaces, %28 to '(', and %29 to ')'
-                    decoded_fragment = urllib.parse.unquote(fragment) # e.g. "1-test_android (Ge)"
+                    decoded_fragment = urllib.parse.unquote(fragment)  # e.g. "1-test_android (Ge)"
 
                     # Regex search to extract code inside parenthesis, like (Ge) or (Nl)
                     match = re.search(r'\((.*?)\)', decoded_fragment)
                     if match:
-                        country_code = match.group(1).upper() # Converts "Ge" to "GE"
+                        country_code = match.group(1).upper()  # Converts "Ge" to "GE"
                         country = country_map.get(country_code, country_code)
 
                         # Clean the server name by removing the country brackets section
@@ -143,13 +143,13 @@ class Signin(APIView):
                     "category_name": category,
                     "remainingVolume": remaining_gb,
                     "server_name": server_name,  # 👈 Passed seamlessly to Flutter now!
-                    "country": country            # 👈 Passed seamlessly to Flutter now!
+                    "country": country  # 👈 Passed seamlessly to Flutter now!
                 })
             print(configs)
 
             return Response({
                 'token': token.key,
-                'configs': configs, # Contains updated server names and countries per link
+                'configs': configs,  # Contains updated server names and countries per link
                 'username': user.username,
                 'data_limit': total_limit,
                 'remaining_bytes': remaining_bytes,
@@ -168,6 +168,7 @@ class UserVolumeStatus(APIView):
     """
     Endpoint: /api/v1/vpn-usage/<username>/
     """
+
     def get(self, request, username):
         try:
             panel_info = PanelManager.get_user_info(username)
@@ -188,7 +189,8 @@ class UserVolumeStatus(APIView):
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({"status": "error", "message": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"status": "error", "message": "Internal Server Error"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserProfileView(APIView):

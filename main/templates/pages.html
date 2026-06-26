@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 
 {% block title %}
-{{ page.title }}
+    {{ page.title }}
 {% endblock title %}
 {% block body %}
-        <header id="header" >
-            {% if user.is_authenticated %}
-                <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="/admin" class="logo">مدیریت حساب کاربری</a>
-            {% else %}
-                <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)" href="register" class="logo">ورود / ثبت نام</a>
-            {% endif %}
-        </header>
+    <header id="header">
+        {% if user.is_authenticated %}
+            <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)"
+               href="/admin" class="logo">مدیریت حساب کاربری</a>
+        {% else %}
+            <a style="border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)"
+               href="register" class="logo">ورود / ثبت نام</a>
+        {% endif %}
+    </header>
     <nav id="nav" style="backdrop-filter: blur(8px)">
         <ul class="links">
             <li><a href="/">خانه</a></li>
-            <li><a href="/about_us">درباره ما</a></li>
             <li class="active"><a href="#">{{ page.title }}</a></li>
             {#                <li><a href="elements.html">Elements Reference</a></li>#}
         </ul>
@@ -29,15 +30,15 @@
                                 {% elif socials.type == 'wp' %}icon brands alt fa-whatsapp
                                 {% elif socials.type == 'x' %}icon brands alt fa-twitter
                             {% endif %}"
-                            {% if socials.type == 'ei' or 'bl'%}
-                               style="width: 2.25rem;
+                            {% if socials.type == 'ei' or 'bl' %}
+                       style="width: 2.25rem;
                                height: 2.25rem;
                                line-height: 2.25rem;
                                display: inline-block;
                                text-align: center;
                                border-radius: 100%;
                                font-size: 1.25rem;"
-                           {% endif %}>
+                            {% endif %}>
                     </a>
                 </li>
             {% endfor %}
@@ -48,13 +49,15 @@
             <h1>{{ page.title }}</h1>
             {{ page.short_description|safe }}
             <div class="image main">
-                <img  src="{{ page.cover.url }}" style="height: 400px; border-radius: 10px; object-fit: cover" alt="">
+                <img src="{{ page.cover.url }}" style="height: 400px; border-radius: 10px; object-fit: cover" alt="">
             </div>
             <p>{{ page.page.description|safe }}</p>
             <div class="box alt">
                 <div class="row gtr-50 gtr-uniform">
                     {% for p in page.page.image_gallery.all %}
-                        <div class="col-4"><span class="image fit"><img style="border-radius: 10px; height: 300px; object-fit: cover" src="{{ p.image.url }}" alt=""></span></div>
+                        <div class="col-4"><span class="image fit"><img
+                                style="border-radius: 10px; height: 300px; object-fit: cover" src="{{ p.image.url }}"
+                                alt=""></span></div>
                     {% endfor %}
                 </div>
             </div>

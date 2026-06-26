@@ -7,9 +7,10 @@ from account.models import UserProfile
 class ConnectionsLog(models.Model):
     value = models.TextField()
 
+
 class Connection(models.Model):
-    device_id = models.CharField(max_length=255) # همان ANDROID_ID یا UUID
-    model_name = models.CharField(max_length=255) # مثال: Samsung SM-G991B
+    device_id = models.CharField(max_length=255)  # همان ANDROID_ID یا UUID
+    model_name = models.CharField(max_length=255)  # مثال: Samsung SM-G991B
     is_blocked = models.BooleanField(default=False)
     # Add an implicit tracker for device footprint if desired
     traffic_used = models.BigIntegerField(default=0)
@@ -17,6 +18,7 @@ class Connection(models.Model):
 
     def __str__(self):
         return f"{self.model_name} ({self.device_id})"
+
 
 class Category(models.Model):
     title = models.CharField(max_length=100)
@@ -33,6 +35,7 @@ class UriCode(models.Model):
 
     def __str__(self):
         return self.value
+
 
 class ServiceProfile(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
