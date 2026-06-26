@@ -240,7 +240,6 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.5;
     letter-spacing: 0.075em;
     text-transform: uppercase;
-    margin: 0 0 1rem 0;
 }
 
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
@@ -252,7 +251,6 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 h1 {
     font-size: 4rem;
     line-height: 1.1;
-    margin: 0 0 2rem 0;
 }
 
 h2 {
@@ -3680,6 +3678,13 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
     width: calc(100%);
     max-width: 72rem;
     z-index: 2;
+    border-radius: 5px 5px 0 0;
+    transition: all 1s ease;
+}
+
+#nav:hover {
+    border-radius: 20px 20px 0 0;
+    transition: all 1s ease-in-out;
 }
 
 #nav ul.divided li {
@@ -3816,6 +3821,12 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
     margin: 0 auto;
     width: calc(100%);
     max-width: 72rem;
+    border-radius: 0 0 5px 5px;
+    transition: all 1s ease;
+}
+#main:hover {
+    border-radius: 0 0 20px 20px;
+    transition: all 1s ease-in-out;
 }
 
 #main > * {
