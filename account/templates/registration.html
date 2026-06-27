@@ -7,7 +7,7 @@
     </header>
     <nav id="nav" style="padding: 0 5rem 0 5rem !important; backdrop-filter: blur(8px)">
 
-        <ul class="links">
+        <ul class="links" style="font-family: Vazir;">
             <li id="lisignin" class="active">
                 <a href="#" onclick="changeTab(event, 'signin'); $('#lisignin').addClass('active'); $('#lisignup').removeClass('active')" class="pwa-signin-button">
                     ورود
@@ -27,4 +27,13 @@
         <div class="tabcontent" id="signin">{% include "signin.html" %}</div>
         <div class="tabcontent" id="signup" style="display: none">{% include "signup.html" %}</div>
     </div>
+        <script type="text/javascript">
+        function changeTab(evt, tabName) {
+            let tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            document.getElementById(tabName).style.display = "block";
+        }
+    </script>
 {% endblock body %}

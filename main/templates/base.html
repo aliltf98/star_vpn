@@ -30,8 +30,75 @@
 <script src="{% static 'js/jquery.min.js' %}"></script>
 
 <div id="wrapper" class="fade-in">
+    <div id="intro">
+        <img src="{{ MainH.logo.url }}" style="margin-bottom: 20px; width: 15%">
+        <h1>{{ MainH.title }}</h1>
+        <p>{{ MainH.description|safe }}</p>
+        <ul class="actions">
+            <li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
+        </ul>
+    </div>
+
+    <header id="header">
+        {% if user.is_authenticated %}
+            <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)"
+               href="/admin" class="logo">مدیریت حساب کاربری</a>
+        {% else %}
+            <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)"
+               href="register" class="logo">ورود / ثبت نام</a>
+        {% endif %}
+    </header>
+    <nav id="nav" style="backdrop-filter: blur(8px)">
+        <ul class="links" style="font-family: Vazir;">
+            <li class="{% if request.path == '/' %}active{% endif %}">
+                <a href="/">خانه</a>
+            </li>
+            {% if '/pages/' in request.path %}
+                <li class="active"><a href="/pages/{{ page.page.id }}">{{ page.title }}</a></li>
+            {% endif %}
+
+            {% for sl in MainSL.all %}
+                {% if sl.show_in_nav %}
+                    {% with page_url="/pages/"|add:sl.page.id|stringformat:"s" %}
+                        <li class="{% if request.path == page_url %}active{% endif %}">
+                            <a href="/pages/{{ sl.page.id }}">{{ sl.title }}</a>
+                        </li>
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <ul class="icons alt">
+            {% for socials in SM %}
+                <li>
+                    <a href="{{ socials.link }}"
+                       class="{% if socials.type == 'ei' %}brands alt fas fa-link
+                            {% elif socials.type == 'bl' %}brands alt fas fa-link
+                            {% elif socials.type == 'gb' %}icon brands alt fa-github
+                            {% elif socials.type == 'tg' %}icon brands alt fa-telegram
+                            {% elif socials.type == 'wp' %}icon brands alt fa-whatsapp
+                            {% elif socials.type == 'x' %}icon brands alt fa-twitter{% endif %}"
+                            {% if socials.type == 'ei' or 'bl' %}
+                       style="width: 2.25rem;
+                                    height: 2.25rem;
+                                    line-height: 2.25rem;
+                                    display: inline-block;
+                                    text-align: center;
+                                    border-radius: 100%;
+                                    font-size: 1.25rem;"
+                            {% endif %}>
+                        <span class="label"></span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
     {% block body %}
     {% endblock body %}
+    <div id="copyright">
+        <ul>
+            <li></li>
+        </ul>
+    </div>
 </div>
 
 <script src="{% static 'js/jquery.scrollex.min.js' %}"></script>

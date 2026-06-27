@@ -1,5 +1,5 @@
 from django.db import models
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 # Create your models here.
@@ -10,6 +10,14 @@ class Gallery(models.Model):
     def __str__(self):
         return self.image.name
 
+class Files(models.Model):
+    title = models.CharField(max_length=120)
+    link = models.CharField(max_length=300, null=True, blank=True)
+    description = CKEditor5Field(config_name='extends')
+    file = models.FileField(upload_to='pages/files', null=True, blank=True)
+
+    def __str__(self):
+        return self.title
 
 class SocialMedia(models.Model):
     class SocialMediaTypes(models.TextChoices):
@@ -30,7 +38,7 @@ class SocialMedia(models.Model):
 
 class MainHeader(models.Model):
     title = models.CharField(max_length=120)
-    description = RichTextField()
+    description = CKEditor5Field(config_name='extends')
     logo = models.ImageField(upload_to='main/logo')
 
     def __str__(self):
@@ -39,9 +47,10 @@ class MainHeader(models.Model):
 
 class MainSectionLayout(models.Model):
     title = models.CharField(max_length=120)
-    short_description = RichTextField()
+    short_description = CKEditor5Field(config_name='extends')
     cover = models.ImageField(upload_to='main/cover')
     show_in_home = models.BooleanField(default=False)
+    show_in_nav = models.BooleanField(default=False)
     page = models.ForeignKey('PageLayout', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -50,7 +59,7 @@ class MainSectionLayout(models.Model):
 
 class MainPlansLayout(models.Model):
     title = models.CharField(max_length=120)
-    description = RichTextField()
+    description = CKEditor5Field(config_name='extends')
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
@@ -60,7 +69,9 @@ class PageLayout(models.Model):
         application = 'ap', 'application'
         page = 'pg', 'page'
     page_type = models.CharField(max_length=20, choices=PageTypes.choices)
-    description = RichTextField()
-    file = models.FileField(upload_to='pages/files', null=True, blank=True)
+    description = CKEditor5Field(config_name='extends')
+    file = models.ManyToManyField('Files', related_name='pages')
     image_gallery = models.ManyToManyField(Gallery)
 
+class MainFooter(models.Model):
+    description = CKEditor5Field(config_name='extends')
