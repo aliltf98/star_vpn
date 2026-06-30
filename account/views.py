@@ -1,3 +1,6 @@
+import os
+import sys
+
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -110,7 +113,10 @@ def subscription(request, username):
                 "traffic_used": humanbytes(conn.traffic_used)
             })
     except Exception as e:
-        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        print(1, e)
     context = {
         "user": username,
         "expire": panel_info['expire'],
