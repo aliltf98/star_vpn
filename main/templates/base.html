@@ -54,9 +54,8 @@
             <li class="{% if request.path == '/' %}active{% endif %}">
                 <a href="/">خانه</a>
             </li>
-            <li class="{% if '/subscription/' in request.path %}active{% endif %}">
-                <a href="{{ request.path }}">اشتراک</a>
-            </li>
+            {% block nav %}
+            {% endblock nav %}
 
             {# ۱. چاپ لینک‌های اصلی #}
             {% for sl in MainSL %}

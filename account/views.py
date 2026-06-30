@@ -107,7 +107,7 @@ def subscription(request, username):
                 "device_id": conn.device_id,
                 "model_name": conn.model_name,
                 "is_blocked": conn.is_blocked,
-                "traffic_used": conn.traffic_used
+                "traffic_used": humanbytes(conn.traffic_used)
             })
     except Exception as e:
         print(e)

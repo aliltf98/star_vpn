@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-
+{% block nav %}
+    <li class="{% if '/subscription/' in request.path %}active{% endif %}">
+        <a href="{{ request.path }}">اشتراک</a>
+    </li>
+{% endblock nav %}
 {% block styles %}
     <style>
         /* تعریف متغیرها برای مدیریت راحت‌تر رنگ‌ها و تم شیشه‌ای */
@@ -95,7 +99,7 @@
             border-bottom: 1px solid var(--glass-border);
             vertical-align: middle; /* تراز شدن عمودی متن‌ها در مرکز ردیف */
             word-break: break-word; /* شکستن کلمات خیلی طولانی مثل شناسه دستگاه */
-            white-space: normal;    /* اجازه دادن به متن برای شکستن و رفتن به خط بعد */
+            white-space: normal; /* اجازه دادن به متن برای شکستن و رفتن به خط بعد */
         }
 
         .glass-table th {
@@ -104,12 +108,13 @@
             font-weight: bold;
             font-size: 0.9rem;
         }
+
         .glass-table td strong {
             color: #fff;
             display: inline-block;
-            max-width: 220px;       /* جلوگیری از عریض شدن بیش از حد نام دستگاه */
+            max-width: 220px; /* جلوگیری از عریض شدن بیش از حد نام دستگاه */
             line-height: 1.5;
-            word-wrap: break-word;  /* شکستن متن نام ویندوز در صورت نیاز */
+            word-wrap: break-word; /* شکستن متن نام ویندوز در صورت نیاز */
         }
 
         .glass-table tbody tr {
@@ -126,9 +131,9 @@
             color: var(--text-muted);
             direction: ltr;
             display: block;
-            max-width: 180px;       /* کنترل ابعاد برای جلوگیری از تداخل با ستون‌های مجاور */
+            max-width: 180px; /* کنترل ابعاد برای جلوگیری از تداخل با ستون‌های مجاور */
             margin: 0 auto;
-            word-break: break-all;  /* شکستن دقیق ساختار حروف هگزادسیمال و GUIDها */
+            word-break: break-all; /* شکستن دقیق ساختار حروف هگزادسیمال و GUIDها */
             line-height: 1.4;
         }
 
@@ -156,58 +161,58 @@
 {% endblock styles %}
 
 {% block body %}
-<div class="sub-container">
+    <div class="sub-container">
 
-    <div class="glass-card">
-        <div class="glass-card-title">مشخصات اشتراک کاربری</div>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">نام کاربری</div>
-                <div class="info-value">{{ user }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">وضعیت اکانت</div>
-                <div class="info-value">
-                    {% if status == 'active' %}
-                        <span class="glass-badge badge-active">فعال</span>
-                    {% else %}
-                        <span class="glass-badge badge-blocked">{{ status }}</span>
-                    {% endif %}
+        <div class="glass-card">
+            <div class="glass-card-title">مشخصات اشتراک کاربری</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">نام کاربری</div>
+                    <div class="info-value">{{ user }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">وضعیت اکانت</div>
+                    <div class="info-value">
+                        {% if status == 'active' %}
+                            <span class="glass-badge badge-active">فعال</span>
+                        {% else %}
+                            <span class="glass-badge badge-blocked">{{ status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">کل حجم اختصاص یافته</div>
+                    <div class="info-value" style="color: var(--text-main);">{{ data_limit }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">حجم مصرف شده (کل)</div>
+                    <div class="info-value" style="color: var(--accent-red);">{{ used_traffic }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">تاریخ انقضا</div>
+                    <div class="info-value">
+                        {% if expire %}
+                            {{ expire }}
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.9rem;">بدون محدودیت</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            <div class="info-item">
-                <div class="info-label">کل حجم اختصاص یافته</div>
-                <div class="info-value" style="color: var(--text-main);">{{ data_limit }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">حجم مصرف شده (کل)</div>
-                <div class="info-value" style="color: var(--accent-red);">{{ used_traffic }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">تاریخ انقضا</div>
-                <div class="info-value">
-                    {% if expire %}
-                        {{ expire }}
-                    {% else %}
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">بدون محدودیت</span>
-                    {% endif %}
+            {% if note %}
+                <div class="info-item" style="margin-top: 16px; text-align: right;">
+                    <div class="info-label">یادداشت</div>
+                    <div class="info-value" style="font-size: 0.95rem;">{{ note }}</div>
                 </div>
-            </div>
+            {% endif %}
         </div>
-        {% if note %}
-        <div class="info-item" style="margin-top: 16px; text-align: right;">
-            <div class="info-label">یادداشت</div>
-            <div class="info-value" style="font-size: 0.95rem;">{{ note }}</div>
-        </div>
-        {% endif %}
-    </div>
 
-    <div class="glass-card">
-        <div class="glass-card-title">دستگاه‌های متصل و میزان مصرف حجم هر کدام</div>
-        {% if devices %}
-            <div class="table-responsive">
-                <table class="glass-table">
-                    <thead>
+        <div class="glass-card">
+            <div class="glass-card-title">دستگاه‌های متصل و میزان مصرف حجم هر کدام</div>
+            {% if devices %}
+                <div class="table-responsive">
+                    <table class="glass-table">
+                        <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th>نام و مدل دستگاه</th>
@@ -215,8 +220,8 @@
                             <th>حجم مصرفی دستگاه</th>
                             <th>وضعیت دسترسی</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         {% for device in devices %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
@@ -234,13 +239,14 @@
                                 </td>
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">هیچ دستگاهی به این اکانت متصل نیست.</p>
-        {% endif %}
-    </div>
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">هیچ دستگاهی به این اکانت متصل
+                    نیست.</p>
+            {% endif %}
+        </div>
 
-</div>
+    </div>
 {% endblock body %}
