@@ -1,0 +1,16 @@
+{% for mainSection in MainSL.all %}
+    {% if mainSection.show_in_home %}
+        <article class="post featured">
+            <header class="major">
+                <h2><a href="#">{{ mainSection.title }}</a></h2>
+            </header>
+            <p>
+                <span class="image left"><img src="{{ mainSection.cover.url }}" alt=""/></span>
+                {{ mainSection.short_description|safe }}
+            </p>
+            <ul class="actions special">
+                <li><a href="pages/{{ mainSection.page.id }}" class="button small">بیشتر بخوانید</a></li>
+            </ul>
+        </article>
+    {% endif %}
+{% endfor %}

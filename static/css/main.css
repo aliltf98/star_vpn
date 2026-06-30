@@ -352,9 +352,6 @@ a:hover {
     color: #18bfef !important;
 }
 
-strong, b {
-    color: #212931;
-}
 
 h1, h2, h3, h4, h5, h6 {
     color: #212931;
@@ -4477,11 +4474,11 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
     border-bottom-color: transparent;
     color: #18bfef !important;
 }
-
+/*
 #copyright strong, #copyright b {
     color: #ffffff;
 }
-
+*/
 #copyright h1, #copyright h2, #copyright h3, #copyright h4, #copyright h5, #copyright h6 {
     color: #ffffff;
 }

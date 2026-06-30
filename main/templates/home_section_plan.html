@@ -1,0 +1,27 @@
+{% if MainPL %}
+    <h2 style="text-align: center; margin-top: 50px; margin-bottom: 40px; font-weight: 800; letter-spacing: 1px;">
+        پلن‌های اشتراک</h2>
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper" style="bottom: 30px">
+            {% for plan in MainPL %}
+                <div class="swiper-slide">
+                    <div class="swiper-plan-card">
+                        <h3>{{ plan.title }}</h3>
+                        <div class="plan-desc">
+                            {{ plan.description|safe }}
+                        </div>
+                        <div class="card-footer-section">
+                            <span class="plan-price">{{ plan.price }}</span>
+                            <ul class="actions special">
+                                <li><a href="#" class="button primary small plan-btn">خرید پلن</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+{% endif %}

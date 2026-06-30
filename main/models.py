@@ -40,9 +40,10 @@ class MainHeader(models.Model):
     title = models.CharField(max_length=120)
     description = CKEditor5Field(config_name='extends')
     logo = models.ImageField(upload_to='main/logo')
+    promote = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.title
+        return self.promote.__str__()
 
 
 class MainSectionLayout(models.Model):
@@ -75,3 +76,7 @@ class PageLayout(models.Model):
 
 class MainFooter(models.Model):
     description = CKEditor5Field(config_name='extends')
+    promote = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.promote.__str__()

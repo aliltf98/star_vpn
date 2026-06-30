@@ -220,7 +220,6 @@ class UserProfileView(APIView):
 class DeviceSessionView(APIView):
     def get(self, request, username):
         try:
-            # 🌟 Find the ServiceProfile using the explicit username parameter
             service_prof = ServiceProfile.objects.filter(profile__profile__username=username).first()
 
             if not service_prof:
@@ -249,7 +248,6 @@ class ToggleBlockDeviceView(APIView):
 
         try:
             connection = Connection.objects.get(device_id=device_id)
-            # Toggle the block state
             connection.is_blocked = not connection.is_blocked
             connection.save()
 
@@ -262,7 +260,6 @@ class ToggleBlockDeviceView(APIView):
 
 
 class UpdateDeviceUsageView(APIView):
-    # 🌟 CRITICAL: Must be exact lowercase 'post'
     def post(self, request, *args, **kwargs):
         username = request.data.get("username")
         device_id = request.data.get("device_id")

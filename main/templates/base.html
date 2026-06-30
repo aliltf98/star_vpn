@@ -13,6 +13,7 @@
     <noscript>
         <link rel="stylesheet" href="{% static 'css/noscript.css' %}"/>
     </noscript>
+    {% block styles %}{% endblock styles %}
 </head>
 <body class="is-preload">
 {% block default_messages %}
@@ -53,19 +54,24 @@
             <li class="{% if request.path == '/' %}active{% endif %}">
                 <a href="/">خانه</a>
             </li>
-            {% if '/pages/' in request.path %}
-                <li class="active"><a href="/pages/{{ page.page.id }}">{{ page.title }}</a></li>
-            {% endif %}
+            <li class="{% if '/subscription/' in request.path %}active{% endif %}">
+                <a href="{{ request.path }}">اشتراک</a>
+            </li>
 
-            {% for sl in MainSL.all %}
+            {# ۱. چاپ لینک‌های اصلی #}
+            {% for sl in MainSL %}
                 {% if sl.show_in_nav %}
-                    {% with page_url="/pages/"|add:sl.page.id|stringformat:"s" %}
-                        <li class="{% if request.path == page_url %}active{% endif %}">
-                            <a href="/pages/{{ sl.page.id }}">{{ sl.title }}</a>
-                        </li>
-                    {% endwith %}
+                    {# اینجا مستقیماً آیدی رابط دو مدل را با هم مقایسه می‌کنیم #}
+                    <li class="{% if page and page.page_id == sl.page_id %}active{% endif %}">
+                        <a href="/pages/{{ sl.page_id }}">{{ sl.title }}</a>
+                    </li>
                 {% endif %}
             {% endfor %}
+
+            {# ۲. چاپ صفحات فرعی و مخفی #}
+            {% if page and not page.show_in_nav and '/pages/' in request.path %}
+                <li class="active"><a href="{{ request.path }}">{{ page.title }}</a></li>
+            {% endif %}
         </ul>
         <ul class="icons alt">
             {% for socials in SM %}
@@ -86,7 +92,6 @@
                                     border-radius: 100%;
                                     font-size: 1.25rem;"
                             {% endif %}>
-                        <span class="label"></span>
                     </a>
                 </li>
             {% endfor %}
@@ -94,9 +99,9 @@
     </nav>
     {% block body %}
     {% endblock body %}
-    <div id="copyright">
+    <div id="copyright" style="font-family: Vazir">
         <ul>
-            <li></li>
+            <li>{{ MainF.description|safe }}</li>
         </ul>
     </div>
 </div>

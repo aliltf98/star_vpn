@@ -1,3 +1,33 @@
-from django.test import TestCase
-
-# Create your tests here.
+{'proxies': {'vless': {'id': '6877b7b9-0110-4d1a-b3d0-42163913e09e', 'flow': ''},
+             'trojan': {'password': '76Wk_58imk-cBLWiH2J7Gw', 'flow': ''},
+             'vmess': {'id': 'e34c505e-0110-45db-9a16-bd17bef31b75'}},
+ 'expire': None,
+ 'data_limit': 122406567936,
+ 'data_limit_reset_strategy': 'no_reset',
+ 'inbounds': {
+     'vless': ['VLESS WS No-Tls 80', 'VLESS+XHTTP+TLS+8443', 'VLESS+XHTTP+TLS+2053', 'VLESS+XHTTP+TLS+2083',
+               'SERVER_IRAN_1_VLESS_TCP', 'SERVER_IRAN_VLESS_TCP_TO_EMIRATE', 'VLESS_TCP_HTTP', 'VLESS WS Tls',
+               'VLESS GRPC TLS', 'VLESS WS Tls 8444', 'VLESS_GRPC_TLS_443'],
+     'trojan': ['TROJAN WS TLS', 'TROJAN GRPC TLS'], 'vmess': ['Vmess WS TLS', 'VMESS GRPC TLS']},
+ 'note': None,
+ 'sub_updated_at': '2026-06-29T09:18:39.536253',
+ 'sub_last_user_agent': 'v2box/5.3.4',
+ 'online_at': '2026-06-30T11:04:50.820064',
+ 'on_hold_expire_duration': None,
+ 'on_hold_timeout': None,
+ 'auto_delete_in_days': None,
+ 'next_plan': None,
+ 'username': 'aH1',
+ 'status': 'active',
+ 'used_traffic': 117248020025,
+ 'lifetime_used_traffic': 117248020025,
+ 'created_at': '2026-03-24T17:17:12.106512',
+ 'links': [
+    'vless://6877b7b9-0110-4d1a-b3d0-42163913e09e@tabdeal.org:2095?security=none&type=ws&headerType=&path=%2Fuploadmedia&host=ge-service-c22.mobisen.ir#1-aH1%20%28Ge%29',
+    'vless://6877b7b9-0110-4d1a-b3d0-42163913e09e@wallex.ir:2086?security=none&type=ws&headerType=&path=%2Fuploadmedia&host=ge-service-c22.110011.ir#2-aH1%20%28Nl%29',
+    'vless://6877b7b9-0110-4d1a-b3d0-42163913e09e@185.143.232.201:2095?security=none&type=ws&headerType=&path=uploadmedia&host=ge-service-c22.qp9.ir#3-aH1%20%28Ge%29',
+    'vless://6877b7b9-0110-4d1a-b3d0-42163913e09e@185.143.234.53:2052?security=none&type=ws&headerType=&path=%2Fuploadmedia&host=ge-service-c22.qp9.ir#4-aH1%20%28Tr%29'],
+ 'subscription_url': '/sub/YUgxLDE3ODI4MTgyNzE9l4bKV9JZG',
+ 'excluded_inbounds': {'vless': [], 'trojan': [], 'vmess': []},
+ 'admin': {'username': 'reza', 'is_sudo': False, 'telegram_id': None, 'discord_webhook': None,
+           'users_usage': 2300843355412}}
