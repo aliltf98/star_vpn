@@ -1,4 +1,11 @@
 {% extends "base.html" %}
+
+
+{% block title %}
+    اشتراگ {{ user }}
+{% endblock title %}
+
+
 {% block nav %}
     <li class="{% if '/subscription/' in request.path %}active{% endif %}">
         <a href="{{ request.path }}">اشتراک</a>

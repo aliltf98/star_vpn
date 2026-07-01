@@ -1,15 +1,55 @@
+<style>
+    /* ۱. استایل تگ رپر یا باکس محافظِ خود قالب تا انیمیشن به درستی عمل کند */
+    .post.featured .image.left {
+        max-width: 35%; /* محدود کردن کادر اولیه بر اساس استاندارد قالب شما */
+        transition: max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    }
+
+    /* ۲. استایل اصلی خود تصویر در حالت عادی (حفظ نسبت ابعاد پیش‌فرض) */
+    .post.featured .image.left img {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+        object-fit: contain; /* جلوگیری از دفرمه شدن و حفظ تناسب اصلی شکل عکس */
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+        /* انیمیشن فوق‌العاده نرم برای تغییر ابعاد فیزیکی */
+        transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+                    box-shadow 0.5s ease !important;
+        transform-origin: left center; /* بزرگ شدن از سمت چپ به راست تا به متن برخورد نکند */
+    }
+
+    /* 🎯 حل ایراد دوم: هاور مستقیماً روی خود عکس ست شده است و کادر والد را همزمان بزرگ می‌کند */
+    .post.featured .image.left:hover {
+        max-width: 45%; /* افزایش کادر فیزیکی دور عکس به صورت کاملاً نرم جهت جلو آمدن واقعی کادر */
+    }
+
+    .post.featured .image.left img:hover {
+        transform: scale(1.3); /* بزرگ شدن فیزیکی و باکیفیت خود عکس بدون از دست رفتن نسبت ابعاد */
+        transform-origin: 85% 100%;
+
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
 {% for mainSection in MainSL.all %}
     {% if mainSection.show_in_home %}
-        <article class="post featured">
+        <article class="post featured" style="margin-bottom: 40px; padding-bottom: 40px;">
             <header class="major">
-                <h2><a href="#">{{ mainSection.title }}</a></h2>
+                <h2><a href="pages/{{ mainSection.page.id }}"
+                       style="color: #fff; border-bottom: none;">{{ mainSection.title }}</a></h2>
             </header>
-            <p>
-                <span class="image left"><img src="{{ mainSection.cover.url }}" alt=""/></span>
+            <p style="color: #e0e6ed; line-height: 1.8;">
+                <span class="image left">
+                    <img src="{{ mainSection.cover.url }}" alt="{{ mainSection.title }}"/>
+                </span>
                 {{ mainSection.short_description|safe }}
             </p>
             <ul class="actions special">
-                <li><a href="pages/{{ mainSection.page.id }}" class="button small">بیشتر بخوانید</a></li>
+                <li><a href="pages/{{ mainSection.page.id }}" class="button small"
+                       style="border-radius: 8px; box-shadow: inset 0 0 0 2px var(--accent-gold); color: var(--accent-gold);">بیشتر
+                    بخوانید</a></li>
             </ul>
         </article>
     {% endif %}

@@ -13,6 +13,88 @@
     <noscript>
         <link rel="stylesheet" href="{% static 'css/noscript.css' %}"/>
     </noscript>
+<style>
+        :root {
+            /* تنظیم تم شیشه‌ای تیره برای هماهنگی با رنگ‌بندی متون سفید */
+            --glass-bg: rgba(30, 39, 46, 0.45); /* شیشه دودی/تیره برای ایجاد کنتراست */
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(9px);
+            --accent-gold: #dfb15b;
+            --text-light: #ffffff;
+        }
+
+        /* ۱. اصلاح بدنه اصلی صفحات (تیره کردن پس‌زمینه برای جلوه دادن به شیشه) */
+        #main {
+            background-color: var(--glass-bg) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
+            border: 1px solid var(--glass-border) !important;
+            {#border-radius: 16px !important;#}
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3) !important;
+            color: var(--text-light) !important;
+        }
+
+        /* ۲. اصلاح رنگ تمام تیترها و متون داخل #main تا با شیشه تیره خوانا شوند */
+        #main h1, #main h2, #main h3, #main h4, #main h5, #main h6, #main p, #main td, #main th {
+            color: var(--text-light) !important;
+        }
+
+        /* ۳. نوبار شیشه‌ای پیشرفته */
+        /* نوبار شیشه‌ای پیشرفته به سبک iOS */
+#nav {
+    background: rgba(255, 255, 255, 0.06) !important; /* حذف کامپل پس‌زمینه سفید و استفاده از سفید فوق‌العاده شفاف */
+    backdrop-filter: blur(20px) saturate(180%) !important; /* افزایش بلور و غلظت رنگ پشت شیشه برای افکت دقیق iOS */
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; /* خط زیرین بسیار ملایم شیشه‌ای */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* حذف پس‌زمینه سفید از دکمه‌ها و المان‌های داخلی منو */
+#nav .links, #nav .links li {
+    background: transparent !important; /* حذف هرگونه پس‌زمینه سفید یا خاکستری ارثی از قالب */
+    border: none !important;
+}
+
+/* استایل متون منو در حالت عادی */
+#nav .links li a {
+    color: rgba(255, 255, 255, 0.75) !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* سایه ملایم زیر متن برای خوانایی بیشتر روی تصاویر روشن */
+    transition: all 0.3s ease;
+}
+
+/* استایل دکمه فعال (Active) به سبک تب‌های iOS */
+#nav .links li.active {
+    background: transparent !important;
+}
+
+#nav .links li.active a {
+    color: var(--accent-gold) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important; /* ایجاد یک هاله شیشه‌ای روشن‌تر دور دکمه فعال */
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* افکت هاور روی دکمه‌های نوبار */
+#nav .links li a:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.07) !important;
+    border-radius: 8px;
+}
+
+        /* دکمه مدیریت / ورود بالای صفحه */
+        #header .logo {
+            background: rgba(30, 39, 46, 0.5) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+        }
+        #header .logo:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: var(--accent-gold) !important;
+        }
+    </style>
+
     {% block styles %}{% endblock styles %}
 </head>
 <body class="is-preload">
@@ -49,7 +131,7 @@
                href="register" class="logo">ورود / ثبت نام</a>
         {% endif %}
     </header>
-    <nav id="nav" style="backdrop-filter: blur(8px)">
+    <nav id="nav" >
         <ul class="links" style="font-family: Vazir;">
             <li class="{% if request.path == '/' %}active{% endif %}">
                 <a href="/">خانه</a>

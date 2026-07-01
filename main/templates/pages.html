@@ -3,22 +3,67 @@
 {% block title %}
     {{ page.title }}
 {% endblock title %}
-{% block body %}
 
-    <div id="main">
+{% block styles %}
+    <style>
+        /* باکس نگه‌دارنده تصویر شاخص */
+        .featured-image-wrapper {
+            width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+        }
+
+        /* استایل تصویر در حالت عادی (نصفه یا بنر) */
+        .featured-image-wrapper img {
+            width: 100%;
+            height: 320px; /* ارتفاع پیش‌فرض حالت نصفه (می‌توانید به دلخواه تغییر دهید) */
+            object-fit: cover;
+            object-position: center; /* تراز شدن وسط تصویر در حالت کراپ */
+            transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s ease; /* انیمیشن فوق‌العاده نرم */
+            display: block;
+            cursor: pointer;
+        }
+
+        /* انیمیشن باز شدن ارثی و کامل تصویر هنگام هاور */
+        .featured-image-wrapper:hover img {
+            height: 600px; /* ارتفاع جدید برای نمایش کامل تصویر (متناسب با عکستان تغییر دهید) */
+            transform: scale(1.02); /* یک بزرگ‌نمایی بسیار ملایم برای جذابیت بیشتر */
+        }
+    </style>
+{% endblock styles %}
+
+{% block body %}
+    <div id="main" style="padding: 40px 30px;">
         <article class="post featured">
-            <h1 style="position: relative;bottom: 50px;">{{ page.title }}</h1>
-            {{ page.short_description|safe }}
-            <div class="image main">
-                <img src="{{ page.cover.url }}" style="height: 400px; border-radius: 10px; object-fit: cover" alt="">
+            <header class="major">
+                <h1 style="color: #fff; margin-bottom: 20px;">{{ page.title }}</h1>
+            </header>
+
+            <div style="color: #e0e6ed; margin-bottom: 30px;">
+                {{ page.short_description|safe }}
             </div>
-            <p>{{ page.page.description|safe }}</p>
+
+            <div class="featured-image-wrapper">
+                <img src="{{ page.cover.url }}" alt="{{ page.title }}">
+            </div>
+
+            <div style="color: #ffffff; line-height: 1.8; margin-bottom: 40px;">
+                {{ page.page.description|safe }}
+            </div>
+
             <div class="box alt">
                 <div class="row gtr-50 gtr-uniform">
                     {% for p in page.page.image_gallery.all %}
-                        <div class="col-4"><span class="image fit"><img
-                                style="border-radius: 10px; height: 300px; object-fit: cover" src="{{ p.image.url }}"
-                                alt=""></span></div>
+                        <div class="col-4">
+                            <span class="image fit">
+                                <img style="border-radius: 8px; height: 220px; object-fit: cover; transition: transform 0.3s;"
+                                     src="{{ p.image.url }}"
+                                     onmouseover="this.style.transform='scale(1.03)'"
+                                     onmouseout="this.style.transform='scale(1)'" alt="">
+                            </span>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
