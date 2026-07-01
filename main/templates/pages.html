@@ -18,18 +18,106 @@
         /* استایل تصویر در حالت عادی (نصفه یا بنر) */
         .featured-image-wrapper img {
             width: 100%;
-            height: 320px; /* ارتفاع پیش‌فرض حالت نصفه (می‌توانید به دلخواه تغییر دهید) */
+            height: 320px;
             object-fit: cover;
-            object-position: center; /* تراز شدن وسط تصویر در حالت کراپ */
-            transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s ease; /* انیمیشن فوق‌العاده نرم */
+            object-position: center;
+            transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s ease;
             display: block;
             cursor: pointer;
         }
 
         /* انیمیشن باز شدن ارثی و کامل تصویر هنگام هاور */
         .featured-image-wrapper:hover img {
-            height: 600px; /* ارتفاع جدید برای نمایش کامل تصویر (متناسب با عکستان تغییر دهید) */
-            transform: scale(1.02); /* یک بزرگ‌نمایی بسیار ملایم برای جذابیت بیشتر */
+            height: 600px;
+            transform: scale(1.02);
+        }
+
+        /* --- استایل‌های بخش دانلود شیشه‌ای همگام با تم --- */
+        .download-section-title {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .download-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .glass-download-card {
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-download-card:hover {
+            background: rgba(255, 255, 255, 0.07) !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .download-card-header h3 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .download-card-body {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        /* دکمه دانلود شیشه‌ای و درخشان */
+        .glass-dl-btn {
+            display: block !important;
+            width: 100% !important;
+            border-radius: 8px !important;
+            height: 2.6rem !important;
+            line-height: 2.6rem !important;
+            font-weight: 500 !important;
+            text-align: center;
+            background-color: #dfb15b !important; /* رنگ طلایی هماهنگ با بقیه دکمه‌ها */
+            color: #1e242b !important;
+            transition: all 0.3s ease;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        .glass-dl-btn:hover {
+            background-color: #fff !important;
+            color: #1e242b !important;
+            transform: scale(1.02);
+        }
+
+        /* استایل دکمه لینک‌های خارجی */
+        .glass-link-btn {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .glass-link-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
         }
     </style>
 {% endblock styles %}
@@ -67,6 +155,36 @@
                     {% endfor %}
                 </div>
             </div>
+
+            {% if page.page.file.all %}
+                <h2 class="download-section-title">دانلود نرم‌افزارها و فایل‌های پیوست</h2>
+                <div class="download-container">
+                    {% for f in page.page.file.all %}
+                        <div class="glass-download-card">
+                            <div class="download-card-header">
+                                <h3>{{ f.title }}</h3>
+                            </div>
+
+                            <div class="download-card-body" >
+                                {{ f.description|safe }}
+                            </div>
+
+                            <div class="download-card-footer">
+                                {% if f.link %}
+                                    <a href="{{ f.link }}" target="_blank" class="button small glass-dl-btn glass-link-btn">
+                                        <i class="fas fa-external-link-alt" style="margin-left: 5px;"></i> ورود به لینک دانلود
+                                    </a>
+                                {% else %}
+                                    <a href="{{ f.file.url }}" class="button small glass-dl-btn">
+                                        <i class="fas fa-download" style="margin-left: 5px;"></i> دانلود مستقیم برنامه
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
         </article>
     </div>
 {% endblock body %}

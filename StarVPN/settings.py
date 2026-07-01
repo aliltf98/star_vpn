@@ -133,155 +133,65 @@ else:
 # media settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+# ۱. پالت رنگ اختصاصی شما
 customColorPalette = [
-    {
-        'color': 'hsl(4, 90%, 58%)',
-        'label': 'Red'
-    },
-    {
-        'color': 'hsl(340, 82%, 52%)',
-        'label': 'Pink'
-    },
-    {
-        'color': 'hsl(291, 64%, 42%)',
-        'label': 'Purple'
-    },
-    {
-        'color': 'hsl(262, 52%, 47%)',
-        'label': 'Deep Purple'
-    },
-    {
-        'color': 'hsl(231, 48%, 48%)',
-        'label': 'Indigo'
-    },
-    {
-        'color': 'hsl(207, 90%, 54%)',
-        'label': 'Blue'
-    },
+    {'color': 'hsl(4, 90%, 58%)', 'label': 'Red'},
+    {'color': 'hsl(340, 82%, 52%)', 'label': 'Pink'},
+    {'color': 'hsl(291, 64%, 42%)', 'label': 'Purple'},
+    {'color': 'hsl(262, 52%, 47%)', 'label': 'Deep Purple'},
+    {'color': 'hsl(231, 48%, 48%)', 'label': 'Indigo'},
+    {'color': 'hsl(207, 90%, 54%)', 'label': 'Blue'},
 ]
 
-# CKEDITOR_5_CUSTOM_CSS = 'path_to.css' # optional
-# CKEDITOR_5_FILE_STORAGE = "path_to_storage.CustomStorage" # optional
-
+# ۲. کانفیگ جامع و توسعه‌یافته شما کاملاً هماهنگ با جنگو
 CKEDITOR_5_CONFIGS = {
     "default": {
         "toolbar": [
-            "heading",
-            "|",
-            "bold",
-            "italic",
-            "link",
-            "bulletedList",
-            "numberedList",
-            "blockQuote",
-            '|',
-            'outdent',
-            'indent',
-            'alignment',
+            "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList",
+            "blockQuote", "|", "outdent", "indent", "alignment",
         ],
+        "language": "fa", # راست‌چین و فارسی شدن ادیتورهای پیش‌فرض
     },
     "comment": {
-        "language": {"ui": "en", "content": "en"},
+        "language": "fa",
         "toolbar": [
-            "heading",
-            "|",
-            "bold",
-            "italic",
-            "link",
-            "bulletedList",
-            "numberedList",
-            "blockQuote",
+            "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList", "blockQuote",
         ],
     },
     "extends": {
-        "language": "en",
+        "language": "fa", # راست‌چین شدن کامل محیط ادیتور در ادمین برای نوشتن مقالات فارسی
         "blockToolbar": [
-            "paragraph",
-            "heading1",
-            "heading2",
-            "heading3",
-            "|",
-            "bulletedList",
-            "numberedList",
-            "|",
-            "blockQuote",
+            "paragraph", "heading1", "heading2", "heading3", "|",
+            "bulletedList", "numberedList", "|", "blockQuote",
         ],
         "toolbar": {
             "items": [
-                "heading",
-                "horizontalLine",
-                "codeBlock",
-                "htmlEmbed",
-                "|",
-                "outdent",
-                "indent",
-                "|",
-                "bold",
-                "italic",
-                "link",
-                "underline",
-                "strikethrough",
-                "code",
-                "subscript",
-                "superscript",
-                "highlight",
-                "|",
-                "bulletedList",
-                "numberedList",
-                "todoList",
-                "|",
-                "blockQuote",
-                "linkImage",
-                "insertImage",
-                "|",
-                "fontSize",
-                "fontFamily",
-                "fontColor",
-                "fontBackgroundColor",
-                "mediaEmbed",
-                "removeFormat",
-                "insertTable",
-                "sourceEditing",
-                "style",
-                "specialCharacters",
-                "showBlocks",
-                "selectAll",
-                "findAndReplace",
-                "emoji",
-                '|',
-                'outdent',
-                'indent',
-                'alignment',
+                "heading", "horizontalLine", "codeBlock", "htmlEmbed", "|",
+                "outdent", "indent", "alignment", "|", # ترازبندی متن اضافه شد
+                "bold", "italic", "link", "underline", "strikethrough", "code",
+                "subscript", "superscript", "highlight", "|",
+                "bulletedList", "numberedList", "todoList", "|",
+                "blockQuote", "imageUpload", "|", # اصلاح شد: تبدیل insertImage به imageUpload برای سازگاری با جنگو
+                "fontSize", "fontFamily", "fontColor", "fontBackgroundColor",
+                "mediaEmbed", "removeFormat", "insertTable", "sourceEditing",
+                "style", "specialCharacters", "showBlocks", "selectAll",
+                "findAndReplace", "emoji",
             ],
             "shouldNotGroupWhenFull": True,
         },
         "image": {
             "toolbar": [
-                "imageTextAlternative",
-                "|",
-                "imageStyle:alignLeft",
-                "imageStyle:alignRight",
-                "imageStyle:alignCenter",
-                "imageStyle:side",
-                "|",
+                "imageTextAlternative", "|",
+                "imageStyle:alignLeft", "imageStyle:alignRight", "imageStyle:alignCenter", "imageStyle:side", "|"
             ],
             "styles": [
-                "full",
-                "side",
-                "alignLeft",
-                "alignRight",
-                "alignCenter",
+                "full", "side", "alignLeft", "alignRight", "alignCenter",
             ],
         },
         "table": {
             "contentToolbar": [
-                "tableColumn",
-                "tableRow",
-                "mergeTableCells",
-                "tableProperties",
-                "tableCellProperties",
-                "toggleTableCaption",
+                "tableColumn", "tableRow", "mergeTableCells",
+                "tableProperties", "tableCellProperties", "toggleTableCaption",
             ],
             "tableProperties": {
                 "borderColors": customColorPalette,
@@ -292,31 +202,19 @@ CKEDITOR_5_CONFIGS = {
                 "backgroundColors": customColorPalette,
             },
         },
+        # اضافه شدن پالت رنگی شما به ابزار انتخاب رنگ متن و پس‌زمینه متون
+        "fontColor": {
+            "colors": customColorPalette
+        },
+        "fontBackgroundColor": {
+            "colors": customColorPalette
+        },
         "heading": {
             "options": [
-                {
-                    "model": "paragraph",
-                    "title": "Paragraph",
-                    "class": "ck-heading_paragraph",
-                },
-                {
-                    "model": "heading1",
-                    "view": "h1",
-                    "title": "Heading 1",
-                    "class": "ck-heading_heading1",
-                },
-                {
-                    "model": "heading2",
-                    "view": "h2",
-                    "title": "Heading 2",
-                    "class": "ck-heading_heading2",
-                },
-                {
-                    "model": "heading3",
-                    "view": "h3",
-                    "title": "Heading 3",
-                    "class": "ck-heading_heading3",
-                },
+                {"model": "paragraph", "title": "Paragraph", "class": "ck-heading_paragraph"},
+                {"model": "heading1", "view": "h1", "title": "Heading 1", "class": "ck-heading_heading1"},
+                {"model": "heading2", "view": "h2", "title": "Heading 2", "class": "ck-heading_heading2"},
+                {"model": "heading3", "view": "h3", "title": "Heading 3", "class": "ck-heading_heading3"},
             ],
         },
         "list": {
@@ -336,14 +234,7 @@ CKEDITOR_5_CONFIGS = {
             "feeds": [
                 {
                     "marker": "@",
-                    "feed": [
-                        "@Barney",
-                        "@Lily",
-                        "@Marry Ann",
-                        "@Marshall",
-                        "@Robin",
-                        "@Ted",
-                    ],
+                    "feed": ["@Admin", "@Support", "@Developer", "@User"], # می‌توانید نام اعضای تیم خود را اینجا بگذارید
                     "minimumCharacters": 1,
                 },
             ],
