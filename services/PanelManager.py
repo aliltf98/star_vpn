@@ -1,5 +1,5 @@
 # panelmanager.py
-from curl_cffi import requests  # 🎯 استفاده از نسخه مجهز به جعل مرورگر
+import requests
 
 # 🎯 اتصال مستقیم به آی‌پی ابرآروان روی پورت وب (HTTP بدون s)
 BASE_URL = "http://185.143.232.201:8080"
@@ -10,12 +10,21 @@ class PanelManager:
 
     @classmethod
     def get_headers(cls):
-        """ساخت هدرهای لازم به همراه جعل هدر Host برای عبور از فیلتر WAF ابرآروان"""
+        """ساخت هدرهای کامل مرورگر برای عبور از سد فایروال و خطای 412 ابرآروان"""
         return {
-            "Host": "mediadownload.eu.org",  # مسیریابی در CDN
+            "Host": "mediadownload.eu.org",
             "Authorization": f"Bearer {ADMIN_TOKEN}",
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json, text/plain, */*",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9,fa;q=0.8",
+            "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-site",
+            "Connection": "keep-alive"
         }
 
     @classmethod
@@ -33,20 +42,19 @@ class PanelManager:
             }
         }
         try:
-            print(f"➕ در حال ساخت کاربر جدید با شبیه‌ساز کروم: {username}")
+            print(f"➕ [PANEL] Request -> Create User: {username}", flush=True)
             response = requests.post(
                 url,
                 json=payload,
                 headers=cls.get_headers(),
-                timeout=15,
-                impersonate="chrome"  # 🎯 فریب دادن فایروال ابرآروان
+                timeout=8
             )
+            print(f"📥 [PANEL] Response Status: {response.status_code}", flush=True)
             if response.status_code == 200:
                 return response.json()
-            print(f"⚠️ خطای ساخت کاربر با کد: {response.status_code}")
             return None
         except Exception as e:
-            print(f"❌ خطا در ساخت کاربر: {str(e)}")
+            print(f"❌ [PANEL] Error creating user: {str(e)}", flush=True)
             return None
 
     @staticmethod
@@ -54,23 +62,22 @@ class PanelManager:
         """دریافت اطلاعات کاربر از پنل"""
         url = f"{BASE_URL}/api/user/{username}"
         try:
-            print(f"🚀 ارسال درخواست با اثرانگشت کروم و هدر Host برای کاربر: {username}")
+            print(f"🚀 [PANEL] Request -> Get User Info: {username}", flush=True)
 
             response = requests.get(
                 url,
                 headers=PanelManager.get_headers(),
-                timeout=15,
-                impersonate="chrome"  # 🎯 عبور از خطای 412 ابرآروان
+                timeout=8
             )
 
-            print(f"📥 پاسخ پنل دریافت شد. کد وضعیت: {response.status_code}")
+            print(f"📥 [PANEL] Response Status: {response.status_code}", flush=True)
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"⚠️ پاسخ ناموفق از پنل با کد: {response.status_code}")
+                print(f"⚠️ [PANEL] Failed with body: {response.text[:200]}", flush=True)
                 return None
         except Exception as e:
-            print(f"❌ خطا در اتصال به پنل: {str(e)}")
+            print(f"❌ [PANEL] Connection Error: {str(e)}", flush=True)
             return None
 
     @staticmethod
@@ -78,17 +85,16 @@ class PanelManager:
         """دریافت میزان مصرف کاربر"""
         url = f"{BASE_URL}/api/user/{username}/usage"
         try:
-            print(f"📊 دریافت میزان مصرف کاربر با شبیه‌ساز کروم: {username}")
+            print(f"📊 [PANEL] Request -> Get Usage: {username}", flush=True)
             response = requests.get(
                 url,
                 headers=PanelManager.get_headers(),
-                timeout=15,
-                impersonate="chrome"  # 🎯 شبیه‌سازی مرورگر واقعی
+                timeout=8
             )
+            print(f"📥 [PANEL] Response Status: {response.status_code}", flush=True)
             if response.status_code == 200:
                 return response.json()
-            print(f"⚠️ خطای دریافت مصرف با کد: {response.status_code}")
             return None
         except Exception as e:
-            print(f"❌ خطا در دریافت مصرف: {str(e)}")
+            print(f"❌ [PANEL] Error getting usage: {str(e)}", flush=True)
             return None
