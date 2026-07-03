@@ -9,20 +9,13 @@ class PanelManager:
 
     _session = None
 
-    PROXY_URL = "socks5://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110"
-
     @classmethod
     def get_session(cls):
         if cls._session is None:
-            # شبیه‌سازی دقیق مرورگر کروم ۱۲۰
+            # 🎯 شبیه‌سازی دقیق مرورگر کروم ۱۲۰ بدون هیچ‌گونه پروکسی
             cls._session = tls_client.Session(
                 client_identifier="chrome_120"
             )
-            # ست کردن پروکسی با فرمت اصلاح شده ساکس ۵
-            cls._session.proxies = {
-                "http": cls.PROXY_URL,
-                "https": cls.PROXY_URL
-            }
         return cls._session
 
     @classmethod
@@ -37,12 +30,12 @@ class PanelManager:
 
     @classmethod
     def _safe_request(cls, method, endpoint, json_data=None):
-        """ارسال امن درخواست‌ها با ورودی کلاس‌متد استاندارد"""
+        """ارسال امن درخواست‌ها مستقیم و بدون پروکسی"""
         url = f"{cls.BASE_URL.strip()}/{endpoint.lstrip('/')}"
         session = cls.get_session()
 
         try:
-            print(f" [🚀] TLS-Client Request -> {method} {url}", flush=True)
+            print(f" [🚀] TLS-Client Direct Request -> {method} {url}", flush=True)
 
             if method.upper() == "POST":
                 payload = json.dumps(json_data) if json_data else None
@@ -50,7 +43,7 @@ class PanelManager:
             else:
                 response = session.get(url, headers=cls.get_headers(), timeout_seconds=15)
 
-            print(f" [📥] TLS-Client Response Status -> {response.status_code}", flush=True)
+            print(f" [📥] TLS-Client Direct Response Status -> {response.status_code}", flush=True)
 
             if response.status_code in [200, 201]:
                 return response.json()
@@ -58,12 +51,12 @@ class PanelManager:
                 print(f" [!] API Status: {response.status_code} | Body: {response.text}", flush=True)
                 return None
         except Exception as e:
-            print(f" [❌] Anti-Fingerprint Connection Error: {str(e)}", flush=True)
+            print(f" [❌] Direct Connection Error: {str(e)}", flush=True)
             return None
 
     @classmethod
     def create_user(cls, username, data_limit_gb=10):
-        """ساخت کاربر جدید در پنل مرzبان"""
+        """ساخت کاربر جدید در پنل مرزبان"""
         payload = {
             "username": str(username).strip(),
             "data_limit": int(data_limit_gb) * 1024 * 1024 * 1024,
@@ -78,7 +71,7 @@ class PanelManager:
 
     @classmethod
     def get_user_info(cls, username):
-        """دریافت اطلاعات کامل کاربر با تضمین ساختار کلس‌متد"""
+        """دریافت اطلاعات کامل کاربر"""
         return cls._safe_request("GET", f"user/{str(username).strip()}")
 
     @classmethod
