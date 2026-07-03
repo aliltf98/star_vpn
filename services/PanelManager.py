@@ -48,65 +48,49 @@ class PanelManager:
     @staticmethod
     def get_user_info(username):
         url = f"{BASE_URL}/user/{username}"
-
-        # 🎯 تعریف یک Session برای زنده نگه داشتن و مدیریت درست تونل TLS
-        session = requests.Session()
-        session.proxies = PROXIES
-
-        # 🎯 اضافه کردن هدرهای کاملاً طبیعی مرورگر برای فریب دادن فیلترینگ/دیوار آتش
         headers = {
-            "Authorization": f"Bearer {ADMIN_TOKEN}",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Connection": "keep-alive"
+            "Authorization": f"Bearer {ADMIN_TOKEN}"
         }
-
         try:
-            print(f"🔄 ارسال درخواست امن به پنل برای: {username}")
+            print(f"🔄 ارسال درخواست مجهز به اثر انگشت مرورگر برای کاربر: {username}")
 
-            # ارسال درخواست از طریق Session با تنظیم هدرها و تایم‌اوت بالا
-            response = session.get(url, headers=headers, timeout=15)
+            # 🎯 راز اصلی: اضافه کردن impersonate="chrome" برای عبور از سد فیلترینگ و CDN
+            response = requests.get(
+                url,
+                headers=headers,
+                proxies=PROXIES,
+                timeout=15,
+                impersonate="chrome"
+            )
 
-            print(f"📥 پاسخ دریافت شد. کد وضعیت: {response.status_code}")
+            print(f"📥 پاسخ پنل دریافت شد. کد وضعیت: {response.status_code}")
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"⚠️ پاسخ ناوفق پنل: {response.text}")
+                print(f"⚠️ پاسخ ناموفق از پنل با کد: {response.status_code}")
                 return None
 
         except Exception as e:
-            print(f"❌ خطا در لایه ارتباطی پایتون: {str(e)}")
+            print(f"❌ خطا در ارتباط امن با پنل: {str(e)}")
             return None
 
     @staticmethod
     def get_user_usage(username):
         url = f"{BASE_URL}/user/{username}/usage"
-
         headers = {
-            "Authorization": f"Bearer {ADMIN_TOKEN}",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json"
+            "Authorization": f"Bearer {ADMIN_TOKEN}"
         }
-
         try:
-            print(f"📊 در حال دریافت میزان مصرف کاربر: {username} از پنل...")
-
-            # استفاده از curl_cffi برای جعل اثر انگشت TLS مرورگر کروم
+            print(f"📊 دریافت میزان مصرف کاربر: {username}")
             response = requests.get(
                 url,
                 headers=headers,
                 proxies=PROXIES,
-                timeout=12,
-                impersonate="chrome"  # 🎯 شبیه‌سازی کامل مرورگر کروم
+                timeout=15,
+                impersonate="chrome"
             )
-
             if response.status_code == 200:
                 return response.json()
-            else:
-                print(f"⚠️ پنل متصل شد اما کد وضعیت دریافت مصرف {response.status_code} بود.")
-                return None
-
         except Exception as e:
-            print(f"❌ خطا در دریافت میزان مصرف کاربر {username}: {str(e)}")
-            return None
+            print(f"❌ خطا در دریافت مصرف: {str(e)}")
+        return None
