@@ -1,25 +1,27 @@
 # panelmanager.py
 import requests
 
-# 🎯 آدرس اصلی و استاندارد پنل شما
-BASE_URL = "http://185.143.232.201:8080"
-ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwNzg4NzN9.roPZWHPSokL4PAaSAPkv7u9VtuCHe4xQoUMe4PEk3LI"
 
 class PanelManager:
+    BASE_URL = "https://mediadownload.eu.org/api"
+    ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwNzg4NzN9.roPZWHPSokL4PAaSAPkv7u9VtuCHe4xQoUMe4PEk3LI"
+
+    PROXIES = {
+        'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
+        'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
+    }
 
     @classmethod
     def get_headers(cls):
-        """هدرهای اصلی و استاندارد بدون هیچگونه دستکاری مرورگر"""
         return {
-            "Host": "mediadownload.eu.org",  # برای مسیریابی درست در شبکه ابرآروان
-            "Authorization": f"Bearer {ADMIN_TOKEN}",
-            "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
+            "Content-Type": "application/json"
         }
 
     @classmethod
     def create_user(cls, username, data_limit_gb=10):
-        url = f"{cls.BASE_URL}/api/user"
+        """ساخت کاربر جدید در پنل"""
+        url = f"{cls.BASE_URL}/user"
         payload = {
             "username": username,
             "data_limit": data_limit_gb * 1024 * 1024 * 1024,
@@ -30,27 +32,35 @@ class PanelManager:
                 "vmess": ["VMess TCP", "VMess Websocket"]
             }
         }
-        try:
-            print(f" [+] API Request -> Creating user: {username}", flush=True)
-            response = requests.post(url, json=payload, headers=cls.get_headers(), timeout=10)
-            print(f" [-] API Response Status: {response.status_code}", flush=True)
-            if response.status_code == 200:
-                return response.json()
-            return None
-        except Exception as e:
-            print(f" [!] API Error: {str(e)}", flush=True)
-            return None
+        response = requests.post(
+            url,
+            json=payload,
+            headers=cls.get_headers(),
+            proxies=cls.PROXIES,
+            timeout=10
+        )
+        return response.json() if response.status_code == 200 else None
 
-    @staticmethod
-    def get_user_info(username):
-        url = f"{BASE_URL}/api/user/{username}"
-        try:
-            print(f" [🚀] API Request -> Getting info for: {username}", flush=True)
-            response = requests.get(url, headers=PanelManager.get_headers(), timeout=10)
-            print(f" [📥] API Response Status: {response.status_code}", flush=True)
-            if response.status_code == 200:
-                return response.json()
-            return None
-        except Exception as e:
-            print(f" [!] Connection Error: {str(e)}", flush=True)
-            return None
+    @classmethod
+    def get_user_info(cls, username):
+        url = f"{cls.BASE_URL}/user/{username}"
+        response = requests.get(
+            url,
+            headers=cls.get_headers(),
+            proxies=cls.PROXIES,
+            timeout=10
+        )
+        if response.status_code == 200:
+            return response.json()
+        return None
+
+    @classmethod
+    def get_user_usage(cls, username):
+        url = f"{cls.BASE_URL}/user/{username}/usage"
+        response = requests.get(
+            url,
+            headers=cls.get_headers(),
+            proxies=cls.PROXIES,
+            timeout=10
+        )
+        return response.json() if response.status_code == 200 else None
