@@ -66,16 +66,12 @@ class Signin(APIView):
                 return Response({"message": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
             # 🎯 مهار کردن ارور اتصال به پنل به صورت هوشمند
-            try:
-                panel_info = PanelManager.get_user_info(user.username)
-            except requests.exceptions.ConnectionError:
-                print("❌ خطا: سرور جنگو نتوانست به پنل V2Ray متصل شود. وضعیت پنل یا فایروال را بررسی کنید.")
-                return Response({
-                    "message": "در حال حاضر ارتباط با سرور اصلی برقرار نیست. لطفاً چند لحظه دیگر تلاش کنید."
-                }, status=status.HTTP_502_BAD_GATEWAY) # ارسال ارور ۵۰۲ به جای ۵۰۰ برای تفکیک راحت‌تر در اپلیکیشن
+            panel_info = PanelManager.get_user_info(user.username)
 
             if not panel_info:
-                return Response({"message": "سرویس شما در پنل یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({
+                    "message": "در حال حاضر ارتباط با سرور پنل برقرار نیست یا اکانت یافت نشد."
+                }, status=status.HTTP_502_BAD_GATEWAY)
 
             if panel_info.get('status') != 'active':
                 return Response({"message": "اکانت شما غیرفعال یا منقضی شده است"}, status=status.HTTP_403_FORBIDDEN)
