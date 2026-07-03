@@ -1,17 +1,21 @@
 # panelmanager.py
 import requests
 
+
 class PanelManager:
-    # 🎯 اتصال مستقیم به آی‌پی سرورِ پنل روی پورت HTTP بدون SSL و کلودفلر
+    # 🎯 اتصال مستقیم به آی‌پـی سرور پنل
     BASE_URL = "http://185.143.232.201:8080/api"
-    ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwNzg4NzN9.roPZWHPSokL4PAaSAPkv7u9VtuCHe4xQoUMe4PEk3LI"
+
+    # 🔑 توکن جدید و زنده شما (مربوط به یوزر amir)
+    ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwODgzODR9.m2JrnPjGhh4MROB8mfgtKxy06E84GDVSuBlMNSJdpvU"
 
     @classmethod
     def get_headers(cls):
         return {
             "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
 
     @classmethod
@@ -31,7 +35,7 @@ class PanelManager:
         try:
             print(f" [+] Connecting directly to Panel IP for creating: {username}", flush=True)
             response = requests.post(url, json=payload, headers=cls.get_headers(), timeout=10)
-            print(f" [-] Panel Response: {response.status_code}", flush=True)
+            print(f" [-] Panel Response Status: {response.status_code}", flush=True)
             return response.json() if response.status_code == 200 else None
         except Exception as e:
             print(f" [!] Connection Error in create_user: {str(e)}", flush=True)
@@ -44,7 +48,7 @@ class PanelManager:
         try:
             print(f" [🚀] Connecting directly to Panel IP for info: {username}", flush=True)
             response = requests.get(url, headers=cls.get_headers(), timeout=10)
-            print(f" [📥] Panel Response: {response.status_code}", flush=True)
+            print(f" [📥] Panel Response Status: {response.status_code}", flush=True)
             if response.status_code == 200:
                 return response.json()
             return None
@@ -59,6 +63,7 @@ class PanelManager:
         try:
             print(f" [📊] Connecting directly to Panel IP for usage: {username}", flush=True)
             response = requests.get(url, headers=cls.get_headers(), timeout=10)
+            print(f" [📥] Panel Response Status: {response.status_code}", flush=True)
             return response.json() if response.status_code == 200 else None
         except Exception as e:
             print(f" [!] Connection Error in get_user_usage: {str(e)}", flush=True)
