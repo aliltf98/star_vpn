@@ -1,10 +1,14 @@
 # panelmanager.py
 import requests
+# برای خاموش کردن هشدارهای SSL در کنسول
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class PanelManager:
-    # 🎯 استفاده از پورت مجاز کلودفلر برای دور زدن ریست شدن کانکشن
-    BASE_URL = "http://mediadownload.eu.org:2095/api"
+    # 🎯 بازگشت به آدرس اصلی و امن ادمین روی پورت 443
+    BASE_URL = "https://mediadownload.eu.org/api"
 
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwOTAzMTZ9.1kk4Nr3YyYrVBOMmJMrqdIW_ElzM_18AUOTQwbujC8E"
 
@@ -14,7 +18,7 @@ class PanelManager:
             "Authorization": f"Bearer {cls.ADMIN_TOKEN.strip()}",
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         }
 
     @classmethod
@@ -24,9 +28,11 @@ class PanelManager:
         url = f"{clean_base}/user/{clean_username}"
 
         try:
-            print(f" [🚀] Requesting via Port 2095: {url}", flush=True)
-            response = requests.get(url, headers=cls.get_headers(), timeout=15)
+            print(f" [🚀] Requesting Admin API: {url}", flush=True)
+            # 🎯 اضافه کردن verify=False برای حل قطعی خطای ورژن SSL
+            response = requests.get(url, headers=cls.get_headers(), timeout=15, verify=False)
             print(f" [📥] Response Code: {response.status_code}", flush=True)
+
             if response.status_code == 200:
                 return response.json()
             return None
