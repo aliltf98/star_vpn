@@ -3,12 +3,12 @@ import requests
 
 
 class PanelManager:
-    BASE_URL = "http://185.143.232.201:8080/api"
+    BASE_URL = "https://mediadownload.eu.org/api"
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwNzg4NzN9.roPZWHPSokL4PAaSAPkv7u9VtuCHe4xQoUMe4PEk3LI"
 
     PROXIES = {
-        'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
-        'https': 'https://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
+        'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
+        'https': 'https://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
     }
 
     @classmethod
