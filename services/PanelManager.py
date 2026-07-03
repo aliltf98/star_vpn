@@ -4,7 +4,7 @@ import requests
 
 class PanelManager:
     # 🎯 اتصال مستقیم به آی‌پـی سرور پنل
-    BASE_URL = "http://185.143.232.201:8080/api"
+    BASE_URL = "http://172.67.209.137:8080/api"
 
     # 🔑 توکن جدید و زنده شما (مربوط به یوزر amir)
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwODgzODR9.m2JrnPjGhh4MROB8mfgtKxy06E84GDVSuBlMNSJdpvU"
@@ -14,9 +14,7 @@ class PanelManager:
         return {
             "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
             "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Host": "mediadownload.eu.org",  # 👈 اضافه کردن این خط برای حل خطای 412
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            "Accept": "application/json"
         }
 
     @classmethod
