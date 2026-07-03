@@ -8,8 +8,8 @@ headers = {
             "Content-Type": "application/json"
         }
 PROXIES = {
-    'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
-    'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@188.121.97.153:110',
+    'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
+    'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
 }
 
 class PanelManager:
