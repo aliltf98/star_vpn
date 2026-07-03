@@ -6,17 +6,19 @@ import tls_client
 class PanelManager:
     BASE_URL = "https://panel.baaham.help/api"
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMxMTE2NDB9.D6a_QK6-tNOfAowIjrNtcx1H5qOcnZ82Cq9IJjZV8oM"
-    PROXY_URL = "http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110"
 
     _session = None
+
+    PROXY_URL = "socks5://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110"
 
     @classmethod
     def get_session(cls):
         if cls._session is None:
-            # کلاینت را بدون پارامتر اضافه و کاملاً استاندارد می‌سازیم
+            # شبیه‌سازی دقیق مرورگر کروم ۱۲۰
             cls._session = tls_client.Session(
                 client_identifier="chrome_120"
             )
+            # ست کردن پروکسی با فرمت اصلاح شده ساکس ۵
             cls._session.proxies = {
                 "http": cls.PROXY_URL,
                 "https": cls.PROXY_URL
