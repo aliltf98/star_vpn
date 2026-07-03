@@ -8,7 +8,7 @@ class PanelManager:
 
     PROXIES = {
         'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
-        'https': 'https://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
+        'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
     }
 
     @classmethod
