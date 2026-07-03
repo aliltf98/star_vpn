@@ -11,15 +11,15 @@ class PanelManager:
     def get_headers(cls):
         """ساخت هدرهای لازم به همراه جعل هدر Host برای شناسایی توسط CDN ابرآروان"""
         return {
-            "Host": "mediadownload.eu.org",  # 🎯 بسیار حیاتی برای مسیریابی در CDN
-            "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
+            "Host": "mediadownload.eu.org",
+            "Authorization": f"Bearer {ADMIN_TOKEN}",  # 🎯 حل مشکل AttributeError
             "Content-Type": "application/json"
         }
 
     @classmethod
     def create_user(cls, username, data_limit_gb=10):
         """ساخت کاربر جدید در پنل"""
-        url = f"{cls.BASE_URL}/api/user"  # ⚠️ اگر پنل شما بخش /api/ ندارد، آن را حذف کنید
+        url = f"{cls.BASE_URL}/api/user"
         payload = {
             "username": username,
             "data_limit": data_limit_gb * 1024 * 1024 * 1024,
@@ -51,7 +51,7 @@ class PanelManager:
         """دریافت اطلاعات کاربر از پنل"""
         url = f"{BASE_URL}/api/user/{username}"
         try:
-            print(f"🔄 ارسال مستقیم درخواست بدون پروکسی با هدر Host برای کاربر: {username}")
+            print(f"🚀 ارسال مستقیم درخواست بدون پروکسی با هدر Host برای کاربر: {username}")
 
             response = requests.get(
                 url,
