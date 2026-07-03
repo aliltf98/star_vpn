@@ -13,10 +13,9 @@ class PanelManager:
     @classmethod
     def get_session(cls):
         if cls._session is None:
-            # شبیه‌سازی دقیق فینگرپرینت مرورگر کروم نسخه 120
+            # کلاینت را بدون پارامتر اضافه و کاملاً استاندارد می‌سازیم
             cls._session = tls_client.Session(
-                client_identifier="chrome_120",
-                random_tls_extensions_order=True
+                client_identifier="chrome_120"
             )
             cls._session.proxies = {
                 "http": cls.PROXY_URL,
