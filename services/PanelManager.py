@@ -3,18 +3,23 @@ import requests
 
 
 class PanelManager:
-    # 🎯 اتصال مستقیم به آی‌پـی سرور پنل
-    BASE_URL = "http://104.21.82.242:8080/api"
+    # 🎯 بازگشت به دامنه اصلی (کلودفلر ترافیک تمیز هدر را عبور می‌دهد)
+    BASE_URL = "https://mediadownload.eu.org/api"
 
-    # 🔑 توکن جدید و زنده شما (مربوط به یوزر amir)
-    ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwODgzODR9.m2JrnPjGhh4MROB8mfgtKxy06E84GDVSuBlMNSJdpvU"
+    # 🔑 توکن جدید، زنده و تایید شده شما از لاگ بالا
+    ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwOTAzMTZ9.1kk4Nr3YyYrVBOMmJMrqdIW_ElzM_18AUOTQwbujC8E"
 
     @classmethod
     def get_headers(cls):
+        """ساخت هدرهای کاملاً منطبق بر مرورگر برای عبور از فایروال"""
         return {
             "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
+            "Accept": "application/json",
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            # شبیه‌سازی فینگرپرینت مروگر برای جلوگیری از خطای دیسکانکت اس‌اس‌ال
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Connection": "keep-alive"
         }
 
     @classmethod
@@ -32,9 +37,10 @@ class PanelManager:
             }
         }
         try:
-            print(f" [+] Connecting directly to Panel IP for creating: {username}", flush=True)
-            response = requests.post(url, json=payload, headers=cls.get_headers(), timeout=10)
-            print(f" [-] Panel Response Status: {response.status_code}", flush=True)
+            print(f" [+] Requesting Panel via Domain to create: {username}", flush=True)
+            # حذف پارامتر پروکسی برای اتصال مستقیم و امن HTTPS
+            response = requests.post(url, json=payload, headers=cls.get_headers(), timeout=15)
+            print(f" [-] Panel Response: {response.status_code}", flush=True)
             return response.json() if response.status_code == 200 else None
         except Exception as e:
             print(f" [!] Connection Error in create_user: {str(e)}", flush=True)
@@ -42,30 +48,26 @@ class PanelManager:
 
     @classmethod
     def get_user_info(cls, username):
-        """دریافت اطلاعات کاربر به همراه متن دقیق خطا"""
+        """دریافت اطلاعات کاربر"""
         url = f"{cls.BASE_URL}/user/{username}"
         try:
-            print(f" [🚀] Connecting directly to Panel IP for info: {username}", flush=True)
-            response = requests.get(url, headers=cls.get_headers(), timeout=10)
-            print(f" [📥] Panel Response Status: {response.status_code}", flush=True)
-
-            # 🎯 اضافه کردن این خط برای خواندن متن خطا از داخل پاسخ پنل
-            print(f" [🔍] Panel Error Body: {response.text}", flush=True)
-
+            print(f" [🚀] Requesting Panel via Domain for info: {username}", flush=True)
+            response = requests.get(url, headers=cls.get_headers(), timeout=15)
+            print(f" [📥] Panel Response: {response.status_code}", flush=True)
             if response.status_code == 200:
                 return response.json()
             return None
         except Exception as e:
             print(f" [!] Connection Error in get_user_info: {str(e)}", flush=True)
             return None
+
     @classmethod
     def get_user_usage(cls, username):
         """دریافت میزان مصرف کاربر"""
         url = f"{cls.BASE_URL}/user/{username}/usage"
         try:
-            print(f" [📊] Connecting directly to Panel IP for usage: {username}", flush=True)
-            response = requests.get(url, headers=cls.get_headers(), timeout=10)
-            print(f" [📥] Panel Response Status: {response.status_code}", flush=True)
+            print(f" [📊] Requesting Panel via Domain for usage: {username}", flush=True)
+            response = requests.get(url, headers=cls.get_headers(), timeout=15)
             return response.json() if response.status_code == 200 else None
         except Exception as e:
             print(f" [!] Connection Error in get_user_usage: {str(e)}", flush=True)
