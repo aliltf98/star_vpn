@@ -44,19 +44,22 @@ class PanelManager:
 
     @classmethod
     def get_user_info(cls, username):
-        """دریافت اطلاعات کاربر"""
+        """دریافت اطلاعات کاربر به همراه متن دقیق خطا"""
         url = f"{cls.BASE_URL}/user/{username}"
         try:
             print(f" [🚀] Connecting directly to Panel IP for info: {username}", flush=True)
             response = requests.get(url, headers=cls.get_headers(), timeout=10)
             print(f" [📥] Panel Response Status: {response.status_code}", flush=True)
+
+            # 🎯 اضافه کردن این خط برای خواندن متن خطا از داخل پاسخ پنل
+            print(f" [🔍] Panel Error Body: {response.text}", flush=True)
+
             if response.status_code == 200:
                 return response.json()
             return None
         except Exception as e:
             print(f" [!] Connection Error in get_user_info: {str(e)}", flush=True)
             return None
-
     @classmethod
     def get_user_usage(cls, username):
         """دریافت میزان مصرف کاربر"""
