@@ -3,7 +3,7 @@ import requests
 
 
 class PanelManager:
-    BASE_URL = "https://mediadownload.eu.org/api"
+    BASE_URL = "http://185.143.232.201:8080/api"
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwNzg4NzN9.roPZWHPSokL4PAaSAPkv7u9VtuCHe4xQoUMe4PEk3LI"
 
     PROXIES = {
