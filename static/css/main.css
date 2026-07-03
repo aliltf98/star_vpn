@@ -3375,7 +3375,7 @@ body.is-preload #wrapper.fade-in:before {
 }
 
 #intro strong, #intro b {
-    color: #ffffff;
+    /*color: #ffffff;*/
 }
 
 #intro h1, #intro h2, #intro h3, #intro h4, #intro h5, #intro h6 {
