@@ -1,25 +1,20 @@
 # panelmanager.py
+# panelmanager.py
 import requests
 
 
 class PanelManager:
-    # 🎯 بازگشت به دامنه اصلی (کلودفلر ترافیک تمیز هدر را عبور می‌دهد)
-    BASE_URL = "https://mediadownload.eu.org/api"
+    BASE_URL = "http://mediadownload.eu.org/api"
 
-    # 🔑 توکن جدید، زنده و تایید شده شما از لاگ بالا
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwOTAzMTZ9.1kk4Nr3YyYrVBOMmJMrqdIW_ElzM_18AUOTQwbujC8E"
 
     @classmethod
     def get_headers(cls):
-        """ساخت هدرهای کاملاً منطبق بر مرورگر برای عبور از فایروال"""
         return {
             "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
             "Accept": "application/json",
             "Content-Type": "application/json",
-            # شبیه‌سازی فینگرپرینت مروگر برای جلوگیری از خطای دیسکانکت اس‌اس‌ال
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Connection": "keep-alive"
         }
 
     @classmethod
