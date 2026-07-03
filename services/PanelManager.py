@@ -1,11 +1,30 @@
 # /var/www/star_vpn/services/PanelManager.py
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import connection
+import urllib3
+
+# خاموش کردن هشدارهای SSL
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# 🎯 ترفند تزریق DNS دستی: دامین را مستقیماً به لوکال‌هست متصل می‌کنیم روی پورت امن
+_orig_create_connection = connection.create_connection
+
+
+def patched_create_connection(address, *args, **kwargs):
+    host, port = address
+    if host == "mediadownload.eu.org":
+        # هدایت ترافیک دامین به آی‌پد داخلی سرور (جایی که وب‌سرور ادمین مرزبان گوش می‌دهد)
+        return _orig_create_connection(("127.0.0.1", port), *args, **kwargs)
+    return _orig_create_connection(address, *args, **kwargs)
+
+
+connection.create_connection = patched_create_connection
 
 
 class PanelManager:
-    # 🎯 تغییر مسیر: در داکر/لوکال مرزبان، معمولاً خود پورت مستقیماً به بخش ادمین وصل است
-    # و پیشوند /api دوبار تکرار نمی‌شود.
-    BASE_URL = "http://127.0.0.1:8080"
+    # بازگشت به همان آدرس استاندارد ادمین که در Swagger کار می‌کرد
+    BASE_URL = "https://mediadownload.eu.org/api"
 
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwOTAzMTZ9.1kk4Nr3YyYrVBOMmJMrqdIW_ElzM_18AUOTQwbujC8E"
 
@@ -20,23 +39,13 @@ class PanelManager:
 
     @classmethod
     def get_user_info(cls, username):
-        clean_base = cls.BASE_URL.strip()
-        clean_username = str(username).strip()
-
-        # 🎯 تست مسیر استاندارد داخلی مرزبان (/api/user/username)
-        url = f"{clean_base}/api/user/{clean_username}"
+        url = f"{cls.BASE_URL.strip()}/user/{str(username).strip()}"
 
         try:
-            print(f" [🚀] Connecting Direct: {url}", flush=True)
-            response = requests.get(url, headers=cls.get_headers(), timeout=5)
+            print(f" [🚀] Requesting via DNS Patch: {url}", flush=True)
+            # استفاده از verify=False برای عبور از سد فایروال محلی
+            response = requests.get(url, headers=cls.get_headers(), timeout=10, verify=False)
             print(f" [📥] Response Code: {response.status_code}", flush=True)
-
-            # اگر این مسیر هم ۴۰۴ داد، مسیر زاپاس مرزبان را تست می‌کند
-            if response.status_code == 404:
-                alternative_url = f"{clean_base}/user/{clean_username}"
-                print(f" [🔄] Trying alternative path: {alternative_url}", flush=True)
-                response = requests.get(alternative_url, headers=cls.get_headers(), timeout=5)
-                print(f" [📥] Alternative Response Code: {response.status_code}", flush=True)
 
             if response.status_code == 200:
                 return response.json()
