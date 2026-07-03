@@ -2,6 +2,7 @@ import os
 import sys
 import urllib.parse
 import re
+import requests
 
 from django.contrib.auth import authenticate
 from django.db import transaction
@@ -14,36 +15,6 @@ from rest_framework.views import APIView
 
 from .PanelManager import PanelManager
 from .serializers import *
-
-
-class Signup(APIView):
-    def post(self, request):
-        try:
-            serializer = SignupSerializer(data=request.data)
-            print("SignUp API started")
-            if serializer.is_valid():
-                v_data = serializer.validated_data  # استفاده از داده‌های تایید شده
-
-                if User.objects.filter(username=v_data['username']).exists():
-                    return Response({'message': 'این نام کاربری قبلاً انتخاب شده'}, status=status.HTTP_400_BAD_REQUEST)
-
-                with transaction.atomic():  # تضمین سلامت دیتابیس
-                    user = User.objects.create_user(
-                        username=v_data['username'],
-                        password=v_data['password'],
-                    )
-                    UserProfile.objects.create(
-                        profile=user,
-                        phone_number=v_data['number'],
-                    )
-
-                return Response({'message': "حساب کاربری با موفقیت ساخته شد"}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            print(1, e)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Signin(APIView):
@@ -64,7 +35,15 @@ class Signin(APIView):
             if not user:
                 return Response({"message": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            panel_info = PanelManager.get_user_info(user.username)
+            # 🎯 مهار کردن ارور اتصال به پنل به صورت هوشمند
+            try:
+                panel_info = PanelManager.get_user_info(user.username)
+            except requests.exceptions.ConnectionError:
+                print("❌ خطا: سرور جنگو نتوانست به پنل V2Ray متصل شود. وضعیت پنل یا فایروال را بررسی کنید.")
+                return Response({
+                    "message": "در حال حاضر ارتباط با سرور اصلی برقرار نیست. لطفاً چند لحظه دیگر تلاش کنید."
+                }, status=status.HTTP_502_BAD_GATEWAY) # ارسال ارور ۵۰۲ به جای ۵۰۰ برای تفکیک راحت‌تر در اپلیکیشن
+
             if not panel_info:
                 return Response({"message": "سرویس شما در پنل یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -95,61 +74,45 @@ class Signin(APIView):
             remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
             remaining_gb = round(remaining_bytes / (1024 ** 3), 2) if total_limit else 0
 
-            # Dictionary to map country abbreviations inside brackets to real country displays
             country_map = {
-                "GE": "Germany",
-                "NL": "Netherlands",
-                "TR": "Turkey",
-                "US": "United States",
-                "FI": "Finland"
+                "GE": "Germany", "NL": "Netherlands", "TR": "Turkey", "US": "United States", "FI": "Finland"
             }
 
             configs = []
             for index, link in enumerate(links):
                 category = "V2Ray"
-                if link.startswith("vless://"):
-                    category = "VLESS"
-                elif link.startswith("vmess://"):
-                    category = "VMESS"
-                elif link.startswith("trojan://"):
-                    category = "Trojan"
+                if link.startswith("vless://"): category = "VLESS"
+                elif link.startswith("vmess://"): category = "VMESS"
+                elif link.startswith("trojan://"): category = "Trojan"
 
-                # 🌟 EXTRACTING SERVER NAME & COUNTRY FROM THE URL FRAGMENT
                 parsed_url = urllib.parse.urlparse(link)
-                fragment = parsed_url.fragment  # Gets the string after the '#'
+                fragment = parsed_url.fragment
 
                 server_name = f"Server {index + 1}"
                 country = "Unknown"
 
                 if fragment:
-                    # Decodes URL codes like %20 to spaces, %28 to '(', and %29 to ')'
-                    decoded_fragment = urllib.parse.unquote(fragment)  # e.g. "1-test_android (Ge)"
-
-                    # Regex search to extract code inside parenthesis, like (Ge) or (Nl)
+                    decoded_fragment = urllib.parse.unquote(fragment)
                     match = re.search(r'\((.*?)\)', decoded_fragment)
                     if match:
-                        country_code = match.group(1).upper()  # Converts "Ge" to "GE"
+                        country_code = match.group(1).upper()
                         country = country_map.get(country_code, country_code)
-
-                        # Clean the server name by removing the country brackets section
                         server_name = decoded_fragment.split(" (")[0]
                     else:
                         server_name = decoded_fragment
 
-                # 🌟 Append variables directly into each specific server config object node!
                 configs.append({
                     "id": index,
                     "value": link,
                     "category_name": category,
                     "remainingVolume": remaining_gb,
-                    "server_name": server_name,  # 👈 Passed seamlessly to Flutter now!
-                    "country": country  # 👈 Passed seamlessly to Flutter now!
+                    "server_name": server_name,
+                    "country": country
                 })
-            print(configs)
 
             return Response({
                 'token': token.key,
-                'configs': configs,  # Contains updated server names and countries per link
+                'configs': configs,
                 'username': user.username,
                 'data_limit': total_limit,
                 'remaining_bytes': remaining_bytes,
@@ -160,8 +123,7 @@ class Signin(APIView):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
-
-            return Response({'error': f'internal server error{str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': f'internal server error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserVolumeStatus(APIView):
