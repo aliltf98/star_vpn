@@ -66,11 +66,20 @@ class Signin(APIView):
                 return Response({"message": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
             # 🎯 مهار کردن ارور اتصال به پنل به صورت هوشمند
-            target_username = str(user.username)
-            print(f" [DEBUG] Calling PanelManager for username: {target_username} (Type: {type(target_username)})",
-                  flush=True)
+            import traceback
+            try:
+                target_username = str(user.username)
+                print(f" [DEBUG-LIVE] Sending username: {target_username}", flush=True)
 
-            panel_info = PanelManager.get_user_info(target_username)
+                panel_info = PanelManager.get_user_info(target_username)
+
+            except Exception as e:
+                print("=" * 60, flush=True)
+                print(f"❌ [CRITICAL ERROR] Type: {type(e)} | Message: {str(e)}", flush=True)
+                print("🧰 [TRACEBACK START] - دقیقاً ببین ارور کجا متولد شده:")
+                traceback.print_exc()
+                print("=" * 60, flush=True)
+                return Response({"message": "خطای داخلی در پردازش اطلاعات پنل"}, status=500)
             if not panel_info:
                 return Response({
                     "message": "در حال حاضر ارتباط با سرور پنل برقرار نیست یا اکانت یافت نشد."
