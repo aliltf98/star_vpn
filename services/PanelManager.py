@@ -49,33 +49,64 @@ class PanelManager:
     def get_user_info(username):
         url = f"{BASE_URL}/user/{username}"
 
+        # 🎯 تعریف یک Session برای زنده نگه داشتن و مدیریت درست تونل TLS
+        session = requests.Session()
+        session.proxies = PROXIES
+
+        # 🎯 اضافه کردن هدرهای کاملاً طبیعی مرورگر برای فریب دادن فیلترینگ/دیوار آتش
+        headers = {
+            "Authorization": f"Bearer {ADMIN_TOKEN}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Connection": "keep-alive"
+        }
 
         try:
-            print(f"🔄 در حال ارسال درخواست به پنل برای کاربر: {username} از طریق پروکسی...")
+            print(f"🔄 ارسال درخواست امن به پنل برای: {username}")
 
-            # ارسال درخواست همراه با پروکسی و هدرها
-            response = requests.get(url, headers=headers, proxies=PROXIES, timeout=12)
+            # ارسال درخواست از طریق Session با تنظیم هدرها و تایم‌اوت بالا
+            response = session.get(url, headers=headers, timeout=15)
 
-            print(f"📥 پاسخ پنل دریافت شد. کد وضعیت: {response.status_code}")
+            print(f"📥 پاسخ دریافت شد. کد وضعیت: {response.status_code}")
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"⚠️ پنل پاسخ داد اما با کد خطا: {response.text}")
+                print(f"⚠️ پاسخ ناوفق پنل: {response.text}")
                 return None
 
-        except requests.exceptions.ProxyError as pe:
-            print(f"❌ خطای پروکسی (ProxyError): اطلاعات اتصال یا یوزر/پسورد پروکسی اشتباه است! جزییات: {pe}")
-        except requests.exceptions.Timeout:
-            print("❌ خطای زمان (Timeout): پروکسی یا سرور پنل بعد از ۱۲ ثانیه پاسخ ندادند.")
-        except requests.exceptions.ConnectionError as ce:
-            print(f"❌ خطای فیزیکی اتصال (ConnectionError): پروکسی روی پورت 110 فعال نیست یا کرش کرده است! جزییات: {ce}")
         except Exception as e:
-            print(f"❌ خطای ناشناخته در پنل منیجر: {str(e)}")
-
-        return None
+            print(f"❌ خطا در لایه ارتباطی پایتون: {str(e)}")
+            return None
 
     @staticmethod
     def get_user_usage(username):
         url = f"{BASE_URL}/user/{username}/usage"
-        response = requests.get(url, headers=headers, proxies=PROXIES, timeout=10)
-        return response.json() if response.status_code == 200 else None
+
+        headers = {
+            "Authorization": f"Bearer {ADMIN_TOKEN}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json"
+        }
+
+        try:
+            print(f"📊 در حال دریافت میزان مصرف کاربر: {username} از پنل...")
+
+            # استفاده از curl_cffi برای جعل اثر انگشت TLS مرورگر کروم
+            response = requests.get(
+                url,
+                headers=headers,
+                proxies=PROXIES,
+                timeout=12,
+                impersonate="chrome"  # 🎯 شبیه‌سازی کامل مرورگر کروم
+            )
+
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"⚠️ پنل متصل شد اما کد وضعیت دریافت مصرف {response.status_code} بود.")
+                return None
+
+        except Exception as e:
+            print(f"❌ خطا در دریافت میزان مصرف کاربر {username}: {str(e)}")
+            return None
