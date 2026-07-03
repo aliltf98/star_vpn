@@ -19,48 +19,61 @@ from services.models import ServiceProfile
 
 def register(request):
     if request.method == 'POST':
-        regtype = request.POST['reg']
-        username = request.POST['username']
-        pass1 = request.POST['pass1']
+        regtype = request.POST.get('reg')
+        username = request.POST.get('username', '').strip()
+        pass1 = request.POST.get('pass1')
 
         if regtype == "signin":
-            print(1)
             user = None
+            usr = None
+
+            # ۱. ابتدا بررسی نام کاربری (رشته)
             if UserProfile.objects.filter(profile__username=username).exists():
-                usr = UserProfile.objects.get(profile__username=username)
-                user = authenticate(request, username=usr.profile, password=pass1)
-            elif UserProfile.objects.filter(phone_number=username).exists():
-                usr = UserProfile.objects.get(phone_number=username)
-                user = authenticate(request, username=usr.profile, password=pass1)
+                usr = UserProfile.objects.select_related('profile').get(profile__username=username)
+
+            # ۲. 🎯 حل مشکل اصلی: فقط اگر ورودی کاربر تماماً عدد بود، روی phone_number جستجو کن
+            elif username.isdigit() and UserProfile.objects.filter(phone_number=username).exists():
+                usr = UserProfile.objects.select_related('profile').get(phone_number=username)
+
+            # ۳. احراز هویت در صورت پیدا شدن کاربر
+            if usr:
+                user = authenticate(request, username=usr.profile.username, password=pass1)
+
             if user is None:
                 messages.error(request, 'حساب کاربری یا کلمه عبور اشتباه است')
                 return redirect('register')
             else:
                 login(request, user)
-                messages.success(request, "ورود با موفقیت.")
+                messages.success(request, "ورود با موفقیت انجام شد.")
                 return redirect('/')
 
         elif regtype == "signup":
-            print(2)
-            pass2 = request.POST['pass2']
-            phone_number = request.POST['number']
-            if UserProfile.objects.filter(profile__username=username):
+            pass2 = request.POST.get('pass2')
+            phone_number = request.POST.get('number', '').strip()
+
+            if User.objects.filter(username=username).exists():
                 messages.error(request, "این حساب کاربری قبلا ساخته شده")
+                return redirect('register')
+
+            # بررسی تکراری نبودن شماره تلفن هنگام ثبت‌نام (اختیاری اما مهم)
+            if phone_number.isdigit() and UserProfile.objects.filter(phone_number=phone_number).exists():
+                messages.error(request, "این شماره تلفن قبلا ثبت شده است")
                 return redirect('register')
 
             if pass1 != pass2:
                 messages.error(request, "رمز ها همخوانی ندارند")
                 return redirect('register')
-            user = User.objects.create_user(username=username, password=pass1)
 
-            profile = UserProfile.objects.create(
+            # ساخت کاربر و پروفایل به صورت بهینه
+            user = User.objects.create_user(username=username, password=pass1)
+            UserProfile.objects.create(
                 profile=user,
-                phone_number=phone_number,
+                phone_number=int(phone_number) if phone_number.isdigit() else None,
             )
 
-            profile.save()
             messages.success(request, 'حساب کاربری شما با موفقیت ساخته شد')
             return redirect('/')
+
         else:
             return redirect('register')
 

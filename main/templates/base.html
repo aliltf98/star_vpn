@@ -42,43 +42,37 @@
         /* ۳. نوبار شیشه‌ای پیشرفته */
         /* نوبار شیشه‌ای پیشرفته به سبک iOS */
 #nav {
-    background: rgba(255, 255, 255, 0.06) !important; /* حذف کامپل پس‌زمینه سفید و استفاده از سفید فوق‌العاده شفاف */
-    backdrop-filter: blur(20px) saturate(180%) !important; /* افزایش بلور و غلظت رنگ پشت شیشه برای افکت دقیق iOS */
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; /* خط زیرین بسیار ملایم شیشه‌ای */
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-/* حذف پس‌زمینه سفید از دکمه‌ها و المان‌های داخلی منو */
-#nav .links, #nav .links li {
-    background: transparent !important; /* حذف هرگونه پس‌زمینه سفید یا خاکستری ارثی از قالب */
-    border: none !important;
+#nav .links li {
+    background: transparent !important;
+    padding: 8px 5px !important;
 }
 
-/* استایل متون منو در حالت عادی */
+/* ایجاد کادر شیشه‌ای فقط هنگام هاور روی متن */
 #nav .links li a {
     color: rgba(255, 255, 255, 0.75) !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* سایه ملایم زیر متن برای خوانایی بیشتر روی تصاویر روشن */
-    transition: all 0.3s ease;
+    border: 1px solid transparent !important;
+    border-radius: 6px;
+    transition: all 0.5s ease;
 }
 
-/* استایل دکمه فعال (Active) به سبک تب‌های iOS */
-#nav .links li.active {
-    background: transparent !important;
+#nav .links li a:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important; /* بوردر شیشه‌ای فقط هنگام هاور */
+    color: #fff !important;
+    border-radius: 14px;
+    transition: all 0.5s ease-in-out;
 }
 
 #nav .links li.active a {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
     color: var(--accent-gold) !important;
-    background-color: rgba(255, 255, 255, 0.12) !important; /* ایجاد یک هاله شیشه‌ای روشن‌تر دور دکمه فعال */
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-/* افکت هاور روی دکمه‌های نوبار */
-#nav .links li a:hover {
-    color: #fff !important;
-    background-color: rgba(255, 255, 255, 0.07) !important;
-    border-radius: 8px;
 }
 
         /* دکمه مدیریت / ورود بالای صفحه */
@@ -93,6 +87,20 @@
             background: rgba(255, 255, 255, 0.1) !important;
             border-color: var(--accent-gold) !important;
         }
+
+    .custombtn {
+        color: var(--accent-gold) !important;
+        background-color: transparent !important;
+        box-shadow: inset 0 0 0 2px var(--accent-gold) !important;
+        transition: all 0.8s ;
+        border-radius: 5px !important;
+    }
+    .custombtn:hover {
+        color: var(--accent-blue)!important;
+        box-shadow: inset 0 0 0 2px var(--accent-blue) !important;
+        transition: all 0.8s ease-in-out;
+        border-radius: 10px !important;
+    }
     </style>
 
     {% block styles %}{% endblock styles %}
@@ -123,12 +131,16 @@
     </div>
 
     <header id="header">
-        {% if user.is_authenticated %}
-            <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)"
-               href="/admin" class="logo">مدیریت حساب کاربری</a>
+        {% if request.path == '/register' %}
+             <h3 class="logo" style="border-color: transparent; border-radius: 16px; transition: all 0.5s ease-in-out">اطلاعات خود را وارد کنید</h3>
         {% else %}
-            <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 25px; backdrop-filter: blur(8px)"
-               href="register" class="logo">ورود / ثبت نام</a>
+            {% if user.is_authenticated %}
+                <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77);  border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
+                   href="/admin" class="logo">مدیریت حساب کاربری</a>
+            {% else %}
+                <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77);  border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
+                   href="register" class="logo">ورود / ثبت نام</a>
+            {% endif %}
         {% endif %}
     </header>
     <nav id="nav" >
@@ -136,8 +148,6 @@
             <li class="{% if request.path == '/' %}active{% endif %}">
                 <a href="/">خانه</a>
             </li>
-            {% block nav %}
-            {% endblock nav %}
 
             {# ۱. چاپ لینک‌های اصلی #}
             {% for sl in MainSL %}
@@ -153,6 +163,9 @@
             {% if page and not page.show_in_nav and '/pages/' in request.path %}
                 <li class="active"><a href="{{ request.path }}">{{ page.title }}</a></li>
             {% endif %}
+
+            {% block nav %}
+            {% endblock nav %}
         </ul>
         <ul class="icons alt">
             {% for socials in SM %}
