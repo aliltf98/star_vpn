@@ -17,6 +17,36 @@ from .PanelManager import PanelManager
 from .serializers import *
 
 
+class Signup(APIView):
+    def post(self, request):
+        try:
+            serializer = SignupSerializer(data=request.data)
+            print("SignUp API started")
+            if serializer.is_valid():
+                v_data = serializer.validated_data  # استفاده از داده‌های تایید شده
+
+                if User.objects.filter(username=v_data['username']).exists():
+                    return Response({'message': 'این نام کاربری قبلاً انتخاب شده'}, status=status.HTTP_400_BAD_REQUEST)
+
+                with transaction.atomic():  # تضمین سلامت دیتابیس
+                    user = User.objects.create_user(
+                        username=v_data['username'],
+                        password=v_data['password'],
+                    )
+                    UserProfile.objects.create(
+                        profile=user,
+                        phone_number=v_data['number'],
+                    )
+
+                return Response({'message': "حساب کاربری با موفقیت ساخته شد"}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            print(1, e)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class Signin(APIView):
     def post(self, request):
         try:
