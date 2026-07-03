@@ -15,6 +15,7 @@ class PanelManager:
             "Authorization": f"Bearer {cls.ADMIN_TOKEN}",
             "Content-Type": "application/json",
             "Accept": "application/json",
+            "Host": "mediadownload.eu.org",  # 👈 اضافه کردن این خط برای حل خطای 412
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
 
