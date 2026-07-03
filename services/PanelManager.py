@@ -1,31 +1,28 @@
 # panelmanager.py
-import requests
-import urllib3
-
-# خاموش کردن هشدارهای SSL در لاگ سرور
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import tls_client
 
 
 class PanelManager:
     BASE_URL = "https://panel.baaham.help/api"
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMxMTE2NDB9.D6a_QK6-tNOfAowIjrNtcx1H5qOcnZ82Cq9IJjZV8oM"
 
-    # 🎯 تعریف بهینه پروکسی (پشتیبانی همزمان از http و socks5 در صورت نیاز)
-    PROXIES = {
-        'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
-        'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
-    }
+    # 🎯 فرمت پروکسی برای tls_client کمی متفاوت و ساده‌تر است
+    PROXY_URL = "http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110"
 
-    # 🎯 استفاده از یک Session پایدار برای کاهش مصرف CPU و سرعت بالاتر ارتباطات
     _session = None
 
     @classmethod
     def get_session(cls):
         if cls._session is None:
-            cls._session = requests.Session()
-            cls._session.proxies = cls.PROXIES
-            # نادیده گرفتن خطاهای SSL ناشی از شتاب‌دهنده‌ها یا پروکسی‌ها
-            cls._session.verify = False
+            # 🎯 شبیه‌سازی کامل اثر انگشت مرورگر کروم نسخه 120 برای دور زدن فایروال و کلودفلر
+            cls._session = tls_client.Session(
+                client_identifier="chrome_120",
+                random_tls_extensions_order=True
+            )
+            cls._session.proxies = {
+                "http": cls.PROXY_URL,
+                "https": cls.PROXY_URL
+            }
         return cls._session
 
     @classmethod
@@ -34,36 +31,37 @@ class PanelManager:
             "Authorization": f"Bearer {cls.ADMIN_TOKEN.strip()}",
             "Content-Type": "application/json",
             "Accept": "application/json",
+            # هدرهای تکمیلی برای شبیه‌سازی دقیق‌تر
+            "Accept-Language": "en-US,en;q=0.9",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
     @classmethod
     def _safe_request(cls, method, endpoint, json_data=None):
-        """متد داخلی و امن برای ارسال تمام درخواست‌ها با مدیریت خطای پیشرفته"""
         url = f"{cls.BASE_URL.strip()}/{endpoint.lstrip('/')}"
         session = cls.get_session()
 
         try:
-            print(f" [🚀] Marzban API Request -> {method} {url}", flush=True)
-            response = session.request(
-                method=method,
-                url=url,
-                headers=cls.get_headers(),
-                json=json_data,
-                timeout=12  # تایم‌اوت بهینه برای پروکسی‌های داخلی
-            )
-            print(f" [📥] Marzban Response Status -> {response.status_code}", flush=True)
+            print(f" [🚀] TLS-Client Request -> {method} {url}", flush=True)
+
+            # ارسال درخواست از طریق هسته ضد بلاک
+            if method.upper() == "POST":
+                # در tls_client برای ارسال بادی زنده از متد json استفاده نمی‌شود، بلکه باید مستقیماً با کلمه کلیدی data یا تبدیل به string فرستاده شود یا با تابع داخلی خود شبیه‌ساز
+                import json
+                response = session.post(url, headers=cls.get_headers(),
+                                        data=json.dumps(json_data) if json_data else None, timeout_seconds=15)
+            else:
+                response = session.get(url, headers=cls.get_headers(), timeout_seconds=15)
+
+            print(f" [📥] TLS-Client Response Status -> {response.status_code}", flush=True)
 
             if response.status_code in [200, 201]:
                 return response.json()
             else:
-                print(f" [!] API returned non-200 status: {response.status_code} | Body: {response.text}", flush=True)
+                print(f" [!] API returned status: {response.status_code} | Body: {response.text}", flush=True)
                 return None
-        except requests.exceptions.ProxyError as pe:
-            print(f" [❌] Proxy Connection Failed! Check your 127.0.0.1:110 proxy status. Error: {str(pe)}", flush=True)
-            return None
         except Exception as e:
-            print(f" [❌] Network/Timeout Error in Marzban connection: {str(e)}", flush=True)
+            print(f" [❌] Anti-Fingerprint Layer Connection Error: {str(e)}", flush=True)
             return None
 
     @classmethod
