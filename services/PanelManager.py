@@ -4,9 +4,9 @@ import requests
 BASE_URL = "https://mediadownload.eu.org/api"
 ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3NzY4NTExMjR9.90CzZtHSdb8I7PJUNs-nE7hrD1YRQ_b311zSCWY1lBA"
 headers = {
-            "Authorization": f"Bearer {ADMIN_TOKEN}",
-            "Content-Type": "application/json"
-        }
+    "Authorization": f"Bearer {ADMIN_TOKEN}",
+    "Content-Type": "application/json"
+}
 PROXIES = {
     'http': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
     'https': 'http://m0kvE6Vpqz22:K0oRxaoNfz22@127.0.0.1:110',
@@ -47,14 +47,31 @@ class PanelManager:
 
     @staticmethod
     def get_user_info(username):
-        url = f"{BASE_URL}/user/{username}"  # یا هر اندپوینتی که پنلتان دارد
+        url = f"{BASE_URL}/user/{username}"
 
 
-        # 🎯 نکته اصلی: حتما باید متغیر proxies=PROXIES اینجا نوشته شده باشد
-        response = requests.get(url, headers=headers, proxies=PROXIES, timeout=10)
+        try:
+            print(f"🔄 در حال ارسال درخواست به پنل برای کاربر: {username} از طریق پروکسی...")
 
-        if response.status_code == 200:
-            return response.json()
+            # ارسال درخواست همراه با پروکسی و هدرها
+            response = requests.get(url, headers=headers, proxies=PROXIES, timeout=12)
+
+            print(f"📥 پاسخ پنل دریافت شد. کد وضعیت: {response.status_code}")
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"⚠️ پنل پاسخ داد اما با کد خطا: {response.text}")
+                return None
+
+        except requests.exceptions.ProxyError as pe:
+            print(f"❌ خطای پروکسی (ProxyError): اطلاعات اتصال یا یوزر/پسورد پروکسی اشتباه است! جزییات: {pe}")
+        except requests.exceptions.Timeout:
+            print("❌ خطای زمان (Timeout): پروکسی یا سرور پنل بعد از ۱۲ ثانیه پاسخ ندادند.")
+        except requests.exceptions.ConnectionError as ce:
+            print(f"❌ خطای فیزیکی اتصال (ConnectionError): پروکسی روی پورت 110 فعال نیست یا کرش کرده است! جزییات: {ce}")
+        except Exception as e:
+            print(f"❌ خطای ناشناخته در پنل منیجر: {str(e)}")
+
         return None
 
     @staticmethod
