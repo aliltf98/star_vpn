@@ -4,7 +4,7 @@ import requests
 
 class PanelManager:
     # 🎯 اتصال مستقیم به آی‌پـی سرور پنل
-    BASE_URL = "http://172.67.209.137:8080/api"
+    BASE_URL = "http://104.21.82.242:8080/api"
 
     # 🔑 توکن جدید و زنده شما (مربوط به یوزر amir)
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwODgzODR9.m2JrnPjGhh4MROB8mfgtKxy06E84GDVSuBlMNSJdpvU"
