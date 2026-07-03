@@ -3,8 +3,8 @@ import requests
 
 
 class PanelManager:
-    # آدرس را بدون پورت و کاملاً ساده بنویسید
-    BASE_URL = "http://mediadownload.eu.org/api"
+    # 🎯 استفاده از پورت مجاز کلودفلر برای دور زدن ریست شدن کانکشن
+    BASE_URL = "http://mediadownload.eu.org:2095/api"
 
     ADMIN_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMwOTAzMTZ9.1kk4Nr3YyYrVBOMmJMrqdIW_ElzM_18AUOTQwbujC8E"
 
@@ -19,13 +19,12 @@ class PanelManager:
 
     @classmethod
     def get_user_info(cls, username):
-        # 🎯 استفاده از .strip() روی تمام متغیرها برای حذف کاراکترهای مخفی احتمالی
         clean_base = cls.BASE_URL.strip()
         clean_username = str(username).strip()
         url = f"{clean_base}/user/{clean_username}"
 
         try:
-            print(f" [🚀] Requesting: {url}", flush=True)
+            print(f" [🚀] Requesting via Port 2095: {url}", flush=True)
             response = requests.get(url, headers=cls.get_headers(), timeout=15)
             print(f" [📥] Response Code: {response.status_code}", flush=True)
             if response.status_code == 200:
