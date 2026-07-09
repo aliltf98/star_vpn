@@ -133,7 +133,7 @@
 
     // Toggle.
     $navPanelToggle = $(
-        '<a href="#navPanel" id="navPanelToggle">منو</a>' // فارسی سازی دکمه منو در حالت موبایل
+        '<a href="#navPanel" id="navPanelToggle"></a>' // فارسی سازی دکمه منو در حالت موبایل
     )
         .appendTo($wrapper);
 
