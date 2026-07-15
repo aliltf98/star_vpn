@@ -196,27 +196,74 @@ class UserVolumeStatus(APIView):
 class UserProfileView(APIView):
     def get(self, request, username):
         try:
-            # 🌟 Lookup profile cleanly via the username string passed from Android
+            # ۱. یافتن پروفایل کاربری
             user_profile = UserProfile.objects.filter(profile__username=username).first()
 
+            # ۲. دریافت اطلاعات زنده از پنل مرزبان
             panel_info = PanelManager.get_user_info(username)
             if not panel_info:
                 return Response({"error": "سرویس شما یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
 
+            # ۳. استخراج و ساخت لیست کامل کانفیگ‌ها (عیناً مانند متد Signin)
+            links = panel_info.get('links', [])
+            total_limit = panel_info.get('data_limit', 0)
+            used_traffic = panel_info.get('used_traffic', 0)
+
+            remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
+            remaining_gb = round(remaining_bytes / (1024 ** 3), 2) if total_limit else 0
+
+            country_map = {
+                "GE": "Germany", "NL": "Netherlands", "TR": "Turkey",
+                "US": "United States", "FI": "Finland"
+            }
+
+            configs = []
+            for index, link in enumerate(links):
+                category = "V2Ray"
+                if link.startswith("vless://"): category = "VLESS"
+                elif link.startswith("vmess://"): category = "VMESS"
+                elif link.startswith("trojan://"): category = "Trojan"
+
+                parsed_url = urllib.parse.urlparse(link)
+                fragment = parsed_url.fragment
+
+                server_name = f"Server {index + 1}"
+                country = "Unknown"
+
+                if fragment:
+                    decoded_fragment = urllib.parse.unquote(fragment)
+                    match = re.search(r'\((.*?)\)', decoded_fragment)
+                    if match:
+                        country_code = match.group(1).upper()
+                        country = country_map.get(country_code, country_code)
+                        server_name = decoded_fragment.split(" (")[0]
+                    else:
+                        server_name = decoded_fragment
+
+                configs.append({
+                    "id": index,
+                    "value": link,
+                    "category_name": category,
+                    "remainingVolume": remaining_gb,
+                    "server_name": server_name,
+                    "country": country
+                })
+
+            # ۴. ارسال پاسخ کامل شامل لیست کانفیگ‌ها
             return Response({
                 "username": username,
                 "phone_number": str(user_profile.phone_number) if user_profile else "بدون شماره",
                 "subscription_url": panel_info.get("subscription_url", ""),
-                "data_limit": panel_info.get("data_limit", 0),
-                "used_traffic": panel_info.get("used_traffic", 0)
+                "data_limit": total_limit,
+                "used_traffic": used_traffic,
+                "configs": configs,  # 🌟 حالا لیست کامل کانفیگ‌ها در پاسخ ریلود هم وجود دارد!
             }, status=status.HTTP_200_OK)
+
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 class DeviceSessionView(APIView):
     def get(self, request, username):
         try:
