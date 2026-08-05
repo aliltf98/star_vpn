@@ -130,10 +130,8 @@ else:
         os.path.join(BASE_DIR, 'static'),
     ]
 
-# media settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# ۱. پالت رنگ اختصاصی شما
 customColorPalette = [
     {'color': 'hsl(4, 90%, 58%)', 'label': 'Red'},
     {'color': 'hsl(340, 82%, 52%)', 'label': 'Pink'},
@@ -143,14 +141,13 @@ customColorPalette = [
     {'color': 'hsl(207, 90%, 54%)', 'label': 'Blue'},
 ]
 
-# ۲. کانفیگ جامع و توسعه‌یافته شما کاملاً هماهنگ با جنگو
 CKEDITOR_5_CONFIGS = {
     "default": {
         "toolbar": [
             "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList",
             "blockQuote", "|", "outdent", "indent", "alignment",
         ],
-        "language": "fa", # راست‌چین و فارسی شدن ادیتورهای پیش‌فرض
+        "language": "fa",
     },
     "comment": {
         "language": "fa",
@@ -159,7 +156,7 @@ CKEDITOR_5_CONFIGS = {
         ],
     },
     "extends": {
-        "language": "fa", # راست‌چین شدن کامل محیط ادیتور در ادمین برای نوشتن مقالات فارسی
+        "language": "fa",
         "blockToolbar": [
             "paragraph", "heading1", "heading2", "heading3", "|",
             "bulletedList", "numberedList", "|", "blockQuote",
@@ -167,11 +164,11 @@ CKEDITOR_5_CONFIGS = {
         "toolbar": {
             "items": [
                 "heading", "horizontalLine", "codeBlock", "htmlEmbed", "|",
-                "outdent", "indent", "alignment", "|", # ترازبندی متن اضافه شد
+                "outdent", "indent", "alignment", "|",
                 "bold", "italic", "link", "underline", "strikethrough", "code",
                 "subscript", "superscript", "highlight", "|",
                 "bulletedList", "numberedList", "todoList", "|",
-                "blockQuote", "imageUpload", "|", # اصلاح شد: تبدیل insertImage به imageUpload برای سازگاری با جنگو
+                "blockQuote", "imageUpload", "|",
                 "fontSize", "fontFamily", "fontColor", "fontBackgroundColor",
                 "mediaEmbed", "removeFormat", "insertTable", "sourceEditing",
                 "style", "specialCharacters", "showBlocks", "selectAll",
@@ -202,7 +199,6 @@ CKEDITOR_5_CONFIGS = {
                 "backgroundColors": customColorPalette,
             },
         },
-        # اضافه شدن پالت رنگی شما به ابزار انتخاب رنگ متن و پس‌زمینه متون
         "fontColor": {
             "colors": customColorPalette
         },
@@ -234,7 +230,7 @@ CKEDITOR_5_CONFIGS = {
             "feeds": [
                 {
                     "marker": "@",
-                    "feed": ["@Admin", "@Support", "@Developer", "@User"], # می‌توانید نام اعضای تیم خود را اینجا بگذارید
+                    "feed": ["@Admin", "@Support", "@Developer", "@User"],
                     "minimumCharacters": 1,
                 },
             ],

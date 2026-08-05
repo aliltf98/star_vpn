@@ -27,15 +27,12 @@ def register(request):
             user = None
             usr = None
 
-            # ۱. ابتدا بررسی نام کاربری (رشته)
             if UserProfile.objects.filter(profile__username=username).exists():
                 usr = UserProfile.objects.select_related('profile').get(profile__username=username)
 
-            # ۲. 🎯 حل مشکل اصلی: فقط اگر ورودی کاربر تماماً عدد بود، روی phone_number جستجو کن
             elif username.isdigit() and UserProfile.objects.filter(phone_number=username).exists():
                 usr = UserProfile.objects.select_related('profile').get(phone_number=username)
 
-            # ۳. احراز هویت در صورت پیدا شدن کاربر
             if usr:
                 user = authenticate(request, username=usr.profile.username, password=pass1)
 
@@ -55,7 +52,6 @@ def register(request):
                 messages.error(request, "این حساب کاربری قبلا ساخته شده")
                 return redirect('register')
 
-            # بررسی تکراری نبودن شماره تلفن هنگام ثبت‌نام (اختیاری اما مهم)
             if phone_number.isdigit() and UserProfile.objects.filter(phone_number=phone_number).exists():
                 messages.error(request, "این شماره تلفن قبلا ثبت شده است")
                 return redirect('register')
@@ -64,7 +60,6 @@ def register(request):
                 messages.error(request, "رمز ها همخوانی ندارند")
                 return redirect('register')
 
-            # ساخت کاربر و پروفایل به صورت بهینه
             user = User.objects.create_user(username=username, password=pass1)
             UserProfile.objects.create(
                 profile=user,
@@ -93,9 +88,9 @@ def signout(request):
 def humanbytes(B):
     B = float(B)
     KB = float(1024)
-    MB = float(KB ** 2) # 1,048,576
-    GB = float(KB ** 3) # 1,073,741,824
-    TB = float(KB ** 4) # 1,099,511,627,776
+    MB = float(KB ** 2)
+    GB = float(KB ** 3)
+    TB = float(KB ** 4)
 
     if B < KB:
         return '{0} {1}'.format(B,'Bytes' if 0 == B > 1 else 'Byte')

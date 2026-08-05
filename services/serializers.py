@@ -16,6 +16,6 @@ class SigninSerializer(serializers.Serializer):
 class UriCodeSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='type.title', read_only=True)
 
-    class Meta:  # اصلاح شده از File به Meta
+    class Meta:
         model = UriCode
         fields = ['id', 'value', 'category_name', 'remainingVolume']

@@ -13,7 +13,6 @@
 {% endblock nav %}
 {% block styles %}
     <style>
-        /* تعریف متغیرها برای مدیریت راحت‌تر رنگ‌ها و تم شیشه‌ای */
         :root {
             --glass-bg: rgba(255, 255, 255, 0.06);
             --glass-border: rgba(255, 255, 255, 0.12);
@@ -25,7 +24,6 @@
             --accent-red: #ff7675;
         }
 
-        /* استایل کلی بدنه اصلی */
         .sub-container {
             font-family: 'Vazir', 'Tahoma', sans-serif;
             direction: rtl;
@@ -36,7 +34,6 @@
             margin: 0 auto;
         }
 
-        /* باکس‌های اصلی با افکت شیشه‌ای متمایز */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
@@ -57,7 +54,6 @@
             padding-bottom: 10px;
         }
 
-        /* چیدمان گرید کارت‌های اطلاعات فوقانی */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -89,7 +85,6 @@
             font-weight: bold;
         }
 
-        /* استایل‌های جدول دستگاه‌ها */
         .table-responsive {
             overflow-x: auto;
         }
@@ -104,9 +99,9 @@
             padding: 14px 12px;
             text-align: center;
             border-bottom: 1px solid var(--glass-border);
-            vertical-align: middle; /* تراز شدن عمودی متن‌ها در مرکز ردیف */
-            word-break: break-word; /* شکستن کلمات خیلی طولانی مثل شناسه دستگاه */
-            white-space: normal; /* اجازه دادن به متن برای شکستن و رفتن به خط بعد */
+            vertical-align: middle;
+            word-break: break-word;
+            white-space: normal;
         }
 
         .glass-table th {
@@ -119,9 +114,9 @@
         .glass-table td strong {
             color: #fff;
             display: inline-block;
-            max-width: 220px; /* جلوگیری از عریض شدن بیش از حد نام دستگاه */
+            max-width: 220px;
             line-height: 1.5;
-            word-wrap: break-word; /* شکستن متن نام ویندوز در صورت نیاز */
+            word-wrap: break-word;
         }
 
         .glass-table tbody tr {
@@ -138,13 +133,12 @@
             color: var(--text-muted);
             direction: ltr;
             display: block;
-            max-width: 180px; /* کنترل ابعاد برای جلوگیری از تداخل با ستون‌های مجاور */
+            max-width: 180px;
             margin: 0 auto;
-            word-break: break-all; /* شکستن دقیق ساختار حروف هگزادسیمال و GUIDها */
+            word-break: break-all;
             line-height: 1.4;
         }
 
-        /* نشانگرها (Badges) */
         .glass-badge {
             display: inline-block;
             padding: 6px 12px;

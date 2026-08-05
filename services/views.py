@@ -23,12 +23,12 @@ class Signup(APIView):
             serializer = SignupSerializer(data=request.data)
             print("SignUp API started")
             if serializer.is_valid():
-                v_data = serializer.validated_data  # استفاده از داده‌های تایید شده
+                v_data = serializer.validated_data
 
                 if User.objects.filter(username=v_data['username']).exists():
                     return Response({'message': 'این نام کاربری قبلاً انتخاب شده'}, status=status.HTTP_400_BAD_REQUEST)
 
-                with transaction.atomic():  # تضمین سلامت دیتابیس
+                with transaction.atomic():
                     user = User.objects.create_user(
                         username=v_data['username'],
                         password=v_data['password'],
@@ -65,7 +65,6 @@ class Signin(APIView):
             if not user:
                 return Response({"message": "نام کاربری یا رمز عبور اشتباه است"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            # 🎯 مهار کردن ارور اتصال به پنل به صورت هوشمند
             import traceback
             try:
                 target_username = str(user.username)
@@ -166,7 +165,7 @@ class Signin(APIView):
 
 class UserVolumeStatus(APIView):
     """
-    Endpoint: /api/v1/vpn-usage/<username>/
+    /api/v1/vpn-usage/<username>/
     """
 
     def get(self, request, username):
@@ -179,7 +178,6 @@ class UserVolumeStatus(APIView):
             used_traffic = panel_info.get('used_traffic', 0)
             remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
 
-            # 🌟 Keys precisely mirror your Kotlin data class variables
             return Response({
                 "status": "success",
                 "username": username,
@@ -196,15 +194,12 @@ class UserVolumeStatus(APIView):
 class UserProfileView(APIView):
     def get(self, request, username):
         try:
-            # ۱. یافتن پروفایل کاربری
             user_profile = UserProfile.objects.filter(profile__username=username).first()
 
-            # ۲. دریافت اطلاعات زنده از پنل مرزبان
             panel_info = PanelManager.get_user_info(username)
             if not panel_info:
                 return Response({"error": "سرویس شما یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
 
-            # ۳. استخراج و ساخت لیست کامل کانفیگ‌ها (عیناً مانند متد Signin)
             links = panel_info.get('links', [])
             total_limit = panel_info.get('data_limit', 0)
             used_traffic = panel_info.get('used_traffic', 0)
@@ -249,14 +244,13 @@ class UserProfileView(APIView):
                     "country": country
                 })
 
-            # ۴. ارسال پاسخ کامل شامل لیست کانفیگ‌ها
             return Response({
                 "username": username,
                 "phone_number": str(user_profile.phone_number) if user_profile else "بدون شماره",
                 "subscription_url": panel_info.get("subscription_url", ""),
                 "data_limit": total_limit,
                 "used_traffic": used_traffic,
-                "configs": configs,  # 🌟 حالا لیست کامل کانفیگ‌ها در پاسخ ریلود هم وجود دارد!
+                "configs": configs,
             }, status=status.HTTP_200_OK)
 
         except Exception as e:

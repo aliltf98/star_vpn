@@ -15,15 +15,13 @@
     </noscript>
     <style>
         :root {
-            /* تنظیم تم شیشه‌ای تیره برای هماهنگی با رنگ‌بندی متون سفید */
-            --glass-bg: rgba(30, 39, 46, 0.45); /* شیشه دودی/تیره برای ایجاد کنتراست */
+            --glass-bg: rgba(30, 39, 46, 0.45);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: blur(9px);
             --accent-gold: #dfb15b;
             --text-light: #ffffff;
         }
 
-        /* ۱. اصلاح بدنه اصلی صفحات (تیره کردن پس‌زمینه برای جلوه دادن به شیشه) */
         #main {
             background-color: var(--glass-bg) !important;
             backdrop-filter: var(--glass-blur) !important;
@@ -33,13 +31,10 @@
             color: var(--text-light) !important;
         }
 
-        /* ۲. اصلاح رنگ تمام تیترها و متون داخل #main تا با شیشه تیره خوانا شوند */
         #main h1, #main h2, #main h3, #main h4, #main h5, #main h6, #main p, #main td, #main th {
             color: var(--text-light) !important;
         }
 
-        /* ۳. نوبار شیشه‌ای پیشرفته */
-        /* نوبار شیشه‌ای پیشرفته به سبک iOS */
         #nav {
             background: rgba(255, 255, 255, 0.02) !important;
             backdrop-filter: blur(15px) !important;
@@ -52,7 +47,6 @@
             padding: 8px 5px !important;
         }
 
-        /* ایجاد کادر شیشه‌ای فقط هنگام هاور روی متن */
         #nav .links li a {
             color: rgba(255, 255, 255, 0.75) !important;
             border: 1px solid transparent !important;
@@ -62,7 +56,7 @@
 
         #nav .links li a:hover {
             background: rgba(255, 255, 255, 0.06) !important;
-            border-color: rgba(255, 255, 255, 0.15) !important; /* بوردر شیشه‌ای فقط هنگام هاور */
+            border-color: rgba(255, 255, 255, 0.15) !important;
             color: #fff !important;
             border-radius: 14px;
             transition: all 0.5s ease-in-out;
@@ -74,7 +68,6 @@
             color: var(--accent-gold) !important;
         }
 
-        /* دکمه مدیریت / ورود بالای صفحه */
         #header .logo {
             background: rgba(30, 39, 46, 0.5) !important;
             backdrop-filter: blur(8px) !important;
@@ -175,17 +168,14 @@
                 <a href="/">خانه</a>
             </li>
 
-            {# ۱. چاپ لینک‌های اصلی #}
             {% for sl in MainSL %}
                 {% if sl.show_in_nav %}
-                    {# اینجا مستقیماً آیدی رابط دو مدل را با هم مقایسه می‌کنیم #}
                     <li class="{% if page and page.page_id == sl.page_id %}active{% endif %}">
                         <a href="/pages/{{ sl.page_id }}">{{ sl.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
 
-            {# ۲. چاپ صفحات فرعی و مخفی #}
             {% if page and not page.show_in_nav and '/pages/' in request.path %}
                 <li class="active"><a href="{{ request.path }}">{{ page.title }}</a></li>
             {% endif %}
