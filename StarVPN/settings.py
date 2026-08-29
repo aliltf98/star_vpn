@@ -139,6 +139,8 @@ customColorPalette = [
     {'color': 'hsl(262, 52%, 47%)', 'label': 'Deep Purple'},
     {'color': 'hsl(231, 48%, 48%)', 'label': 'Indigo'},
     {'color': 'hsl(207, 90%, 54%)', 'label': 'Blue'},
+    {'color': 'hsl(39, 67%, 62%)', 'label': 'gold'},
+
 ]
 
 CKEDITOR_5_CONFIGS = {
@@ -147,16 +149,16 @@ CKEDITOR_5_CONFIGS = {
             "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList",
             "blockQuote", "|", "outdent", "indent", "alignment",
         ],
-        "language": "fa",
+        "language": "en",
     },
     "comment": {
-        "language": "fa",
+        "language": "en",
         "toolbar": [
             "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList", "blockQuote",
         ],
     },
     "extends": {
-        "language": "fa",
+        "language": "en",
         "blockToolbar": [
             "paragraph", "heading1", "heading2", "heading3", "|",
             "bulletedList", "numberedList", "|", "blockQuote",
