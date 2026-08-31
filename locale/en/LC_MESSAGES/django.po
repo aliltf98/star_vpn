@@ -163,6 +163,10 @@ msgstr "Allowed"
 msgid "There are no devices connected to this account."
 msgstr "There are no devices connected to this account."
 
+#: .\main\templates\home_section_plan.html:12
+msgid "toman"
+msgstr "toman"
+
 #: .\main\templates\base.html:202
 msgid "Account management"
 msgstr "Account management"

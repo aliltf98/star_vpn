@@ -165,6 +165,10 @@ msgstr "مجاز"
 msgid "There are no devices connected to this account."
 msgstr "هیچ دستگاهی به این حساب متصل نیست."
 
+#: .\main\templates\home_section_plan.html:12
+msgid "toman"
+msgstr "تومان"
+
 #: .\main\templates\base.html:202
 msgid "Account management"
 msgstr "مدیریت حساب کاربری"
