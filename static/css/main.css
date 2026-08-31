@@ -3511,7 +3511,7 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
 
     #intro + #header {
         margin-top: -14rem;
-        bottom: 10px;
+        bottom: 20px;
     }
 
 }
@@ -4589,7 +4589,7 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
 #navPanelToggle.alt {
     background-color: rgba(255, 255, 255, 0.15);
     box-shadow: 0 0.125rem 0.75rem 0 rgba(30, 37, 45, 0.25);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(3px);
     border-radius: 9px;
 }
 
