@@ -197,7 +197,7 @@
             {% for sl in MainSL %}
                 {% if sl.show_in_nav %}
                     <li class="{% if page and page.page_id == sl.page_id %}active{% endif %}">
-                        <a href="/{{ LANGUAGE_CODE }}/pages/{{ sl.page_id }}">{{ sl.title }}</a>
+                        <a href="{% url 'page_detail' id=sl.page_id %}">{{ sl.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -219,7 +219,8 @@
                 <div class="language-switcher-form">
                     <select class="language-select" onchange="switchLanguage(this.value)">
                         {% for lang in languages_list %}
-                            <option value="{{ lang.code }}" {% if lang.code == CURRENT_LANG or CURRENT_LANG|slice:":2" == lang.code %}selected{% endif %}>
+                            <option value="{{ lang.code }}"
+                                    {% if lang.code == CURRENT_LANG or CURRENT_LANG|slice:":2" == lang.code %}selected{% endif %}>
                                 {{ lang.name_local|title }}
                             </option>
                         {% endfor %}
@@ -261,36 +262,36 @@
 </div>
 
 <script>
-function switchLanguage(targetLang) {
-    let currentPath = window.location.pathname;
-    // کدهای زبان معتبر پروژه شما
-    let validLangs = ['fa', 'en'];
-    let pathSegments = currentPath.split('/').filter(Boolean);
+    function switchLanguage(targetLang) {
+        let currentPath = window.location.pathname;
+        // کدهای زبان معتبر پروژه شما
+        let validLangs = ['fa', 'en'];
+        let pathSegments = currentPath.split('/').filter(Boolean);
 
-    // اگر اولین بخش آدرس یک کد زبان معتبر بود، آن را جایگزین کن
-    if (pathSegments.length > 0 && validLangs.includes(pathSegments[0])) {
-        pathSegments[0] = targetLang;
-    } else {
-        // اگر آدرس بدون پیشوند زبان بود، زبان جدید را به اول آدرس اضافه کن
-        pathSegments.unshift(targetLang);
+        // اگر اولین بخش آدرس یک کد زبان معتبر بود، آن را جایگزین کن
+        if (pathSegments.length > 0 && validLangs.includes(pathSegments[0])) {
+            pathSegments[0] = targetLang;
+        } else {
+            // اگر آدرس بدون پیشوند زبان بود، زبان جدید را به اول آدرس اضافه کن
+            pathSegments.unshift(targetLang);
+        }
+
+        // بازسازی آدرس و اعمال اسلش انتهای آدرس
+        let newPath = '/' + pathSegments.join('/');
+        if (!newPath.endsWith('/')) {
+            newPath += '/';
+        }
+
+        if (window.location.search) {
+            newPath += window.location.search;
+        }
+
+        // ست کردن کوکی زبان برای جنگو
+        document.cookie = "django_language=" + targetLang + "; path=/;";
+
+        // انتقال به آدرس اصلاح‌شده
+        window.location.href = newPath;
     }
-
-    // بازسازی آدرس و اعمال اسلش انتهای آدرس
-    let newPath = '/' + pathSegments.join('/');
-    if (!newPath.endsWith('/')) {
-        newPath += '/';
-    }
-
-    if (window.location.search) {
-        newPath += window.location.search;
-    }
-
-    // ست کردن کوکی زبان برای جنگو
-    document.cookie = "django_language=" + targetLang + "; path=/;";
-
-    // انتقال به آدرس اصلاح‌شده
-    window.location.href = newPath;
-}
 </script>
 
 <script src="{% static 'js/jquery.scrollex.min.js' %}"></script>
