@@ -185,15 +185,7 @@ CKEDITOR_5_CONFIGS = {
             ],
             "shouldNotGroupWhenFull": True,
         },
-        "image": {
-            "toolbar": [
-                "imageTextAlternative", "|",
-                "imageStyle:alignLeft", "imageStyle:alignRight", "imageStyle:alignCenter", "imageStyle:side", "|"
-            ],
-            "styles": [
-                "full", "side", "alignLeft", "alignRight", "alignCenter",
-            ],
-        },
+
         "table": {
             "contentToolbar": [
                 "tableColumn", "tableRow", "mergeTableCells",
@@ -230,10 +222,57 @@ CKEDITOR_5_CONFIGS = {
             },
         },
         "link": {"defaultProtocol": "https://"},
+        "image": {
+            "toolbar": [
+                "imageTextAlternative", "|",
+                "imageStyle:inline", "imageStyle:wrapText", "imageStyle:breakText", "|",
+                "imageStyle:alignLeft", "imageStyle:alignRight", "imageStyle:alignCenter", "|",
+                "resizeImage",
+            ],
+            "styles": [
+                "full", "side", "alignLeft", "alignRight", "alignCenter",
+                "inline", "wrapText", "breakText"
+            ],
+            "resizeOptions": [
+                {
+                    "name": "resizeImage:original",
+                    "label": "Original",
+                    "value": None,
+                },
+                {
+                    "name": "resizeImage:25",
+                    "label": "25%",
+                    "value": "25",
+                },
+                {
+                    "name": "resizeImage:50",
+                    "label": "50%",
+                    "value": "50",
+                },
+                {
+                    "name": "resizeImage:75",
+                    "label": "75%",
+                    "value": "75",
+                },
+                {
+                    "name": "resizeImage:100",
+                    "label": "100%",
+                    "value": "100",
+                },
+            ],
+        },
+
+        # ۲. اجازه به تمام تگ‌ها، کلاس‌ها، ویژگی‌ها و استایل‌های inline
         "htmlSupport": {
             "allow": [
-                {"name": "/.*/", "attributes": True, "classes": True, "styles": True},
+                {
+                    "name": "/.*/",
+                    "attributes": True,
+                    "classes": True,
+                    "styles": True,
+                }
             ],
+            "disallow": []
         },
         "mention": {
             "feeds": [
