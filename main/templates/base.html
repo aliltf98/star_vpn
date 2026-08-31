@@ -176,7 +176,8 @@
 
     <header id="header">
         {% if '/register' in request.path %}
-            <h3 class="logo" style="border-color: transparent; border-radius: 16px; transition: all 0.5s ease-in-out">{% trans "Enter your information." %}</h3>
+            <h3 class="logo"
+                style="border-color: transparent; border-radius: 16px; transition: all 0.5s ease-in-out">{% trans "Enter your information." %}</h3>
         {% else %}
             {% if user.is_authenticated %}
                 <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
@@ -211,15 +212,18 @@
         </ul>
 
         <ul class="icons alt" style="display: flex; align-items: center;">
+            <!-- منوی سوئیچ تغییر زبان (استاندارد و بدون خطا) -->
             <li>
                 <form action="{% url 'set_language' %}" method="post" class="language-switcher-form">
                     {% csrf_token %}
-                    <!-- اصلاح کلیدی: تغییر نحوه ارسال زبان جهت رندر دقیق در تمام صفحات -->
-                    <select name="language" onchange="location = this.value;" class="language-select">
+                    <!-- ارسال مسیر بدون query string و پارامتر اضافی -->
+                    <input name="next" type="hidden" value="{{ request.path }}">
+
+                    <select name="language" onchange="this.form.submit()" class="language-select">
                         {% get_available_languages as LANGUAGES %}
                         {% get_language_info_list for LANGUAGES as languages %}
                         {% for lang in languages %}
-                            <option value="{% translate_url lang.code %}" {% if lang.code == LANGUAGE_CODE %}selected{% endif %}>
+                            <option value="{{ lang.code }}" {% if lang.code == LANGUAGE_CODE %}selected{% endif %}>
                                 {{ lang.name_local|title }}
                             </option>
                         {% endfor %}
@@ -231,19 +235,19 @@
                 <li>
                     <a href="{{ socials.link }}"
                        class="{% if socials.type == 'ei' %}brands alt fas fa-link
-                            {% elif socials.type == 'bl' %}brands alt fas fa-link
-                            {% elif socials.type == 'gb' %}icon brands alt fa-github
-                            {% elif socials.type == 'tg' %}icon brands alt fa-telegram
-                            {% elif socials.type == 'wp' %}icon brands alt fa-whatsapp
-                            {% elif socials.type == 'x' %}icon brands alt fa-twitter{% endif %}"
+                    {% elif socials.type == 'bl' %}brands alt fas fa-link
+                    {% elif socials.type == 'gb' %}icon brands alt fa-github
+                    {% elif socials.type == 'tg' %}icon brands alt fa-telegram
+                    {% elif socials.type == 'wp' %}icon brands alt fa-whatsapp
+                    {% elif socials.type == 'x' %}icon brands alt fa-twitter{% endif %}"
                             {% if socials.type == 'ei' or socials.type == 'bl' %}
                        style="width: 2.25rem;
-                                    height: 2.25rem;
-                                    line-height: 2.25rem;
-                                    display: inline-block;
-                                    text-align: center;
-                                    border-radius: 100%;
-                                    font-size: 1.25rem;"
+                            height: 2.25rem;
+                            line-height: 2.25rem;
+                            display: inline-block;
+                            text-align: center;
+                            border-radius: 100%;
+                            font-size: 1.25rem;"
                             {% endif %}>
                     </a>
                 </li>
