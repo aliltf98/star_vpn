@@ -16,6 +16,7 @@ urlpatterns += i18n_patterns(
     path('', include('main.urls')),
     path('', include('account.urls')),
     path('', include('services.urls')),
+    path('', include('market.urls')),
     prefix_default_language=True
 )
 
