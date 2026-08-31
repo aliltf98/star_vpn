@@ -8,9 +8,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
     <link rel="stylesheet" href="{% static 'css/main.css' %}"/>
-
     <link rel="stylesheet" href="{% static 'css/swiper-bundle.min.css' %}"/>
-
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <noscript>
         <link rel="stylesheet" href="{% static 'css/noscript.css' %}"/>
@@ -101,7 +99,6 @@
             border-radius: 10px !important;
         }
 
-        /* استایل اختصاصی فرم تغییر زبان */
         .language-switcher-form {
             display: inline-block;
             margin: 0 10px;
@@ -146,7 +143,6 @@
                 right: auto !important;
             }
         }
-
     </style>
 
     {% block styles %}{% endblock styles %}
@@ -171,7 +167,7 @@
         {% if MainH.logo %}
             <img src="{{ MainH.logo.url }}" style="margin-bottom: 20px; width: 15%">
         {% endif %}
-        <h1 style="background: linear-gradient( 192deg, rgba(223, 177, 91, 0.95) 0%, rgba(223, 177, 91, 0.3) 100% ); -webkit-background-clip: text; -webkit-text-fill-color: transparent;    filter: drop-shadow(0px 25px 10px rgba(0, 0, 0, 0.9)); font-weight: 800; display: inline-block;">{{ MainH.title }}</h1>
+        <h1 style="background: linear-gradient( 192deg, rgba(223, 177, 91, 0.95) 0%, rgba(223, 177, 91, 0.3) 100% ); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 25px 10px rgba(0, 0, 0, 0.9)); font-weight: 800; display: inline-block;">{{ MainH.title }}</h1>
         <p>{{ MainH.description|safe }}</p>
         <ul class="actions">
             <li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
@@ -183,10 +179,10 @@
             <h3 class="logo" style="border-color: transparent; border-radius: 16px; transition: all 0.5s ease-in-out">{% trans "Enter your information." %}</h3>
         {% else %}
             {% if user.is_authenticated %}
-                <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77);  border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
+                <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
                    href="/admin/" class="logo">{% trans 'Account management' %}</a>
             {% else %}
-                <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77);  border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
+                <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
                    href="{% url 'register' %}" class="logo">{% trans 'Login / Register' %}</a>
             {% endif %}
         {% endif %}
@@ -200,7 +196,8 @@
             {% for sl in MainSL %}
                 {% if sl.show_in_nav %}
                     <li class="{% if page and page.page_id == sl.page_id %}active{% endif %}">
-                        <a href="{% url 'home' %}pages/{{ sl.page_id }}">{{ sl.title }}</a>
+                        <!-- اصلاح: استفاده از URL نسبی استاندارد به همراه LANGUAGE_CODE اولیه -->
+                        <a href="/{{ LANGUAGE_CODE }}/pages/{{ sl.page_id }}">{{ sl.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -214,20 +211,16 @@
         </ul>
 
         <ul class="icons alt" style="display: flex; align-items: center;">
-            <!-- منوی سوئیچ تغییر زبان (اصلاح‌شده) -->
             <li>
                 <form action="{% url 'set_language' %}" method="post" class="language-switcher-form">
                     {% csrf_token %}
-                    <input name="next" type="hidden" value="{{ request.path }}">
-
-                    <select name="language" onchange="this.form.submit()" class="language-select">
-                        {% get_current_language as CURRENT_LANG %}
+                    <!-- اصلاح کلیدی: تغییر نحوه ارسال زبان جهت رندر دقیق در تمام صفحات -->
+                    <select name="language" onchange="location = this.value;" class="language-select">
                         {% get_available_languages as LANGUAGES %}
                         {% get_language_info_list for LANGUAGES as languages %}
-                        {% for language in languages %}
-                            <option value="{{ language.code }}"
-                                    {% if language.code == CURRENT_LANG %}selected{% endif %}>
-                                {{ language.name_local|title }}
+                        {% for lang in languages %}
+                            <option value="{% translate_url lang.code %}" {% if lang.code == LANGUAGE_CODE %}selected{% endif %}>
+                                {{ lang.name_local|title }}
                             </option>
                         {% endfor %}
                     </select>
