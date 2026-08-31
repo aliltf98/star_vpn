@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-31 13:53+0330\n"
-"PO-Revision-Date: 2026-08-31 14:00+0330\n"
+"POT-Creation-Date: 2026-09-01 02:17+0330\n"
+"PO-Revision-Date: 2026-09-01 02:25+0330\n"
 "Last-Translator: StarVPN Team <info@starvpn.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "Language: fa\n"
@@ -25,7 +25,7 @@ msgid "sign up"
 msgstr "ثبت‌نام"
 
 #: .\account\templates\signin.html:2 .\account\templates\signup.html:2
-#: .\main\templates\base.html:154
+#: .\main\templates\base.html:198
 msgid "Enter your information."
 msgstr "اطلاعات خود را وارد کنید."
 
@@ -62,87 +62,114 @@ msgid "Reset Form"
 msgstr "پاک‌سازی فرم"
 
 #: .\account\templates\subscription.html:5
-#: .\account\templates\subscription.html:11
+#: .\account\templates\subscription.html:10
 msgid "Subscription"
 msgstr "اشتراک"
 
-#: .\account\templates\subscription.html:168
-msgid "User account details"
-msgstr "جزئیات حساب کاربری"
+#: .\account\templates\subscription.html:210
+msgid "User Not Found"
+msgstr "کاربر یافت نشد"
 
-#: .\account\templates\subscription.html:171
-msgid "Username"
-msgstr "نام کاربری"
+#: .\account\templates\subscription.html:211
+msgid "The requested user does not exist in the database or panel."
+msgstr "کاربر مورد نظر در پایگاه داده یا پنل یافت نشد."
 
-#: .\account\templates\subscription.html:175
-msgid "Account status"
-msgstr "وضعیت حساب"
+#: .\account\templates\subscription.html:215
+#: .\account\templates\subscription.html:224
+msgid "Authentication Required"
+msgstr "احراز هویت لازم است"
 
-#: .\account\templates\subscription.html:178
-msgid "Active"
-msgstr "فعال"
+#: .\account\templates\subscription.html:216
+#: .\account\templates\subscription.html:225
+msgid "Please log in to access your account details."
+msgstr "لطفاً برای دسترسی به اطلاعات حساب خود وارد شوید."
 
-#: .\account\templates\subscription.html:185
-msgid "Total allocated volume"
-msgstr "حجم کل اختصاص یافته"
-
-#: .\account\templates\subscription.html:189
-msgid "Volume consumed (total)"
-msgstr "حجم مصرف شده (کل)"
-
-#: .\account\templates\subscription.html:193
-msgid "Expire Date"
-msgstr "تاریخ انقضا"
-
-#: .\account\templates\subscription.html:198
-msgid "Unlimited"
-msgstr "نامحدود"
-
-#: .\account\templates\subscription.html:205
-msgid "Note"
-msgstr "یادداشت"
-
-#: .\account\templates\subscription.html:212
-msgid "Connected devices and the volume consumption of each"
-msgstr "دستگاه‌های متصل و میزان مصرف هرکدام"
-
-#: .\account\templates\subscription.html:219
-msgid "Device name and model"
-msgstr "نام و مدل دستگاه"
-
-#: .\account\templates\subscription.html:220
-msgid "Device ID"
-msgstr "شناسه دستگاه (ID)"
-
-#: .\account\templates\subscription.html:221
-msgid "Device consumption volume"
-msgstr "حجم مصرفی دستگاه"
-
-#: .\account\templates\subscription.html:222
-msgid "Access status"
-msgstr "وضعیت دسترسی"
-
-#: .\account\templates\subscription.html:236
-msgid "Blocked"
-msgstr "مسدود شده"
-
-#: .\account\templates\subscription.html:238
-msgid "Allowed"
-msgstr "مجاز"
-
-#: .\account\templates\subscription.html:247
-msgid "There are no devices connected to this account."
-msgstr "هیچ دستگاهی به این حساب متصل نیست."
-
-#: .\main\templates\base.html:158
-msgid "Account management"
-msgstr "مدیریت حساب کاربری"
-
-#: .\main\templates\base.html:161
+#: .\account\templates\subscription.html:217
+#: .\account\templates\subscription.html:226 .\main\templates\base.html:205
 msgid "Login / Register"
 msgstr "ورود / ثبت‌نام"
 
-#: .\main\templates\base.html:168
+#: .\account\templates\subscription.html:232
+msgid "Access Denied"
+msgstr "عدم دسترسی"
+
+#: .\account\templates\subscription.html:233
+msgid "You do not have permission to view this subscription profile."
+msgstr "شما اجازه مشاهده اطلاعات این اشتراک را ندارید."
+
+#: .\account\templates\subscription.html:239
+msgid "User account details"
+msgstr "جزئیات حساب کاربری"
+
+#: .\account\templates\subscription.html:242
+msgid "Username"
+msgstr "نام کاربری"
+
+#: .\account\templates\subscription.html:246
+msgid "Account status"
+msgstr "وضعیت حساب"
+
+#: .\account\templates\subscription.html:249
+msgid "Active"
+msgstr "فعال"
+
+#: .\account\templates\subscription.html:256
+msgid "Total allocated volume"
+msgstr "حجم کل اختصاص یافته"
+
+#: .\account\templates\subscription.html:260
+msgid "Volume consumed (total)"
+msgstr "حجم مصرف شده (کل)"
+
+#: .\account\templates\subscription.html:264
+msgid "Expire Date"
+msgstr "تاریخ انقضا"
+
+#: .\account\templates\subscription.html:269
+msgid "Unlimited"
+msgstr "نامحدود"
+
+#: .\account\templates\subscription.html:276
+msgid "Note"
+msgstr "یادداشت"
+
+#: .\account\templates\subscription.html:283
+msgid "Connected devices and the volume consumption of each"
+msgstr "دستگاه‌های متصل و میزان مصرف هرکدام"
+
+#: .\account\templates\subscription.html:290
+msgid "Device name and model"
+msgstr "نام و مدل دستگاه"
+
+#: .\account\templates\subscription.html:291
+msgid "Device ID"
+msgstr "شناسه دستگاه (ID)"
+
+#: .\account\templates\subscription.html:292
+msgid "Device consumption volume"
+msgstr "حجم مصرفی دستگاه"
+
+#: .\account\templates\subscription.html:293
+msgid "Access status"
+msgstr "وضعیت دسترسی"
+
+#: .\account\templates\subscription.html:307
+msgid "Blocked"
+msgstr "مسدود شده"
+
+#: .\account\templates\subscription.html:309
+msgid "Allowed"
+msgstr "مجاز"
+
+#: .\account\templates\subscription.html:318
+msgid "There are no devices connected to this account."
+msgstr "هیچ دستگاهی به این حساب متصل نیست."
+
+#: .\main\templates\base.html:202
+msgid "Account management"
+msgstr "مدیریت حساب کاربری"
+
+#: .\main\templates\base.html:212
 msgid "Home"
 msgstr "صفحه اصلی"
 

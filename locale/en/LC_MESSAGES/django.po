@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-31 13:34+0330\n"
-"PO-Revision-Date: 2026-08-31 13:40+0330\n"
+"POT-Creation-Date: 2026-09-01 02:17+0330\n"
+"PO-Revision-Date: 2026-09-01 02:25+0330\n"
 "Last-Translator: StarVPN Team <info@starvpn.com>\n"
 "Language-Team: English <en@li.org>\n"
 "Language: en\n"
@@ -23,7 +23,7 @@ msgid "sign up"
 msgstr "sign up"
 
 #: .\account\templates\signin.html:2 .\account\templates\signup.html:2
-#: .\main\templates\base.html:154
+#: .\main\templates\base.html:198
 msgid "Enter your information."
 msgstr "Enter your information."
 
@@ -60,87 +60,114 @@ msgid "Reset Form"
 msgstr "Reset Form"
 
 #: .\account\templates\subscription.html:5
-#: .\account\templates\subscription.html:11
+#: .\account\templates\subscription.html:10
 msgid "Subscription"
 msgstr "Subscription"
 
-#: .\account\templates\subscription.html:168
-msgid "User account details"
-msgstr "User account details"
+#: .\account\templates\subscription.html:210
+msgid "User Not Found"
+msgstr "User Not Found"
 
-#: .\account\templates\subscription.html:171
-msgid "Username"
-msgstr "Username"
+#: .\account\templates\subscription.html:211
+msgid "The requested user does not exist in the database or panel."
+msgstr "The requested user does not exist in the database or panel."
 
-#: .\account\templates\subscription.html:175
-msgid "Account status"
-msgstr "Account status"
+#: .\account\templates\subscription.html:215
+#: .\account\templates\subscription.html:224
+msgid "Authentication Required"
+msgstr "Authentication Required"
 
-#: .\account\templates\subscription.html:178
-msgid "Active"
-msgstr "Active"
+#: .\account\templates\subscription.html:216
+#: .\account\templates\subscription.html:225
+msgid "Please log in to access your account details."
+msgstr "Please log in to access your account details."
 
-#: .\account\templates\subscription.html:185
-msgid "Total allocated volume"
-msgstr "Total allocated volume"
-
-#: .\account\templates\subscription.html:189
-msgid "Volume consumed (total)"
-msgstr "Volume consumed (total)"
-
-#: .\account\templates\subscription.html:193
-msgid "Expire Date"
-msgstr "Expire Date"
-
-#: .\account\templates\subscription.html:198
-msgid "Unlimited"
-msgstr "Unlimited"
-
-#: .\account\templates\subscription.html:205
-msgid "Note"
-msgstr "Note"
-
-#: .\account\templates\subscription.html:212
-msgid "Connected devices and the volume consumption of each"
-msgstr "Connected devices and the volume consumption of each"
-
-#: .\account\templates\subscription.html:219
-msgid "Device name and model"
-msgstr "Device name and model"
-
-#: .\account\templates\subscription.html:220
-msgid "Device ID"
-msgstr "Device ID"
-
-#: .\account\templates\subscription.html:221
-msgid "Device consumption volume"
-msgstr "Device consumption volume"
-
-#: .\account\templates\subscription.html:222
-msgid "Access status"
-msgstr "Access status"
-
-#: .\account\templates\subscription.html:236
-msgid "Blocked"
-msgstr "Blocked"
-
-#: .\account\templates\subscription.html:238
-msgid "Allowed"
-msgstr "Allowed"
-
-#: .\account\templates\subscription.html:247
-msgid "There are no devices connected to this account."
-msgstr "There are no devices connected to this account."
-
-#: .\main\templates\base.html:158
-msgid "Account management"
-msgstr "Account management"
-
-#: .\main\templates\base.html:161
+#: .\account\templates\subscription.html:217
+#: .\account\templates\subscription.html:226 .\main\templates\base.html:205
 msgid "Login / Register"
 msgstr "Login / Register"
 
-#: .\main\templates\base.html:168
+#: .\account\templates\subscription.html:232
+msgid "Access Denied"
+msgstr "Access Denied"
+
+#: .\account\templates\subscription.html:233
+msgid "You do not have permission to view this subscription profile."
+msgstr "You do not have permission to view this subscription profile."
+
+#: .\account\templates\subscription.html:239
+msgid "User account details"
+msgstr "User account details"
+
+#: .\account\templates\subscription.html:242
+msgid "Username"
+msgstr "Username"
+
+#: .\account\templates\subscription.html:246
+msgid "Account status"
+msgstr "Account status"
+
+#: .\account\templates\subscription.html:249
+msgid "Active"
+msgstr "Active"
+
+#: .\account\templates\subscription.html:256
+msgid "Total allocated volume"
+msgstr "Total allocated volume"
+
+#: .\account\templates\subscription.html:260
+msgid "Volume consumed (total)"
+msgstr "Volume consumed (total)"
+
+#: .\account\templates\subscription.html:264
+msgid "Expire Date"
+msgstr "Expire Date"
+
+#: .\account\templates\subscription.html:269
+msgid "Unlimited"
+msgstr "Unlimited"
+
+#: .\account\templates\subscription.html:276
+msgid "Note"
+msgstr "Note"
+
+#: .\account\templates\subscription.html:283
+msgid "Connected devices and the volume consumption of each"
+msgstr "Connected devices and the volume consumption of each"
+
+#: .\account\templates\subscription.html:290
+msgid "Device name and model"
+msgstr "Device name and model"
+
+#: .\account\templates\subscription.html:291
+msgid "Device ID"
+msgstr "Device ID"
+
+#: .\account\templates\subscription.html:292
+msgid "Device consumption volume"
+msgstr "Device consumption volume"
+
+#: .\account\templates\subscription.html:293
+msgid "Access status"
+msgstr "Access status"
+
+#: .\account\templates\subscription.html:307
+msgid "Blocked"
+msgstr "Blocked"
+
+#: .\account\templates\subscription.html:309
+msgid "Allowed"
+msgstr "Allowed"
+
+#: .\account\templates\subscription.html:318
+msgid "There are no devices connected to this account."
+msgstr "There are no devices connected to this account."
+
+#: .\main\templates\base.html:202
+msgid "Account management"
+msgstr "Account management"
+
+#: .\main\templates\base.html:212
 msgid "Home"
 msgstr "Home"
 
