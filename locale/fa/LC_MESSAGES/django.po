@@ -1,0 +1,171 @@
+# StarVPN Persian Translation File.
+# Copyright (C) 2026 StarVPN Team
+# This file is distributed under the same license as the StarVPN package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-31 13:53+0330\n"
+"PO-Revision-Date: 2026-08-31 14:00+0330\n"
+"Last-Translator: StarVPN Team <info@starvpn.com>\n"
+"Language-Team: Persian <fa@li.org>\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\account\templates\registration.html:27
+msgid "sign in"
+msgstr "ورود"
+
+#: .\account\templates\registration.html:32
+msgid "sign up"
+msgstr "ثبت‌نام"
+
+#: .\account\templates\signin.html:2 .\account\templates\signup.html:2
+#: .\main\templates\base.html:154
+msgid "Enter your information."
+msgstr "اطلاعات خود را وارد کنید."
+
+#: .\account\templates\signin.html:7
+msgid "Phone number / username"
+msgstr "شماره موبایل / نام کاربری"
+
+#: .\account\templates\signin.html:10 .\account\templates\signup.html:13
+msgid "Password"
+msgstr "رمز عبور"
+
+#: .\account\templates\signin.html:15
+msgid "Sign in"
+msgstr "ورود به حساب"
+
+#: .\account\templates\signup.html:7
+msgid "username"
+msgstr "نام کاربری"
+
+#: .\account\templates\signup.html:10
+msgid "Phone number"
+msgstr "شماره موبایل"
+
+#: .\account\templates\signup.html:16
+msgid "Confirm Password"
+msgstr "تکرار رمز عبور"
+
+#: .\account\templates\signup.html:21
+msgid "Sign up"
+msgstr "ایجاد حساب کاربری"
+
+#: .\account\templates\signup.html:22
+msgid "Reset Form"
+msgstr "پاک‌سازی فرم"
+
+#: .\account\templates\subscription.html:5
+#: .\account\templates\subscription.html:11
+msgid "Subscription"
+msgstr "اشتراک"
+
+#: .\account\templates\subscription.html:168
+msgid "User account details"
+msgstr "جزئیات حساب کاربری"
+
+#: .\account\templates\subscription.html:171
+msgid "Username"
+msgstr "نام کاربری"
+
+#: .\account\templates\subscription.html:175
+msgid "Account status"
+msgstr "وضعیت حساب"
+
+#: .\account\templates\subscription.html:178
+msgid "Active"
+msgstr "فعال"
+
+#: .\account\templates\subscription.html:185
+msgid "Total allocated volume"
+msgstr "حجم کل اختصاص یافته"
+
+#: .\account\templates\subscription.html:189
+msgid "Volume consumed (total)"
+msgstr "حجم مصرف شده (کل)"
+
+#: .\account\templates\subscription.html:193
+msgid "Expire Date"
+msgstr "تاریخ انقضا"
+
+#: .\account\templates\subscription.html:198
+msgid "Unlimited"
+msgstr "نامحدود"
+
+#: .\account\templates\subscription.html:205
+msgid "Note"
+msgstr "یادداشت"
+
+#: .\account\templates\subscription.html:212
+msgid "Connected devices and the volume consumption of each"
+msgstr "دستگاه‌های متصل و میزان مصرف هرکدام"
+
+#: .\account\templates\subscription.html:219
+msgid "Device name and model"
+msgstr "نام و مدل دستگاه"
+
+#: .\account\templates\subscription.html:220
+msgid "Device ID"
+msgstr "شناسه دستگاه (ID)"
+
+#: .\account\templates\subscription.html:221
+msgid "Device consumption volume"
+msgstr "حجم مصرفی دستگاه"
+
+#: .\account\templates\subscription.html:222
+msgid "Access status"
+msgstr "وضعیت دسترسی"
+
+#: .\account\templates\subscription.html:236
+msgid "Blocked"
+msgstr "مسدود شده"
+
+#: .\account\templates\subscription.html:238
+msgid "Allowed"
+msgstr "مجاز"
+
+#: .\account\templates\subscription.html:247
+msgid "There are no devices connected to this account."
+msgstr "هیچ دستگاهی به این حساب متصل نیست."
+
+#: .\main\templates\base.html:158
+msgid "Account management"
+msgstr "مدیریت حساب کاربری"
+
+#: .\main\templates\base.html:161
+msgid "Login / Register"
+msgstr "ورود / ثبت‌نام"
+
+#: .\main\templates\base.html:168
+msgid "Home"
+msgstr "صفحه اصلی"
+
+#: .\main\templates\home_section_page.html:45
+msgid "Read more"
+msgstr "ادامه مطلب"
+
+#: .\main\templates\home_section_plan.html:3
+msgid "Subscription plans"
+msgstr "پلن‌های اشتراک"
+
+#: .\main\templates\home_section_plan.html:16
+msgid "Choose plan"
+msgstr "انتخاب پلن"
+
+#: .\main\templates\pages.html:155
+msgid "Applications And Files"
+msgstr "برنامه‌ها و فایل‌ها"
+
+#: .\main\templates\pages.html:170
+msgid "Select the download link"
+msgstr "انتخاب لینک دانلود"
+
+#: .\main\templates\pages.html:174
+msgid "Download"
+msgstr "دانلود"

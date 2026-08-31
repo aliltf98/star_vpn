@@ -1,6 +1,6 @@
+{% load i18n %}
 {% if MainPL %}
-    <h2 style="text-align: center; margin-top: 50px; margin-bottom: 40px; font-weight: 800; letter-spacing: 1px;">
-        پلن‌های اشتراک</h2>
+    <h2 style="text-align: center; margin-top: 50px; margin-bottom: 40px; font-weight: 800; letter-spacing: 1px;">{% trans 'Subscription plans' %}</h2>
     <div class="swiper mySwiper" style="border-color: transparent">
         <div class="swiper-wrapper" style="bottom: 30px">
             {% for plan in MainPL %}
@@ -13,7 +13,7 @@
                         <div class="card-footer-section">
                             <span class="plan-price">{{ plan.price }}</span>
                             <ul class="actions special">
-                                <li><a href="#" class="button primary small plan-btn">خرید پلن</a></li>
+                                <li><a href="#" class="button primary small plan-btn">{% trans 'Choose plan' %}</a></li>
                             </ul>
                         </div>
                     </div>

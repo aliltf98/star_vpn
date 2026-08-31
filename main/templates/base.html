@@ -1,6 +1,8 @@
 {% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en" dir="rtl">
+<html {% if LANGUAGE_CODE == 'fa' %} lang="fa" dir="rtl"{% else %} lang="en" dir="ltr"{% endif %}>
 <head>
     <title>{% block title %}{% endblock title %}</title>
     <meta charset="utf-8"/>
@@ -27,7 +29,7 @@
             backdrop-filter: var(--glass-blur) !important;
             -webkit-backdrop-filter: var(--glass-blur) !important;
             border: 1px solid var(--glass-border) !important;
-        {#border-radius: 16px !important;#} box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3) !important;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3) !important;
             color: var(--text-light) !important;
         }
 
@@ -40,6 +42,9 @@
             backdrop-filter: blur(15px) !important;
             -webkit-backdrop-filter: blur(15px) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #nav .links li {
@@ -96,6 +101,29 @@
             border-radius: 10px !important;
         }
 
+        /* استایل اختصاصی فرم تغییر زبان */
+        .language-switcher-form {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .language-select {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: var(--accent-gold) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            padding: 4px 10px !important;
+            font-size: 0.85rem !important;
+            cursor: pointer;
+            height: auto !important;
+            outline: none;
+        }
+
+        .language-select option {
+            background: #1e272e !important;
+            color: #ffffff !important;
+        }
+
         @media screen and (max-width: 768px) {
             .custom-responsive-figure {
                 width: 100% !important;
@@ -149,23 +177,22 @@
     </div>
 
     <header id="header">
-        {% if request.path == '/register' %}
-            <h3 class="logo" style="border-color: transparent; border-radius: 16px; transition: all 0.5s ease-in-out">
-                اطلاعات خود را وارد کنید</h3>
+        {% if '/register' in request.path %}
+            <h3 class="logo" style="border-color: transparent; border-radius: 16px; transition: all 0.5s ease-in-out">{% trans "Enter your information." %}</h3>
         {% else %}
             {% if user.is_authenticated %}
                 <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77);  border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
-                   href="/admin" class="logo">مدیریت حساب کاربری</a>
+                   href="/admin" class="logo">{% trans 'Account management' %}</a>
             {% else %}
                 <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77);  border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
-                   href="register" class="logo">ورود / ثبت نام</a>
+                   href="{% url 'register' %}" class="logo">{% trans 'Login / Register' %}</a>
             {% endif %}
         {% endif %}
     </header>
     <nav id="nav">
         <ul class="links" style="font-family: Vazir;">
-            <li class="{% if request.path == '/' %}active{% endif %}">
-                <a href="/">خانه</a>
+            <li class="{% if request.path == '/' or request.path == '/fa/' or request.path == '/en/' %}active{% endif %}">
+                <a href="{% url 'home' %}">{% trans 'Home' %}</a>
             </li>
 
             {% for sl in MainSL %}
@@ -183,7 +210,26 @@
             {% block nav %}
             {% endblock nav %}
         </ul>
-        <ul class="icons alt">
+
+        <ul class="icons alt" style="display: flex; align-items: center;">
+            <!-- منوی سوئیچ تغییر زبان -->
+            <li>
+                <form action="{% url 'set_language' %}" method="post" class="language-switcher-form">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <select name="language" onchange="this.form.submit()" class="language-select">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
+                                {{ language.name_local|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </li>
+
             {% for socials in SM %}
                 <li>
                     <a href="{{ socials.link }}"
@@ -208,6 +254,9 @@
         </ul>
     </nav>
     {% block body %}
+    {{ LANGUAGES }}
+    {{ LANGUAGE_CODE }}
+
     {% endblock body %}
     <div id="copyright" style="font-family: Vazir">
         <ul>

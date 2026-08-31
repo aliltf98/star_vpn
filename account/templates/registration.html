@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 <style>
 
 </style>
@@ -23,12 +24,12 @@
 {% block nav %}
                 <li id="lisignin" class="active">
                 <a href="#" onclick="changeTab(event, 'signin'); $('#lisignin').addClass('active'); $('#lisignup').removeClass('active')" class="pwa-signin-button">
-                    ورود
+                    {% trans "sign in" %}
                 </a>
             </li>
             <li id="lisignup" >
                 <a href="#" onclick="changeTab(event, 'signup'); $('#lisignup').addClass('active'); $('#lisignin').removeClass('active')" class="pwa-signup-button">
-                    ثبت نام
+                    {% trans "sign up" %}
                 </a>
             </li>
 {% endblock nav %}

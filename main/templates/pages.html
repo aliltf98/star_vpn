@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}
     {{ page.title }}
@@ -151,7 +152,7 @@
             </div>
 
             {% if page.page.file.all %}
-                <h2 class="download-section-title">دانلود نرم‌افزارها و فایل‌های پیوست</h2>
+                <h2 class="download-section-title">{% trans 'Applications And Files' %}</h2>
                 <div class="download-container">
                     {% for f in page.page.file.all %}
                         <div class="glass-download-card">
@@ -166,11 +167,11 @@
                             <div class="download-card-footer">
                                 {% if f.link %}
                                     <a href="{{ f.link }}" target="_blank" class="button small glass-dl-btn glass-link-btn">
-                                        <i class="fas fa-external-link-alt" style="margin-left: 5px;"></i> ورود به لینک دانلود
+                                        <i class="fas fa-external-link-alt" style="margin-left: 5px;"></i>{% trans 'Select the download link' %}
                                     </a>
                                 {% else %}
                                     <a href="{{ f.file.url }}" class="button small glass-dl-btn">
-                                        <i class="fas fa-download" style="margin-left: 5px;"></i> دانلود مستقیم برنامه
+                                        <i class="fas fa-download" style="margin-left: 5px;"></i>{% trans 'Download' %}
                                     </a>
                                 {% endif %}
                             </div>

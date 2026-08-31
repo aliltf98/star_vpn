@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 
 {% block title %}
-    اشتراگ {{ user }}
+{% trans 'Subscription' %}{{ user }}
 {% endblock title %}
 
 
 {% block nav %}
     <li class="{% if '/subscription/' in request.path %}active{% endif %}">
-        <a href="{{ request.path }}">اشتراک</a>
+        <a href="{{ request.path }}">{% trans 'Subscription' %}</a>
     </li>
 {% endblock nav %}
 {% block styles %}
@@ -165,61 +165,61 @@
     <div class="sub-container">
 
         <div class="glass-card">
-            <div class="glass-card-title">مشخصات اشتراک کاربری</div>
+            <div class="glass-card-title">{% trans 'User account details' %}</div>
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label">نام کاربری</div>
+                    <div class="info-label">{% trans 'Username' %}</div>
                     <div class="info-value">{{ user }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">وضعیت اکانت</div>
+                    <div class="info-label">{% trans 'Account status' %}</div>
                     <div class="info-value">
                         {% if status == 'active' %}
-                            <span class="glass-badge badge-active">فعال</span>
+                            <span class="glass-badge badge-active">{% trans 'Active' %}</span>
                         {% else %}
                             <span class="glass-badge badge-blocked">{{ status }}</span>
                         {% endif %}
                     </div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">کل حجم اختصاص یافته</div>
+                    <div class="info-label">{% trans 'Total allocated volume' %}</div>
                     <div class="info-value" style="color: var(--text-main);">{{ data_limit }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">حجم مصرف شده (کل)</div>
+                    <div class="info-label">{% trans 'Volume consumed (total)' %}</div>
                     <div class="info-value" style="color: var(--accent-red);">{{ used_traffic }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">تاریخ انقضا</div>
+                    <div class="info-label">{% trans 'Expire Date' %}</div>
                     <div class="info-value">
                         {% if expire %}
                             {{ expire }}
                         {% else %}
-                            <span style="color: var(--text-muted); font-size: 0.9rem;">بدون محدودیت</span>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;">{% trans 'Unlimited' %}</span>
                         {% endif %}
                     </div>
                 </div>
             </div>
             {% if note %}
                 <div class="info-item" style="margin-top: 16px; text-align: right;">
-                    <div class="info-label">یادداشت</div>
+                    <div class="info-label">{% trans 'Note' %}</div>
                     <div class="info-value" style="font-size: 0.95rem;">{{ note }}</div>
                 </div>
             {% endif %}
         </div>
 
         <div class="glass-card">
-            <div class="glass-card-title">دستگاه‌های متصل و میزان مصرف حجم هر کدام</div>
+            <div class="glass-card-title">{% trans 'Connected devices and the volume consumption of each' %}</div>
             {% if devices %}
                 <div class="table-responsive">
                     <table class="glass-table">
                         <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
-                            <th>نام و مدل دستگاه</th>
-                            <th>شناسه دستگاه (Device ID)</th>
-                            <th>حجم مصرفی دستگاه</th>
-                            <th>وضعیت دسترسی</th>
+                            <th>{% trans 'Device name and model' %}</th>
+                            <th>{% trans 'Device ID' %}</th>
+                            <th>{% trans 'Device consumption volume' %}</th>
+                            <th>{% trans 'Access status' %}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -233,9 +233,9 @@
                                 </td>
                                 <td>
                                     {% if device.is_blocked %}
-                                        <span class="glass-badge badge-blocked">مسدود شده</span>
+                                        <span class="glass-badge badge-blocked">{% trans 'Blocked' %}</span>
                                     {% else %}
-                                        <span class="glass-badge badge-active">مجاز</span>
+                                        <span class="glass-badge badge-active">{% trans 'Allowed' %}</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -244,8 +244,7 @@
                     </table>
                 </div>
             {% else %}
-                <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">هیچ دستگاهی به این اکانت متصل
-                    نیست.</p>
+                <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">{% trans 'There are no devices connected to this account.' %}</p>
             {% endif %}
         </div>
 

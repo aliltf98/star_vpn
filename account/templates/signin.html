@@ -1,18 +1,18 @@
-
-<h2>اطلاعات خود را وارد کنید</h2>
+{% load i18n %}
+<h2>{% trans "Enter your information." %}</h2>
 <form method="post" action="">
     {% csrf_token %}
     <div class="row gtr-uniform">
         <div class="col-6 col-12-xsmall">
-            <input type="text" name="username" required value="" placeholder=" شماره تلفن / نام کاربری" />
+            <input type="text" name="username" required value="" placeholder="{% trans 'Phone number / username' %}" />
         </div>
         <div class="col-6 col-12-xsmall">
-            <input type="password" name="pass1" required value="" placeholder="کلمه عبور" />
+            <input type="password" name="pass1" required value="" placeholder="{% trans 'Password' %}" />
         </div>
         <input type="hidden" name="reg" value="signin">
         <div class="col-12">
             <ul class="actions">
-                <li><input type="submit" value="ورود" class="custombtn" /></li>
+                <li><input type="submit" value="{% trans 'Sign in' %}" class="custombtn" /></li>
             </ul>
         </div>
     </div>
