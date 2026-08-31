@@ -4749,3 +4749,12 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
     }
 
 }
+figure.image {
+    width: 100% !important;
+}
+
+figure.image img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover;
+}

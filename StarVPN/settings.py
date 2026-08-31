@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-21e&12_10q7t!r@o)l_(5y0sn++f2rk^@!tf4%smijs$g^bi%-
 DEBUG = False
 
 ALLOWED_HOSTS = ['37.152.191.90', '127.0.0.1', 'localhost']
-CSRF_TRUSTED_ORIGINS = ['http://37.152.191.90', 'http://37.152.191.90:8085', '127.0.0.1', 'localhost']
+CSRF_TRUSTED_ORIGINS = ['http://37.152.191.90','http://37.152.191.90:8085', 'http://127.0.0.1', 'http://127.0.0.1:8000', 'http://localhost', 'http://localhost:8000',
+]
 
 # Application definition
 
@@ -152,39 +153,22 @@ customColorPalette = [
 
 CKEDITOR_5_CONFIGS = {
     "default": {
-        "toolbar": [
-            "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList",
-            "blockQuote", "|", "outdent", "indent", "alignment",
-        ],
-        "language": "en",
-    },
-    "comment": {
-        "language": "en",
-        "toolbar": [
-            "heading", "|", "bold", "italic", "link", "bulletedList", "numberedList", "blockQuote",
-        ],
+        "toolbar": ["heading", "|", "bold", "italic", "link"],
     },
     "extends": {
         "language": "en",
-        "blockToolbar": [
-            "paragraph", "heading1", "heading2", "heading3", "|",
-            "bulletedList", "numberedList", "|", "blockQuote",
+        "toolbar": [
+            "heading", "horizontalLine", "codeBlock", "htmlEmbed", "|",
+            "outdent", "indent", "alignment", "|",
+            "bold", "italic", "link", "underline", "strikethrough", "code",
+            "subscript", "superscript", "highlight", "|",
+            "bulletedList", "numberedList", "todoList", "|",
+            "blockQuote", "imageUpload", "|",
+            "fontSize", "fontFamily", "fontColor", "fontBackgroundColor",
+            "mediaEmbed", "removeFormat", "insertTable", "sourceEditing",
+            "specialCharacters", "showBlocks", "selectAll",
+            "findAndReplace", "emoji",
         ],
-        "toolbar": {
-            "items": [
-                "heading", "horizontalLine", "codeBlock", "htmlEmbed", "|",
-                "outdent", "indent", "alignment", "|",
-                "bold", "italic", "link", "underline", "strikethrough", "code",
-                "subscript", "superscript", "highlight", "|",
-                "bulletedList", "numberedList", "todoList", "|",
-                "blockQuote", "imageUpload", "|",
-                "fontSize", "fontFamily", "fontColor", "fontBackgroundColor",
-                "mediaEmbed", "removeFormat", "insertTable", "sourceEditing",
-                "style", "specialCharacters", "showBlocks", "selectAll",
-                "findAndReplace", "emoji",
-            ],
-            "shouldNotGroupWhenFull": True,
-        },
         "table": {
             "contentToolbar": [
                 "tableColumn", "tableRow", "mergeTableCells",
@@ -199,12 +183,8 @@ CKEDITOR_5_CONFIGS = {
                 "backgroundColors": customColorPalette,
             },
         },
-        "fontColor": {
-            "colors": customColorPalette
-        },
-        "fontBackgroundColor": {
-            "colors": customColorPalette
-        },
+        "fontColor": {"colors": customColorPalette},
+        "fontBackgroundColor": {"colors": customColorPalette},
         "heading": {
             "options": [
                 {"model": "paragraph", "title": "Paragraph", "class": "ck-heading_paragraph"},
@@ -213,59 +193,42 @@ CKEDITOR_5_CONFIGS = {
                 {"model": "heading3", "view": "h3", "title": "Heading 3", "class": "ck-heading_heading3"},
             ],
         },
-        "list": {
-            "properties": {
-                "styles": True,
-                "startIndex": True,
-                "reversed": True,
-            },
-        },
         "link": {"defaultProtocol": "https://"},
-        "image": {
-            "toolbar": [
-                "imageTextAlternative", "|",
-                "imageStyle:inline", "imageStyle:wrapText", "imageStyle:breakText", "|",
-                "imageStyle:alignLeft", "imageStyle:alignRight", "imageStyle:alignCenter", "|",
-                "resizeImage",
-            ],
-            "styles": [
-                "full", "side", "alignLeft", "alignRight", "alignCenter",
-                "inline", "wrapText", "breakText"
-            ],
-            "resizeOptions": [
-                {"name": "resizeImage:original", "label": "Original", "value": None},
-                {"name": "resizeImage:25", "label": "25%", "value": "25"},
-                {"name": "resizeImage:50", "label": "50%", "value": "50"},
-                {"name": "resizeImage:75", "label": "75%", "value": "75"},
-                {"name": "resizeImage:100", "label": "100%", "value": "100"},
-            ],
-        },
         "htmlSupport": {
             "allow": [
                 {
-                    "name": True,
+                    "name": "figure",
+                    "attributes": True,
+                    "classes": True,
+                    "styles": True,
+                },
+                {
+                    "name": "img",
+                    "attributes": True,
+                    "classes": True,
+                    "styles": True,
+                },
+                {
+                    "name": "span",
+                    "attributes": True,
+                    "classes": True,
+                    "styles": True,
+                },
+                {
+                    "name": "p",
+                    "attributes": True,
+                    "classes": True,
+                    "styles": True,
+                },
+                {
+                    "name": "div",
                     "attributes": True,
                     "classes": True,
                     "styles": True,
                 }
             ]
-        },
-        "mention": {
-            "feeds": [
-                {
-                    "marker": "@",
-                    "feed": ["@Admin", "@Support", "@Developer", "@User"],
-                    "minimumCharacters": 1,
-                },
-            ],
-        },
-        "style": {
-            "definitions": [
-                {"name": "Article category", "element": "h3", "classes": ["category"]},
-                {"name": "Info box", "element": "p", "classes": ["info-box"]},
-            ],
-        },
-    },
+        }
+    }
 }
 MY_CUSTOM_PROXY = {
     'http': 'http://m0k@vE6Vpqz22:K0oRx@aoNfz22@vidaonline.ir:110',

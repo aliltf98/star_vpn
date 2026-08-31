@@ -71,8 +71,8 @@ class PageLayout(models.Model):
         page = 'pg', 'page'
     page_type = models.CharField(max_length=20, choices=PageTypes.choices)
     description = CKEditor5Field(config_name='extends')
-    file = models.ManyToManyField('Files', related_name='pages', null=True, blank=True)
-    image_gallery = models.ManyToManyField(Gallery, null=True, blank=True)
+    file = models.ManyToManyField('Files', related_name='pages', blank=True)
+    image_gallery = models.ManyToManyField(Gallery, blank=True)
 
 class MainFooter(models.Model):
     description = CKEditor5Field(config_name='extends')
