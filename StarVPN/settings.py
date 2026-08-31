@@ -185,7 +185,6 @@ CKEDITOR_5_CONFIGS = {
             ],
             "shouldNotGroupWhenFull": True,
         },
-
         "table": {
             "contentToolbar": [
                 "tableColumn", "tableRow", "mergeTableCells",
@@ -234,45 +233,22 @@ CKEDITOR_5_CONFIGS = {
                 "inline", "wrapText", "breakText"
             ],
             "resizeOptions": [
-                {
-                    "name": "resizeImage:original",
-                    "label": "Original",
-                    "value": None,
-                },
-                {
-                    "name": "resizeImage:25",
-                    "label": "25%",
-                    "value": "25",
-                },
-                {
-                    "name": "resizeImage:50",
-                    "label": "50%",
-                    "value": "50",
-                },
-                {
-                    "name": "resizeImage:75",
-                    "label": "75%",
-                    "value": "75",
-                },
-                {
-                    "name": "resizeImage:100",
-                    "label": "100%",
-                    "value": "100",
-                },
+                {"name": "resizeImage:original", "label": "Original", "value": None},
+                {"name": "resizeImage:25", "label": "25%", "value": "25"},
+                {"name": "resizeImage:50", "label": "50%", "value": "50"},
+                {"name": "resizeImage:75", "label": "75%", "value": "75"},
+                {"name": "resizeImage:100", "label": "100%", "value": "100"},
             ],
         },
-
-        # ۲. اجازه به تمام تگ‌ها، کلاس‌ها، ویژگی‌ها و استایل‌های inline
         "htmlSupport": {
             "allow": [
                 {
-                    "name": "/.*/",
+                    "name": True,
                     "attributes": True,
                     "classes": True,
                     "styles": True,
                 }
-            ],
-            "disallow": []
+            ]
         },
         "mention": {
             "feeds": [
