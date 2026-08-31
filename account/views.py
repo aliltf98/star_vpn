@@ -105,35 +105,64 @@ def humanbytes(B):
 
 
 def subscription(request, username):
+    # ۱. بررسی وجود کاربر در دیتابیس جنگو
+    try:
+        target_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        # اگر کاربر در دیتابیس وجود نداشت
+        return render(request, "subscription.html", {
+            "user_not_found": True,
+            "is_superuser": request.user.is_superuser if request.user.is_authenticated else False
+        })
+
+    # ۲. بررسی ورود کاربر (اگر احراز هویت نشده بود)
+    if not request.user.is_authenticated:
+        return render(request, "subscription.html", {
+            "require_login": True
+        })
+
+    # ۳. بررسی دسترسی (فقط خود کاربر یا Superuser اجازه دیدن اطلاعات را دارند)
+    if request.user != target_user and not request.user.is_superuser:
+        return render(request, "subscription.html", {
+            "permission_denied": True
+        })
+
+    # ۴. دریافت اطلاعات از پنل
     panel_info = PanelManager.get_user_info(username)
+
+    # اگر اطلاعات پنل برای این کاربر یافت نشد یا ارور داد
+    if not panel_info:
+        return render(request, "subscription.html", {
+            "user_not_found": True,
+            "is_superuser": request.user.is_superuser
+        })
+
     devices_data = []
     try:
         service_prof = ServiceProfile.objects.filter(profile__profile__username=username).first()
 
-        if not service_prof:
-            print("service profile not found")
-
-        for conn in service_prof.connections.all():
-            devices_data.append({
-                "device_id": conn.device_id,
-                "model_name": conn.model_name,
-                "is_blocked": conn.is_blocked,
-                "traffic_used": humanbytes(conn.traffic_used)
-            })
+        if service_prof:
+            for conn in service_prof.connections.all():
+                devices_data.append({
+                    "device_id": conn.device_id,
+                    "model_name": conn.model_name,
+                    "is_blocked": conn.is_blocked,
+                    "traffic_used": humanbytes(conn.traffic_used)
+                })
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
-        print(1, e)
+        print("Error fetching devices:", e)
+
     context = {
-        "user": username,
-        "expire": panel_info['expire'],
-        "data_limit": humanbytes(panel_info['data_limit']),
-        "note": panel_info['note'],
-        "status": panel_info['status'],
-        "used_traffic": humanbytes(panel_info['lifetime_used_traffic']),
-        'devices': devices_data,
+        "target_user": target_user.username,
+        "expire": panel_info.get('expire'),
+        "data_limit": humanbytes(panel_info.get('data_limit', 0)),
+        "note": panel_info.get('note'),
+        "status": panel_info.get('status'),
+        "used_traffic": humanbytes(panel_info.get('lifetime_used_traffic', 0)),
+        "devices": devices_data,
     }
-    print(context)
 
     return render(request, "subscription.html", context)

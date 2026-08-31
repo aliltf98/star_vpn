@@ -2,15 +2,15 @@
 {% load i18n %}
 
 {% block title %}
-    {% trans 'Subscription' %}{{ user }}
+{% trans 'Subscription' %} - {{ target_user|default:user }}
 {% endblock title %}
-
 
 {% block nav %}
     <li class="{% if '/subscription/' in request.path %}active{% endif %}">
         <a href="{{ request.path }}">{% trans 'Subscription' %}</a>
     </li>
 {% endblock nav %}
+
 {% block styles %}
     <style>
         :root {
@@ -83,7 +83,7 @@
             font-weight: bold;
         }
 
-        /* اصلاح اصلی بخش جدول */
+        /* استایل‌های بهینه‌شده جدول برای موبایل */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -92,7 +92,7 @@
 
         .glass-table {
             width: 100%;
-            min-width: 600px; /* جلوگیری از فشرده شدن بیش از حد ستون‌ها در موبایل */
+            min-width: 600px;
             border-collapse: collapse;
             margin-top: 10px;
         }
@@ -102,7 +102,7 @@
             text-align: center;
             border-bottom: 1px solid var(--glass-border);
             vertical-align: middle;
-            white-space: nowrap; /* جلوگیری از شکستن خطوط در کلمات کلیدی */
+            white-space: nowrap;
         }
 
         .glass-table th {
@@ -162,7 +162,23 @@
             border: 1px solid rgba(255, 118, 117, 0.3);
         }
 
-        /* تنظیمات اختصاصی برای صفحه‌های کوچک موبایل */
+        /* دکمه اختصاصی ورود */
+        .btn-login {
+            display: inline-block;
+            background: linear-gradient(135deg, #00d2ff, #0072ff);
+            color: #fff !important;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            opacity: 0.9;
+        }
+
         @media screen and (max-width: 600px) {
             .sub-container {
                 padding: 10px;
@@ -187,89 +203,122 @@
 {% block body %}
     <div class="sub-container">
 
-        <div class="glass-card">
-            <div class="glass-card-title">{% trans 'User account details' %}</div>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">{% trans 'Username' %}</div>
-                    <div class="info-value">{{ user }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{% trans 'Account status' %}</div>
-                    <div class="info-value">
-                        {% if status == 'active' %}
-                            <span class="glass-badge badge-active">{% trans 'Active' %}</span>
-                        {% else %}
-                            <span class="glass-badge badge-blocked">{{ status }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{% trans 'Total allocated volume' %}</div>
-                    <div class="info-value" style="color: var(--text-main);">{{ data_limit }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{% trans 'Volume consumed (total)' %}</div>
-                    <div class="info-value" style="color: var(--accent-red);">{{ used_traffic }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">{% trans 'Expire Date' %}</div>
-                    <div class="info-value">
-                        {% if expire %}
-                            {{ expire }}
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 0.9rem;">{% trans 'Unlimited' %}</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% if note %}
-                <div class="info-item" style="margin-top: 16px; text-align: right;">
-                    <div class="info-label">{% trans 'Note' %}</div>
-                    <div class="info-value" style="font-size: 0.95rem;">{{ note }}</div>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="glass-card">
-            <div class="glass-card-title">{% trans 'Connected devices and the volume consumption of each' %}</div>
-            {% if devices %}
-                <div class="table-responsive">
-                    <table class="glass-table">
-                        <thead>
-                        <tr>
-                            <th style="width: 50px;">#</th>
-                            <th>{% trans 'Device name and model' %}</th>
-                            <th>{% trans 'Device ID' %}</th>
-                            <th>{% trans 'Device consumption volume' %}</th>
-                            <th>{% trans 'Access status' %}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for device in devices %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td><strong style="color: #fff;">{{ device.model_name }}</strong></td>
-                                <td><span class="device-id-text">{{ device.device_id }}</span></td>
-                                <td dir="ltr" style="font-weight: bold; color: var(--text-main);">
-                                    {{ device.traffic_used }}
-                                </td>
-                                <td>
-                                    {% if device.is_blocked %}
-                                        <span class="glass-badge badge-blocked">{% trans 'Blocked' %}</span>
-                                    {% else %}
-                                        <span class="glass-badge badge-active">{% trans 'Allowed' %}</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+        {# حالت اول: کاربر یافت نشد #}
+        {% if user_not_found %}
+            {% if is_superuser %}
+                <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+                    <h3 style="color: var(--accent-red); margin-bottom: 15px;">{% trans 'User Not Found' %}</h3>
+                    <p style="color: var(--text-muted);">{% trans 'The requested user does not exist in the database or panel.' %}</p>
                 </div>
             {% else %}
-                <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">{% trans 'There are no devices connected to this account.' %}</p>
+                <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+                    <h3 style="color: var(--accent-blue); margin-bottom: 15px;">{% trans 'Authentication Required' %}</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">{% trans 'Please log in to access your account details.' %}</p>
+                    <a href="{% url 'register' %}" class="btn-login">{% trans 'Login / Register' %}</a>
+                </div>
             {% endif %}
-        </div>
+
+        {# حالت دوم: کاربر مهمان است (وارد نشده) #}
+        {% elif require_login %}
+            <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+                <h3 style="color: var(--accent-blue); margin-bottom: 15px;">{% trans 'Authentication Required' %}</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">{% trans 'Please log in to access your account details.' %}</p>
+                <a href="{% url 'register' %}" class="btn-login">{% trans 'Login / Register' %}</a>
+            </div>
+
+        {# حالت سوم: عدم داشتن دسترسی به حساب دیگران #}
+        {% elif permission_denied %}
+            <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+                <h3 style="color: var(--accent-red); margin-bottom: 15px;">{% trans 'Access Denied' %}</h3>
+                <p style="color: var(--text-muted);">{% trans 'You do not have permission to view this subscription profile.' %}</p>
+            </div>
+
+        {# حالت چهارم: نمایش اطلاعات کامل کاربر #}
+        {% else %}
+            <div class="glass-card">
+                <div class="glass-card-title">{% trans 'User account details' %}</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">{% trans 'Username' %}</div>
+                        <div class="info-value">{{ target_user }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% trans 'Account status' %}</div>
+                        <div class="info-value">
+                            {% if status == 'active' %}
+                                <span class="glass-badge badge-active">{% trans 'Active' %}</span>
+                            {% else %}
+                                <span class="glass-badge badge-blocked">{{ status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% trans 'Total allocated volume' %}</div>
+                        <div class="info-value" style="color: var(--text-main);">{{ data_limit }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% trans 'Volume consumed (total)' %}</div>
+                        <div class="info-value" style="color: var(--accent-red);">{{ used_traffic }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% trans 'Expire Date' %}</div>
+                        <div class="info-value">
+                            {% if expire %}
+                                {{ expire }}
+                            {% else %}
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">{% trans 'Unlimited' %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if note %}
+                    <div class="info-item" style="margin-top: 16px; text-align: right;">
+                        <div class="info-label">{% trans 'Note' %}</div>
+                        <div class="info-value" style="font-size: 0.95rem;">{{ note }}</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="glass-card">
+                <div class="glass-card-title">{% trans 'Connected devices and the volume consumption of each' %}</div>
+                {% if devices %}
+                    <div class="table-responsive">
+                        <table class="glass-table">
+                            <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>{% trans 'Device name and model' %}</th>
+                                <th>{% trans 'Device ID' %}</th>
+                                <th>{% trans 'Device consumption volume' %}</th>
+                                <th>{% trans 'Access status' %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for device in devices %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><strong style="color: #fff;">{{ device.model_name }}</strong></td>
+                                    <td><span class="device-id-text">{{ device.device_id }}</span></td>
+                                    <td dir="ltr" style="font-weight: bold; color: var(--text-main);">
+                                        {{ device.traffic_used }}
+                                    </td>
+                                    <td>
+                                        {% if device.is_blocked %}
+                                            <span class="glass-badge badge-blocked">{% trans 'Blocked' %}</span>
+                                        {% else %}
+                                            <span class="glass-badge badge-active">{% trans 'Allowed' %}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">{% trans 'There are no devices connected to this account.' %}</p>
+                {% endif %}
+            </div>
+        {% endif %}
 
     </div>
 {% endblock body %}
