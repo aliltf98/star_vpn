@@ -216,22 +216,24 @@
         <ul class="icons alt" style="display: flex; align-items: center;">
             <!-- منوی سوئیچ تغییر زبان (اصلاح‌شده) -->
             <li>
-    <form action="{% url 'set_language' %}" method="post" class="language-switcher-form">
-        {% csrf_token %}
-        <input name="next" type="hidden" value="{{ request.path }}">
+                <form action="{% url 'set_language' %}" method="post" class="language-switcher-form">
+                    {% csrf_token %}
+                    <!-- حذف پیشوند زبان قبلی از آدرس بازگشت -->
+                    {% assign_clean_next_url request.get_full_path LANGUAGE_CODE as clean_next %}
+                    <input name="next" type="hidden" value="{{ clean_next|default:request.get_full_path }}">
 
-        <select name="language" onchange="this.form.submit()" class="language-select">
-            {% get_current_language as CURRENT_LANG %}
-            {% get_available_languages as LANGUAGES %}
-            {% get_language_info_list for LANGUAGES as languages %}
-            {% for language in languages %}
-                <option value="{{ language.code }}" {% if language.code == CURRENT_LANG %}selected{% endif %}>
-                    {{ language.name_local|title }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
-</li>
+                    <select name="language" onchange="this.form.submit()" class="language-select">
+                        {% get_current_language as CURRENT_LANG %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                            <option value="{{ language.code }}" {% if language.code == CURRENT_LANG %}selected{% endif %}>
+                                {{ language.name_local|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </li>
 
             {% for socials in SM %}
                 <li>
