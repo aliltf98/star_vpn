@@ -212,12 +212,14 @@
 
         <ul class="icons alt" style="display: flex; align-items: center;">
             <li>
-                {% get_current_language as CURRENT_LANG %}
-                {% get_available_languages as LANGUAGES %}
-                {% get_language_info_list for LANGUAGES as languages_list %}
+                <form action="{% url 'set_language' %}" method="post" class="language-switcher-form" id="lang-form">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" id="lang-next-url" value="">
 
-                <div class="language-switcher-form">
-                    <select class="language-select" onchange="switchLanguage(this.value)">
+                    <select name="language" onchange="submitLanguageForm(this.value);" class="language-select">
+                        {% get_current_language as CURRENT_LANG %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages_list %}
                         {% for lang in languages_list %}
                             <option value="{{ lang.code }}"
                                     {% if lang.code == CURRENT_LANG or CURRENT_LANG|slice:":2" == lang.code %}selected{% endif %}>
@@ -225,7 +227,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                </div>
+                </form>
             </li>
 
             {% for socials in SM %}
@@ -260,37 +262,29 @@
         </ul>
     </div>
 </div>
-
 <script>
-    function switchLanguage(targetLang) {
+    function submitLanguageForm(targetLang) {
         let currentPath = window.location.pathname;
-        // کدهای زبان معتبر پروژه شما
         let validLangs = ['fa', 'en'];
         let pathSegments = currentPath.split('/').filter(Boolean);
 
-        // اگر اولین بخش آدرس یک کد زبان معتبر بود، آن را جایگزین کن
+        // جایگزینی پیشوند زبان در آدرس فعلی
         if (pathSegments.length > 0 && validLangs.includes(pathSegments[0])) {
             pathSegments[0] = targetLang;
         } else {
-            // اگر آدرس بدون پیشوند زبان بود، زبان جدید را به اول آدرس اضافه کن
             pathSegments.unshift(targetLang);
         }
 
-        // بازسازی آدرس و اعمال اسلش انتهای آدرس
-        let newPath = '/' + pathSegments.join('/');
-        if (!newPath.endsWith('/')) {
-            newPath += '/';
-        }
-
+        let newPath = '/' + pathSegments.join('/') + '/';
         if (window.location.search) {
             newPath += window.location.search;
         }
 
-        // ست کردن کوکی زبان برای جنگو
-        document.cookie = "django_language=" + targetLang + "; path=/;";
+        // مقداردهی آدرس دقیق زبان جدید در فیلد next
+        document.getElementById('lang-next-url').value = newPath;
 
-        // انتقال به آدرس اصلاح‌شده
-        window.location.href = newPath;
+        // ارسال فرم استاندارد جنگو
+        document.getElementById('lang-form').submit();
     }
 </script>
 
