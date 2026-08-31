@@ -121,6 +121,24 @@
             color: #ffffff !important;
         }
 
+        .intro-logo {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 160px; /* حداکثر عرض لوگو در دسکتاپ */
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* تنظیم عرض لوگو در نمایشگرهای کوچک */
+        @media screen and (max-width: 768px) {
+            .intro-logo {
+                max-width: 100px; /* عرض مناسب برای صفحه موبایل */
+            }
+        }
+
         @media screen and (max-width: 768px) {
             .custom-responsive-figure {
                 width: 100% !important;
@@ -165,7 +183,7 @@
 <div id="wrapper" class="fade-in">
     <div id="intro">
         {% if MainH.logo %}
-            <img src="{{ MainH.logo.url }}" style="margin-bottom: 20px; width: 15%">
+            <img src="{{ MainH.logo.url }}" class="intro-logo" alt="Logo">
         {% endif %}
         <h1 style="background: linear-gradient( 192deg, rgba(223, 177, 91, 0.95) 0%, rgba(223, 177, 91, 0.3) 100% ); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 25px 10px rgba(0, 0, 0, 0.9)); font-weight: 800; display: inline-block;">{{ MainH.title }}</h1>
         <p>{{ MainH.description|safe }}</p>
