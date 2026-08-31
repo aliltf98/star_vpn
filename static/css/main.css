@@ -3511,6 +3511,7 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
 
     #intro + #header {
         margin-top: -14rem;
+        bottom: 10px;
     }
 
 }
