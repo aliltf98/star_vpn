@@ -11,12 +11,19 @@
                             {{ plan.description|safe }}
                         </div>
                         <div class="card-footer-section">
-                            <span class="plan-price">
-                                {{ plan.price|floatformat:0 }} {% trans 'toman' %}
-                            </span>
-                            <ul class="actions special">
-                                <li><a href="#" class="button primary small plan-btn">{% trans 'Choose plan' %}</a></li>
-                            </ul>
+                            <span class="plan-price">{{ plan.price|floatformat:0 }} {% trans 'toman' %}</span>
+
+                            <form action="{% url 'initiate_payment' plan.id %}" method="POST" style="margin-top: 15px;">
+                                {% csrf_token %}
+                                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                                    <input type="text" name="promo_code"
+                                           placeholder="{% trans 'Promo Code (Optional)' %}"
+                                           style="font-size: 12px; padding: 5px;">
+                                </div>
+                                <button type="submit" class="button primary small plan-btn" style="width: 100%;">
+                                    {% trans 'Choose plan' %}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
