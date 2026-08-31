@@ -197,7 +197,6 @@
             {% for sl in MainSL %}
                 {% if sl.show_in_nav %}
                     <li class="{% if page and page.page_id == sl.page_id %}active{% endif %}">
-                        <!-- اصلاح: استفاده از URL نسبی استاندارد به همراه LANGUAGE_CODE اولیه -->
                         <a href="/{{ LANGUAGE_CODE }}/pages/{{ sl.page_id }}">{{ sl.title }}</a>
                     </li>
                 {% endif %}
@@ -212,23 +211,20 @@
         </ul>
 
         <ul class="icons alt" style="display: flex; align-items: center;">
-            <!-- منوی سوئیچ تغییر زبان (استاندارد و بدون خطا) -->
             <li>
-                <form action="{% url 'set_language' %}" method="post" class="language-switcher-form">
-                    {% csrf_token %}
-                    <!-- ارسال مسیر بدون query string و پارامتر اضافی -->
-                    <input name="next" type="hidden" value="{{ request.path }}">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages_list %}
 
-                    <select name="language" onchange="this.form.submit()" class="language-select">
-                        {% get_available_languages as LANGUAGES %}
-                        {% get_language_info_list for LANGUAGES as languages %}
-                        {% for lang in languages %}
-                            <option value="{{ lang.code }}" {% if lang.code == LANGUAGE_CODE %}selected{% endif %}>
+                <div class="language-switcher-form">
+                    <select class="language-select" onchange="switchLanguage(this.value)">
+                        {% for lang in languages_list %}
+                            <option value="{{ lang.code }}" {% if lang.code == CURRENT_LANG or CURRENT_LANG|slice:":2" == lang.code %}selected{% endif %}>
                                 {{ lang.name_local|title }}
                             </option>
                         {% endfor %}
                     </select>
-                </form>
+                </div>
             </li>
 
             {% for socials in SM %}
@@ -263,6 +259,39 @@
         </ul>
     </div>
 </div>
+
+<script>
+function switchLanguage(targetLang) {
+    let currentPath = window.location.pathname;
+    // کدهای زبان معتبر پروژه شما
+    let validLangs = ['fa', 'en'];
+    let pathSegments = currentPath.split('/').filter(Boolean);
+
+    // اگر اولین بخش آدرس یک کد زبان معتبر بود، آن را جایگزین کن
+    if (pathSegments.length > 0 && validLangs.includes(pathSegments[0])) {
+        pathSegments[0] = targetLang;
+    } else {
+        // اگر آدرس بدون پیشوند زبان بود، زبان جدید را به اول آدرس اضافه کن
+        pathSegments.unshift(targetLang);
+    }
+
+    // بازسازی آدرس و اعمال اسلش انتهای آدرس
+    let newPath = '/' + pathSegments.join('/');
+    if (!newPath.endsWith('/')) {
+        newPath += '/';
+    }
+
+    if (window.location.search) {
+        newPath += window.location.search;
+    }
+
+    // ست کردن کوکی زبان برای جنگو
+    document.cookie = "django_language=" + targetLang + "; path=/;";
+
+    // انتقال به آدرس اصلاح‌شده
+    window.location.href = newPath;
+}
+</script>
 
 <script src="{% static 'js/jquery.scrollex.min.js' %}"></script>
 <script src="{% static 'js/jquery.scrolly.min.js' %}"></script>
