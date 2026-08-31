@@ -105,23 +105,21 @@ def humanbytes(B):
 
 
 def subscription(request, username):
-    # ۱. بررسی وجود کاربر در دیتابیس جنگو
-    try:
-        target_user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        # اگر کاربر در دیتابیس وجود نداشت
-        return render(request, "subscription.html", {
-            "user_not_found": True,
-            "is_superuser": request.user.is_superuser if request.user.is_authenticated else False
-        })
-
-    # ۲. بررسی ورود کاربر (اگر احراز هویت نشده بود)
+    # ۱. بررسی لاگین بودن کاربر
     if not request.user.is_authenticated:
         return render(request, "subscription.html", {
             "require_login": True
         })
 
-    # ۳. بررسی دسترسی (فقط خود کاربر یا Superuser اجازه دیدن اطلاعات را دارند)
+    # ۲. بررسی وجود کاربر در دیتابیس جنگو
+    try:
+        target_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return render(request, "subscription.html", {
+            "user_not_found": True
+        })
+
+    # ۳. بررسی دسترسی (فقط خود کاربر یا Superuser اجازه مشاهده دارند)
     if request.user != target_user and not request.user.is_superuser:
         return render(request, "subscription.html", {
             "permission_denied": True
@@ -130,11 +128,9 @@ def subscription(request, username):
     # ۴. دریافت اطلاعات از پنل
     panel_info = PanelManager.get_user_info(username)
 
-    # اگر اطلاعات پنل برای این کاربر یافت نشد یا ارور داد
     if not panel_info:
         return render(request, "subscription.html", {
-            "user_not_found": True,
-            "is_superuser": request.user.is_superuser
+            "user_not_found": True
         })
 
     devices_data = []
