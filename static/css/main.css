@@ -4583,13 +4583,13 @@ body.is-preload #intro:not(.hidden) + #header + #nav {
 
 #navPanelToggle:before {
     content: '\f0c9';
-    margin-right: 0.5rem;
 }
 
 #navPanelToggle.alt {
-    background-color: rgba(255, 255, 255, 0.875);
+    background-color: rgba(255, 255, 255, 0.15);
     box-shadow: 0 0.125rem 0.75rem 0 rgba(30, 37, 45, 0.25);
-    color: #212931;
+    backdrop-filter: blur(8px);
+    border-radius: 9px;
 }
 
 #navPanelToggle.alt:hover {
