@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container" style="text-align: center; padding: 50px 0;">
+    {% if success %}
+        <h2 style="color: green;">{% trans "Payment Successful!" %}</h2>
+        <p>{% trans "Order ID:" %} {{ order.id }}</p>
+        <p>{% trans "Ref ID:" %} {{ order.ref_id }}</p>
+    {% else %}
+        <h2 style="color: red;">{% trans "Payment Failed" %}</h2>
+        <p>{{ error }}</p>
+    {% endif %}
+    <a href="{% url 'home' %}" class="button primary">{% trans "Return to Home" %}</a>
+</div>
+{% endblock %}

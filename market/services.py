@@ -7,10 +7,12 @@ from market.models import Order, Commission, MarketerProfile
 from .models import UserSubscription
 # در صورت وجود تابع ارتباط با پنل API VPN آن را اینپورت کنید
 # from services.panel_api import PanelManager
+from main.models import MainPlansLayout
+
 class OrderService:
 
     @staticmethod
-    def create_order(user, plan_id, promo_code=None):
+    def create_order(user, plan_id):
         try:
             plan = MainPlansLayout.objects.get(id=plan_id)
         except MainPlansLayout.DoesNotExist:
@@ -18,23 +20,16 @@ class OrderService:
 
         plan_price = plan.price
         discount_amount = 0
-        final_amount = plan_price
 
-        # بررسی کد تخفیف / معرف
-        if promo_code:
-            marketer = MarketerProfile.objects.filter(code__iexact=promo_code, is_active=True).first()
-            if marketer:
-                # جلوگیری از خود-ارجاعی (Self-Referral)
-                if marketer.user != user:
-                    # محاسبه تخفیف
-                    discount_amount = (plan_price * marketer.discount_rate) / 100
-                    final_amount = plan_price - discount_amount
+        # بررسی وجود معرف برای کاربر
+        user_profile = getattr(user, 'userprofile', None)
+        marketer = user_profile.referred_by if user_profile else None
 
-                    # اتصال دائمی کاربر به این بازاریاب (اگر قبلاً معرف نداشته باشد)
-                    user_profile = user.userprofile
-                    if not user_profile.referred_by:
-                        user_profile.referred_by = marketer
-                        user_profile.save()
+        # اگر کاربر معرف فعال داشته باشد و خودش بازاریاب خود نباشد
+        if marketer and marketer.is_active and marketer.user != user:
+            discount_amount = (plan_price * marketer.discount_rate) / 100
+
+        final_amount = plan_price - discount_amount
 
         # بررسی خرید اول بودن کاربر
         is_first_order = not Order.objects.filter(user=user, status=Order.StatusChoices.COMPLETED).exists()

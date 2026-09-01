@@ -1,32 +1,7 @@
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import *
-from .services import *
-
-def payment_callback(request):
-    authority = request.GET.get('Authority')
-    status = request.GET.get('Status')
-
-    try:
-        order = Order.objects.get(authority=authority, status=Order.StatusChoices.PENDING)
-    except Order.DoesNotExist:
-        return render(request, 'payment_result.html', {'error': 'سفارش یافت نشد.'})
-
-    if status == 'OK':
-        # استعلام از درگاه (ZarinPal Verify)
-        # is_valid, ref_id = ZarinpalGateway.verify(authority, order.final_amount)
-        is_valid = True
-        ref_id = "123456789" # کد پیگیری نمونه دریافتی از بانک
-
-        if is_valid:
-            # فراخوانی سرویس فعال‌سازی
-            PaymentProcessingService.process_successful_order(order, ref_id)
-            return render(request, 'payment_result.html', {'success': True, 'order': order})
-
-    # در صورت لغو یا خطا در پرداخت
-    order.status = Order.StatusChoices.FAILED
-    order.save()
-    return render(request, 'payment_result.html', {'success': False, 'error': 'پرداخت ناموفق بود.'})
+from market.services import OrderService, PaymentProcessingService
+from market.models import Order
 
 
 @login_required
@@ -36,18 +11,38 @@ def initiate_payment(request, plan_id):
 
         order, error = OrderService.create_order(request.user, plan_id, promo_code)
         if error:
-            # نمایش خطا در صورت نبود پلن
             return redirect('home')
 
-        # اتصال به API درگاه (مثلاً زرین‌پال)
-        # authority, payment_url = ZarinpalGateway.request_payment(order.final_amount, order.id)
-
-        # کد نمونه فرضی برای تست:
-        order.authority = "SAMPLE_AUTHORITY_123"
+        # برای تست دستی یک کد فرضی ست می‌کنیم
+        sample_authority = f"AUTH_{order.id.hex[:10]}"
+        order.authority = sample_authority
         order.save()
 
-        # هدایت کاربر به صفحه درگاه
-        # return redirect(payment_url)
-        return redirect('payment_callback')  # برای تست به کال‌بک هدایت می‌کنیم
+        # هدایت به صفحه کال‌بک همراه با پارامترهای فرضی جهت تست
+        return redirect(f"/fa/callback/?Authority={sample_authority}&Status=OK")
 
     return redirect('home')
+
+
+def payment_callback(request):
+    authority = request.GET.get('Authority')
+    status = request.GET.get('Status')
+
+    if not authority:
+        return render(request, 'payment_result.html', {'success': False, 'error': 'کد شناسه پرداخت یافت نشد.'})
+
+    try:
+        order = Order.objects.get(authority=authority, status=Order.StatusChoices.PENDING)
+    except Order.DoesNotExist:
+        return render(request, 'payment_result.html',
+                      {'success': False, 'error': 'سفارش معتبری در انتظار پرداخت یافت نشد.'})
+
+    if status == 'OK':
+        # تایید پرداخت و فعال‌سازی
+        PaymentProcessingService.process_successful_order(order, ref_id="123456789")
+        return render(request, 'payment_result.html', {'success': True, 'order': order})
+
+    order.status = Order.StatusChoices.FAILED
+    order.save()
+    return render(request, 'payment_result.html',
+                  {'success': False, 'error': 'پرداخت توسط کاربر لغو شد یا ناموفق بود.'})
