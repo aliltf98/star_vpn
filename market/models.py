@@ -120,18 +120,16 @@ class PayoutRequest(models.Model):
 
 
 class UserSubscription(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='active_subscription',
-                                verbose_name=_('User'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions', verbose_name=_('User'))
     plan = models.ForeignKey(MainPlansLayout, on_delete=models.SET_NULL, null=True, verbose_name=_('Plan'))
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Order'))
+    order = models.OneToOneField(Order, on_delete=models.SET_NULL, null=True, blank=True, related_name='subscription',
+                                 verbose_name=_('Order'))
 
     start_date = models.DateTimeField(auto_now_add=True, verbose_name=_('Start Date'))
     expire_date = models.DateTimeField(verbose_name=_('Expire Date'))
     is_active = models.BooleanField(default=True, verbose_name=_('Is Active'))
 
-    class Meta:
-        verbose_name = _('User Subscription')
-        verbose_name_plural = _('User Subscriptions')
-
-    def __str__(self):
-        return f"{self.user.username} - {self.plan.title if self.plan else 'No Plan'}"
+    # پیشنهاد: افزودن میزان مصرف و محدودیت برای لینک به مرزبان/3X-UI
+    total_volume_gb = models.PositiveIntegerField(default=0)
+    used_volume_bytes = models.BigIntegerField(default=0)
+    subscription_url = models.URLField(max_length=500, blank=True, null=True)  # لینک سابسکرایپشن کاربر

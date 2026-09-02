@@ -1,16 +1,54 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block content %}
-<div class="container" style="text-align: center; padding: 50px 0;">
+{% block styles %}
+    <style>
+            .sub-container {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            color: var(--text-main);
+            padding: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+          .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+        }
+        </style>
+{% endblock styles %}
+{% block body %}
+    <div class="sub-container">
+<div class="glass-card" style="text-align: center; padding: 40px 20px;">
     {% if success %}
-        <h2 style="color: green;">{% trans "Payment Successful!" %}</h2>
-        <p>{% trans "Order ID:" %} {{ order.id }}</p>
-        <p>{% trans "Ref ID:" %} {{ order.ref_id }}</p>
+        <h2 style="color: #4CAF50;">{% trans "Payment Successful!" %}</h2>
+        <div style="background: rgba(255, 255, 255, 0.05); max-width: 400px; margin: 20px auto; padding: 20px; border-radius: 12px;">
+            <p>{% trans "Order ID:" %} {{ order.id }}</p>
+            <p>{% trans "Ref ID:" %} {{ order.ref_id }}</p>
+            <p>{% trans "Amount:" %} {{ order.final_amount }} {% trans "toman" %}</p>
+        </div>
     {% else %}
-        <h2 style="color: red;">{% trans "Payment Failed" %}</h2>
-        <p>{{ error }}</p>
+        <h2 style="color: #f44336;">{% trans "Payment Failed" %}</h2>
+        <p style="color: #ccc;">{{ error }}</p>
     {% endif %}
-    <a href="{% url 'home' %}" class="button primary">{% trans "Return to Home" %}</a>
+
+    <a href="{% url 'home' %}" class="button primary" style="margin-top: 20px; display: inline-block;">
+        {% trans "Return to Home" %}
+    </a>
 </div>
-{% endblock %}
+</div>
+{% endblock body %}

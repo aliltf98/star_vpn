@@ -6,22 +6,18 @@ from market.models import Order
 
 @login_required
 def initiate_payment(request, plan_id):
-    if request.method == 'POST':
-        promo_code = request.POST.get('promo_code', '').strip()
+    # پذیرش هر دو متد POST و GET (جهت پشتیبانی از ارجاع بعد از لاگین)
+    order, error = OrderService.create_order(request.user, plan_id)
 
-        order, error = OrderService.create_order(request.user, plan_id, promo_code)
-        if error:
-            return redirect('home')
+    if error:
+        return redirect('home')
 
-        # برای تست دستی یک کد فرضی ست می‌کنیم
-        sample_authority = f"AUTH_{order.id.hex[:10]}"
-        order.authority = sample_authority
-        order.save()
+    # متصل کردن به درگاه یا شبیه‌ساز پرداخت
+    sample_authority = f"AUTH_{order.id.hex[:10]}"
+    order.authority = sample_authority
+    order.save()
 
-        # هدایت به صفحه کال‌بک همراه با پارامترهای فرضی جهت تست
-        return redirect(f"/fa/callback/?Authority={sample_authority}&Status=OK")
-
-    return redirect('home')
+    return redirect(f"/fa/callback/?Authority={sample_authority}&Status=OK")
 
 
 def payment_callback(request):

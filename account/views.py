@@ -16,12 +16,17 @@ from services.models import ServiceProfile
 
 # Create your views here.
 
-
 def register(request):
+    # دریافت پارامتر next از URL (برای متد GET) یا از فرم (برای متد POST)
+    next_url = request.POST.get('next') or request.GET.get('next')
+
     if request.method == 'POST':
         regtype = request.POST.get('reg')
         username = request.POST.get('username', '').strip()
         pass1 = request.POST.get('pass1')
+
+        # تعیین مقصد نهایی پس از ورود یا ثبت‌نام موفق
+        redirect_target = next_url if next_url else '/'
 
         if regtype == "signin":
             user = None
@@ -38,11 +43,12 @@ def register(request):
 
             if user is None:
                 messages.error(request, 'حساب کاربری یا کلمه عبور اشتباه است')
-                return redirect('register')
+                # حفظ آدرس next در صورت بروز خطا
+                return redirect(f"{request.path}?next={next_url}" if next_url else 'register')
             else:
                 login(request, user)
                 messages.success(request, "ورود با موفقیت انجام شد.")
-                return redirect('/')
+                return redirect(redirect_target)
 
         elif regtype == "signup":
             pass2 = request.POST.get('pass2')
@@ -50,15 +56,15 @@ def register(request):
 
             if User.objects.filter(username=username).exists():
                 messages.error(request, "این حساب کاربری قبلا ساخته شده")
-                return redirect('register')
+                return redirect(f"{request.path}?next={next_url}" if next_url else 'register')
 
             if phone_number.isdigit() and UserProfile.objects.filter(phone_number=phone_number).exists():
                 messages.error(request, "این شماره تلفن قبلا ثبت شده است")
-                return redirect('register')
+                return redirect(f"{request.path}?next={next_url}" if next_url else 'register')
 
             if pass1 != pass2:
                 messages.error(request, "رمز ها همخوانی ندارند")
-                return redirect('register')
+                return redirect(f"{request.path}?next={next_url}" if next_url else 'register')
 
             user = User.objects.create_user(username=username, password=pass1)
             UserProfile.objects.create(
@@ -66,13 +72,15 @@ def register(request):
                 phone_number=int(phone_number) if phone_number.isdigit() else None,
             )
 
+            # ورود خودکار کاربر پس از ثبت‌نام
+            login(request, user)
             messages.success(request, 'حساب کاربری شما با موفقیت ساخته شد')
-            return redirect('/')
+            return redirect(redirect_target)
 
         else:
             return redirect('register')
 
-    return render(request, "registration.html")
+    return render(request, "registration.html", {'next': next_url})
 
 
 def signout(request):

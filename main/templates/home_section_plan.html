@@ -1,12 +1,30 @@
 {% load i18n %}
 
-<div class="card-footer-section">
-    <span class="plan-price">{{ plan.price|floatformat:0 }} {% trans 'toman' %}</span>
+<div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+        {% for plan in MainPL %}
+            <div class="swiper-slide">
+                <div class="swiper-plan-card">
+                    <h3>{{ plan.title }}</h3>
+                    <div class="plan-desc">
+                        {{ plan.description|safe }}
+                    </div>
+                    <div class="card-footer-section">
+                        <span class="plan-price">{{ plan.price|floatformat:0 }} {% trans 'toman' %}</span>
 
-    <form action="{% url 'initiate_payment' plan.id %}" method="POST" style="margin-top: 15px;">
-        {% csrf_token %}
-        <button type="submit" class="button primary small plan-btn" style="width: 100%;">
-            {% trans 'Choose plan' %}
-        </button>
-    </form>
+                        <form action="{% url 'initiate_payment' plan.pk %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="plan-btn">
+                                {% trans 'Choose plan' %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
 </div>

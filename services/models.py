@@ -1,14 +1,36 @@
 from django.contrib.auth.models import User
 from django.db import models
-
 from account.models import UserProfile
+from market.models import UserSubscription
 
 
 class ConnectionsLog(models.Model):
     value = models.TextField()
 
+class Category(models.Model):
+    title = models.CharField(max_length=100)
+    protocol = models.CharField(max_length=20, default='vless')  # vless, vmess, trojan
+
+    def __str__(self):
+        return self.title
+
+
+class UriCode(models.Model):
+    subscription = models.ForeignKey(UserSubscription, on_delete=models.CASCADE, related_name='configs', null=True,
+                                     blank=True)
+    value = models.TextField(verbose_name="Config URI")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.category.title} - {self.id}"
+
 
 class Connection(models.Model):
+    subscription = models.ForeignKey(UserSubscription, on_delete=models.CASCADE, related_name='connections', null=True,
+                                     blank=True)
     device_id = models.CharField(max_length=255)
     model_name = models.CharField(max_length=255)
     is_blocked = models.BooleanField(default=False)
@@ -17,23 +39,6 @@ class Connection(models.Model):
 
     def __str__(self):
         return f"{self.model_name} ({self.device_id})"
-
-
-class Category(models.Model):
-    title = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.title
-
-
-class UriCode(models.Model):
-    value = models.CharField(max_length=999)
-    type = models.ForeignKey(Category, on_delete=models.CASCADE)
-    volume = models.FloatField()
-    remainingVolume = models.FloatField()
-
-    def __str__(self):
-        return self.value
 
 
 class ServiceProfile(models.Model):

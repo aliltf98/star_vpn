@@ -10,6 +10,9 @@
             <input type="password" name="pass1" required value="" placeholder="{% trans 'Password' %}" />
         </div>
         <input type="hidden" name="reg" value="signin">
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
         <div class="col-12">
             <ul class="actions">
                 <li><input type="submit" value="{% trans 'Sign in' %}" class="custombtn" /></li>
