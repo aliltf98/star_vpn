@@ -103,7 +103,7 @@ class PaymentProcessingService:
     def _apply_commission(order: Order):
         """محاسبه دقیق پورسانت خرید اول یا تمدید و واریز به کیف پول بازاریاب"""
         try:
-            user_profile = order.user.userprofile
+            user_profile = order.user.profile
         except UserProfile.DoesNotExist:
             return
 
