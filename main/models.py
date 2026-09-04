@@ -77,9 +77,6 @@ class MainPlansLayout(models.Model):
     is_featured = models.BooleanField(default=False, verbose_name="پیشنهاد ویژه / پرفروش")
     sort_order = models.PositiveIntegerField(default=0, verbose_name="ترتیب نمایش")
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
     class Meta:
         verbose_name = "پلن"
         verbose_name_plural = "مدیریت پلن‌ها"
