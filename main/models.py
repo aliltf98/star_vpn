@@ -59,27 +59,26 @@ class MainSectionLayout(models.Model):
 
 
 class MainPlansLayout(models.Model):
-    title = models.CharField(max_length=120, verbose_name="عنوان پلن")
-    description = CKEditor5Field(config_name='extends', verbose_name="توضیحات/امکانات")
+    title = models.CharField(max_length=120)
+    description = CKEditor5Field(config_name='extends')
 
     # مشخصات فنی برای اتصال به پنل VPN
-    duration_days = models.PositiveIntegerField(default=30, verbose_name="اعتبار (روز)")
-    volume_gb = models.PositiveIntegerField(default=0, verbose_name="حجم (گیگابایت - 0 برای نامحدود)")
-    user_limit = models.PositiveIntegerField(default=1, verbose_name="محدودیت کاربر همزمان")
+    duration_days = models.PositiveIntegerField(default=30)
+    volume_gb = models.PositiveIntegerField(default=0)
+    user_limit = models.PositiveIntegerField(default=1)
 
     # قیمت‌گذاری
-    price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name="قیمت اصلی (تومان)")
-    old_price = models.DecimalField(max_digits=12, decimal_places=0, null=True, blank=True,
-                                    verbose_name="قیمت قبلی/خط‌خورده")
+    price = models.DecimalField(max_digits=12, decimal_places=0)
+    old_price = models.DecimalField(max_digits=12, decimal_places=0, null=True, blank=True)
 
     # مدیریت نمایش
-    is_active = models.BooleanField(default=True, verbose_name="فعال/قابل خرید")
-    is_featured = models.BooleanField(default=False, verbose_name="پیشنهاد ویژه / پرفروش")
-    sort_order = models.PositiveIntegerField(default=0, verbose_name="ترتیب نمایش")
+    is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        verbose_name = "پلن"
-        verbose_name_plural = "مدیریت پلن‌ها"
+        verbose_name = "plan"
+        verbose_name_plural = "plan managements"
         ordering = ['sort_order', 'price']
 
     def __str__(self):
