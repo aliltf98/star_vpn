@@ -43,7 +43,7 @@ class MainHeader(models.Model):
     promote = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.title if hasattr(self, 'title') else f"Header {self.id}"
+        return self.title or f"Header {self.id}"
 
 
 class MainSectionLayout(models.Model):
@@ -81,8 +81,8 @@ class MainPlansLayout(models.Model):
         verbose_name_plural = "plan managements"
         ordering = ['sort_order', 'price']
 
-    def __str__(self):
-        return f"{self.title} - {self.volume_gb}GB ({self.duration_days} روزه)"
+    def str(self):
+        return f"{self.title} - {self.volume_gb}GB"
 
     @property
     def has_discount(self):
@@ -104,4 +104,4 @@ class MainFooter(models.Model):
     promote = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.title if hasattr(self, 'title') else f"Footer {self.id}"
+        return self.title or f"Footer {self.id}"

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-01 02:17+0330\n"
-"PO-Revision-Date: 2026-09-01 02:25+0330\n"
+"POT-Creation-Date: 2026-09-09 18:00+0330\n"
+"PO-Revision-Date: 2026-09-09 18:30+0330\n"
 "Last-Translator: StarVPN Team <info@starvpn.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "Language: fa\n"
@@ -37,7 +37,7 @@ msgstr "شماره موبایل / نام کاربری"
 msgid "Password"
 msgstr "رمز عبور"
 
-#: .\account\templates\signin.html:15
+#: .\account\templates\signin.html:18
 msgid "Sign in"
 msgstr "ورود به حساب"
 
@@ -53,11 +53,11 @@ msgstr "شماره موبایل"
 msgid "Confirm Password"
 msgstr "تکرار رمز عبور"
 
-#: .\account\templates\signup.html:21
+#: .\account\templates\signup.html:24
 msgid "Sign up"
 msgstr "ایجاد حساب کاربری"
 
-#: .\account\templates\signup.html:22
+#: .\account\templates\signup.html:25
 msgid "Reset Form"
 msgstr "پاک‌سازی فرم"
 
@@ -76,6 +76,7 @@ msgstr "کاربر مورد نظر در پایگاه داده یا پنل یاف
 
 #: .\account\templates\subscription.html:215
 #: .\account\templates\subscription.html:224
+#: .\market\templates\checkout.html:289
 msgid "Authentication Required"
 msgstr "احراز هویت لازم است"
 
@@ -85,7 +86,8 @@ msgid "Please log in to access your account details."
 msgstr "لطفاً برای دسترسی به اطلاعات حساب خود وارد شوید."
 
 #: .\account\templates\subscription.html:217
-#: .\account\templates\subscription.html:226 .\main\templates\base.html:205
+#: .\account\templates\subscription.html:226 .\main\templates\base.html:208
+#: .\market\templates\checkout.html:292
 msgid "Login / Register"
 msgstr "ورود / ثبت‌نام"
 
@@ -121,7 +123,7 @@ msgstr "حجم کل اختصاص یافته"
 msgid "Volume consumed (total)"
 msgstr "حجم مصرف شده (کل)"
 
-#: .\account\templates\subscription.html:264
+#: .\account\templates\subscription.html:264 .\market\models.py:139
 msgid "Expire Date"
 msgstr "تاریخ انقضا"
 
@@ -165,15 +167,11 @@ msgstr "مجاز"
 msgid "There are no devices connected to this account."
 msgstr "هیچ دستگاهی به این حساب متصل نیست."
 
-#: .\main\templates\home_section_plan.html:12
-msgid "toman"
-msgstr "تومان"
-
-#: .\main\templates\base.html:202
+#: .\main\templates\base.html:205
 msgid "Account management"
 msgstr "مدیریت حساب کاربری"
 
-#: .\main\templates\base.html:212
+#: .\main\templates\base.html:215
 msgid "Home"
 msgstr "صفحه اصلی"
 
@@ -181,11 +179,13 @@ msgstr "صفحه اصلی"
 msgid "Read more"
 msgstr "ادامه مطلب"
 
-#: .\main\templates\home_section_plan.html:3
-msgid "Subscription plans"
-msgstr "پلن‌های اشتراک"
-
+#: .\main\templates\home_section_plan.html:14
 #: .\main\templates\home_section_plan.html:16
+#: .\market\templates\payment_result.html:42
+msgid "toman"
+msgstr "تومان"
+
+#: .\main\templates\home_section_plan.html:21
 msgid "Choose plan"
 msgstr "انتخاب پلن"
 
@@ -200,3 +200,335 @@ msgstr "انتخاب لینک دانلود"
 #: .\main\templates\pages.html:174
 msgid "Download"
 msgstr "دانلود"
+
+#: .\market\models.py:9 .\market\models.py:48 .\market\models.py:133
+msgid "User"
+msgstr "کاربر"
+
+#: .\market\models.py:10
+msgid "Referral / Promo Code"
+msgstr "کد معرف / تخفیف"
+
+#: .\market\models.py:13
+msgid "First Order Commission Rate (%)"
+msgstr "درصد پورسانت خرید اول (%)"
+
+#: .\market\models.py:16
+msgid "Renewal Commission Rate (%)"
+msgstr "درصد پورسانت تمدید (%)"
+
+#: .\market\models.py:19
+msgid "Customer Discount Rate (%)"
+msgstr "درصد تخفیف مشتری (%)"
+
+#: .\market\models.py:22
+msgid "Wallet Balance"
+msgstr "موجودی کیف‌پول"
+
+#: .\market\models.py:23 .\market\models.py:140
+msgid "Is Active"
+msgstr "فعال است"
+
+#: .\market\models.py:24 .\market\models.py:67 .\market\models.py:100
+#: .\market\models.py:122
+msgid "Created At"
+msgstr "تاریخ ایجاد"
+
+#: .\market\models.py:27
+msgid "Marketer Profile"
+msgstr "پروفایل بازاریاب"
+
+#: .\market\models.py:28
+msgid "Marketer Profiles"
+msgstr "پروفایل‌های بازاریابان"
+
+#: .\market\models.py:36
+msgid "Pending Payment"
+msgstr "در انتظار پرداخت"
+
+#: .\market\models.py:37
+msgid "Pending Admin Approval"
+msgstr "در انتظار تایید مدیریت"
+
+#: .\market\models.py:38
+msgid "Completed"
+msgstr "تکمیل شده"
+
+#: .\market\models.py:39
+msgid "Failed"
+msgstr "ناموفق"
+
+#: .\market\models.py:40
+msgid "Canceled"
+msgstr "لغو شده"
+
+#: .\market\models.py:43
+msgid "Zarinpal"
+msgstr "زرین‌پال"
+
+#: .\market\models.py:44
+msgid "Oxapay"
+msgstr "اکساپِی (OxaPay)"
+
+#: .\market\models.py:45
+msgid "Manual Payment (Card/Wallet)"
+msgstr "پرداخت دستی (کارت/کیف‌پول)"
+
+#: .\market\models.py:49 .\market\models.py:134
+msgid "Plan"
+msgstr "پلن"
+
+#: .\market\models.py:51
+msgid "Plan Price"
+msgstr "قیمت پلن"
+
+#: .\market\models.py:52
+msgid "Discount Amount"
+msgstr "مبلغ تخفیف"
+
+#: .\market\models.py:53
+msgid "Final Amount"
+msgstr "مبلغ نهایی"
+
+#: .\market\models.py:55
+msgid "Is First Order"
+msgstr "خرید اول است"
+
+#: .\market\models.py:57 .\market\models.py:99 .\market\models.py:121
+msgid "Status"
+msgstr "وضعیت"
+
+#: .\market\models.py:59
+msgid "Authority / Ref"
+msgstr "کد پیگیری / شناسه مرجع"
+
+#: .\market\models.py:60
+msgid "Reference ID / TXID"
+msgstr "شناسه تراکنش / TXID"
+
+#: .\market\models.py:61
+msgid "Gateway Name"
+msgstr "نام درگاه"
+
+#: .\market\models.py:64
+msgid "Receipt Image"
+msgstr "تصویر فیش واریزی"
+
+#: .\market\models.py:65
+msgid "Admin Note"
+msgstr "یادداشت مدیر"
+
+#: .\market\models.py:68
+msgid "Updated At"
+msgstr "تاریخ بروزرسانی"
+
+#: .\market\models.py:71 .\market\models.py:90 .\market\models.py:136
+msgid "Order"
+msgstr "سفارش"
+
+#: .\market\models.py:72
+msgid "Orders"
+msgstr "سفارش‌ها"
+
+#: .\market\models.py:80
+msgid "First Order"
+msgstr "خرید اول"
+
+#: .\market\models.py:81
+msgid "Renewal"
+msgstr "تمدید"
+
+#: .\market\models.py:84 .\market\models.py:112
+msgid "Pending"
+msgstr "در انتظار"
+
+#: .\market\models.py:85
+msgid "Approved"
+msgstr "تایید شده"
+
+#: .\market\models.py:86 .\market\models.py:114
+msgid "Rejected"
+msgstr "رد شده"
+
+#: .\market\models.py:89 .\market\models.py:117
+msgid "Marketer"
+msgstr "بازاریاب"
+
+#: .\market\models.py:92
+msgid "Commission Type"
+msgstr "نوع پورسانت"
+
+#: .\market\models.py:94
+msgid "Order Amount"
+msgstr "مبلغ سفارش"
+
+#: .\market\models.py:95
+msgid "Commission Amount"
+msgstr "مبلغ پورسانت"
+
+#: .\market\models.py:96
+msgid "Applied Rate (%)"
+msgstr "نرخ اعمال شده (%)"
+
+#: .\market\models.py:103
+msgid "Commission"
+msgstr "پورسانت"
+
+#: .\market\models.py:104
+msgid "Commissions"
+msgstr "پورسانت‌ها"
+
+#: .\market\models.py:113
+msgid "Paid"
+msgstr "پرداخت شده"
+
+#: .\market\models.py:118
+msgid "Amount"
+msgstr "مبلغ"
+
+#: .\market\models.py:119
+msgid "SHEBA Number"
+msgstr "شماره شبا"
+
+#: .\market\models.py:125
+msgid "Payout Request"
+msgstr "درخواست تسویه‌حساب"
+
+#: .\market\models.py:126
+msgid "Payout Requests"
+msgstr "درخواست‌های تسویه‌حساب"
+
+#: .\market\models.py:138
+msgid "Start Date"
+msgstr "تاریخ شروع"
+
+#: .\market\templates\checkout.html:5 .\market\templates\checkout.html:14
+msgid "Checkout"
+msgstr "تسویه‌حساب"
+
+#: .\market\templates\checkout.html:290
+msgid "Please log in to proceed with payment."
+msgstr "لطفاً برای ادامه و پرداخت وارد شوید."
+
+#: .\market\templates\checkout.html:301
+msgid "Purchase Subscription"
+msgstr "خرید اشتراک"
+
+#: .\market\templates\checkout.html:306
+msgid "Description"
+msgstr "شرح"
+
+#: .\market\templates\checkout.html:307
+msgid "Current Status"
+msgstr "وضعیت فعلی"
+
+#: .\market\templates\checkout.html:308
+msgid "New Plan"
+msgstr "پلن جدید"
+
+#: .\market\templates\checkout.html:309
+msgid "Final Status After Purchase"
+msgstr "وضعیت نهایی پس از خرید"
+
+#: .\market\templates\checkout.html:314
+msgid "Total Volume (GB)"
+msgstr "حجم کل (گیگابایت)"
+
+#: .\market\templates\checkout.html:320
+msgid "Subscription Duration (Days)"
+msgstr "مدت اشتراک (روز)"
+
+#: .\market\templates\checkout.html:321 .\market\templates\checkout.html:323
+#: .\market\templates\checkout.html:324
+msgid "Days"
+msgstr "روز"
+
+#: .\market\templates\checkout.html:333
+msgid "Select Payment Method"
+msgstr "انتخاب روش پرداخت"
+
+#: .\market\templates\checkout.html:340
+msgid "Automatic Gateway (OxaPay)"
+msgstr "درگاه اتوماتیک (OxaPay)"
+
+#: .\market\templates\checkout.html:341
+msgid "Instant activation via USDT, TRX..."
+msgstr "فعال‌سازی آنی با تتر، ترون و..."
+
+#: .\market\templates\checkout.html:349
+msgid "Manual Payment (Wallet)"
+msgstr "پرداخت دستی (کیف‌پول)"
+
+#: .\market\templates\checkout.html:350
+msgid "Direct transfer to Wallet"
+msgstr "انتقال مستقیم به کیف‌پول"
+
+#: .\market\templates\checkout.html:358
+msgid "Select network to view deposit address:"
+msgstr "جهت مشاهده آدرس واریز شبکه را انتخاب کنید:"
+
+#: .\market\templates\checkout.html:383 .\market\templates\checkout.html:460
+#: .\market\templates\checkout.html:461 .\market\templates\checkout.html:462
+#: .\market\templates\checkout.html:463
+msgid "Address"
+msgstr "آدرس"
+
+#: .\market\templates\checkout.html:388
+msgid "Copy"
+msgstr "کپی"
+
+#: .\market\templates\checkout.html:396
+msgid "Transaction Hash / Reference Code:"
+msgstr "کد پیگیری / هش تراکنش (TXID):"
+
+#: .\market\templates\checkout.html:399
+msgid "Enter TXID or Reference Number"
+msgstr "کد پیگیری یا TXID را وارد کنید"
+
+#: .\market\templates\checkout.html:406
+msgid "Plan Base Price"
+msgstr "قیمت پایه پلن"
+
+#: .\market\templates\checkout.html:407
+msgid "Toman"
+msgstr "تومان"
+
+#: .\market\templates\checkout.html:410
+msgid "Payable Crypto Amount"
+msgstr "مبلغ قابل پرداخت به کریپتو"
+
+#: .\market\templates\checkout.html:420
+msgid "Confirm and Proceed"
+msgstr "تایید و ادامه"
+
+#: .\market\templates\checkout.html:465
+msgid "Deposit Address"
+msgstr "آدرس واریز"
+
+#: .\market\templates\checkout.html:476
+msgid "Copied!"
+msgstr "کپی شد!"
+
+#: .\market\templates\payment_result.html:38
+msgid "Payment Successful!"
+msgstr "پرداخت با موفقیت انجام شد!"
+
+#: .\market\templates\payment_result.html:40
+msgid "Order ID:"
+msgstr "شناسه سفارش:"
+
+#: .\market\templates\payment_result.html:41
+msgid "Ref ID:"
+msgstr "کد پیگیری:"
+
+#: .\market\templates\payment_result.html:42
+msgid "Amount:"
+msgstr "مبلغ:"
+
+#: .\market\templates\payment_result.html:45
+msgid "Payment Failed"
+msgstr "پرداخت ناموفق بود"
+
+#: .\market\templates\payment_result.html:50
+msgid "Return to Home"
+msgstr "بازگشت به صفحه اصلی"

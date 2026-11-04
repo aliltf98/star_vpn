@@ -10,9 +10,12 @@
                         {{ plan.description|safe }}
                     </div>
                     <div class="card-footer-section">
+                        {% if plan.old_price %}
+                            <span class="plan-price" style="text-decoration: line-through 5px #ffffffb2;">{{ plan.old_price|floatformat:0 }} {% trans 'toman' %}</span>
+                        {% endif %}
                         <span class="plan-price">{{ plan.price|floatformat:0 }} {% trans 'toman' %}</span>
 
-                        <form action="{% url 'initiate_payment' plan.pk %}" method="POST">
+                        <form action="{% url 'checkout' plan.pk %}" method="POST">
                             {% csrf_token %}
                             <button type="submit" class="plan-btn">
                                 {% trans 'Choose plan' %}

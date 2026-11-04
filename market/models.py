@@ -9,6 +9,11 @@ class MarketerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='marketer_profile', verbose_name=_('User'))
     code = models.CharField(max_length=50, unique=True, verbose_name=_('Referral / Promo Code'))
 
+    # اطلاعات مالی و بانکی فروشنده
+    card_number = models.CharField(max_length=16, blank=True, null=True, verbose_name=_('Card Number (16 digits)'))
+    shaba_number = models.CharField(max_length=30, blank=True, null=True, verbose_name=_('SHEBA Number'))
+    bank_name = models.CharField(max_length=50, blank=True, null=True, verbose_name=_('Bank Name'))
+
     first_order_commission_rate = models.DecimalField(
         max_digits=5, decimal_places=2, default=30.00, verbose_name=_('First Order Commission Rate (%)')
     )
@@ -33,10 +38,15 @@ class MarketerProfile(models.Model):
 
 class Order(models.Model):
     class StatusChoices(models.TextChoices):
-        PENDING = 'pending', _('Pending')
+        PENDING = 'pending', _('Pending Payment')
+        PENDING_APPROVAL = 'pending_approval', _('Pending Admin Approval')
         COMPLETED = 'completed', _('Completed')
         FAILED = 'failed', _('Failed')
         CANCELED = 'canceled', _('Canceled')
+
+    class GatewayChoices(models.TextChoices):
+        ZARINPAL = 'zarinpal', _('Zarinpal')
+        OXAPAY = 'oxapay', _('Oxapay')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', verbose_name=_('User'))
@@ -47,12 +57,16 @@ class Order(models.Model):
     final_amount = models.DecimalField(max_digits=12, decimal_places=0, verbose_name=_('Final Amount'))
 
     is_first_order = models.BooleanField(default=False, verbose_name=_('Is First Order'))
-    status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.PENDING,
+    status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING,
                               verbose_name=_('Status'))
 
-    authority = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('Authority'))
-    ref_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('Reference ID'))
-    gateway_name = models.CharField(max_length=50, default='zarinpal', verbose_name=_('Gateway Name'))
+    authority = models.CharField(max_length=255, blank=True, null=True, verbose_name=_('Authority / Ref'))
+    ref_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_('Reference ID / TXID'))
+    gateway_name = models.CharField(max_length=50, choices=GatewayChoices.choices, default=GatewayChoices.ZARINPAL, verbose_name=_('Gateway Name'))
+
+    # فیلدهای اختصاصی پرداخت دستی
+    receipt_image = models.ImageField(upload_to='receipts/', blank=True, null=True, verbose_name=_('Receipt Image'))
+    admin_note = models.TextField(blank=True, null=True, verbose_name=_('Admin Note'))
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
@@ -94,7 +108,7 @@ class Commission(models.Model):
         verbose_name_plural = _('Commissions')
 
     def __str__(self):
-        return f"{self.marketer.code} - {self.commission_amount}"
+        return f"{self.marketer.code} - Commission: {self.commission_amount}"
 
 
 class PayoutRequest(models.Model):
@@ -129,7 +143,6 @@ class UserSubscription(models.Model):
     expire_date = models.DateTimeField(verbose_name=_('Expire Date'))
     is_active = models.BooleanField(default=True, verbose_name=_('Is Active'))
 
-    # پیشنهاد: افزودن میزان مصرف و محدودیت برای لینک به مرزبان/3X-UI
     total_volume_gb = models.PositiveIntegerField(default=0)
     used_volume_bytes = models.BigIntegerField(default=0)
-    subscription_url = models.URLField(max_length=500, blank=True, null=True)  # لینک سابسکرایپشن کاربر
+    subscription_url = models.URLField(max_length=500, blank=True, null=True)

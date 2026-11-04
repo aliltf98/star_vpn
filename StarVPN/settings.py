@@ -33,7 +33,17 @@ DEBUG = True
 ALLOWED_HOSTS = ['37.152.191.90', '127.0.0.1', 'localhost']
 CSRF_TRUSTED_ORIGINS = ['http://37.152.191.90','http://37.152.191.90:8085', 'http://127.0.0.1', 'http://127.0.0.1:8000', 'http://localhost', 'http://localhost:8000',
 ]
-
+# OxaPay Payment Gateway Settings
+OXAPAY_MERCHANT_KEY = "CLEUEL-3BV209-T15WRA-KMSMKI"  # کلید مرچنت ارسال‌شده
+OXAPAY_RETURN_URL = "https://yourdomain.com/market/payment/complete/"
+OXAPAY_CALLBACK_URL = "https://yourdomain.com/market/oxapay/webhook/"
+# WALLET
+WALLET_TON = "UQAZPvjnh7O42YujyT8_5SDKfpgm542xoI9eZhYIo5Jf0jsh"
+WALLET_ETHEREUM = "0x7E6DD69460b059a4DC323a39D940AdBa9Bea8f1F"
+WALLET_BNB = "0x7E6DD69460b059a4DC323a39D940AdBa9Bea8f1F"
+WALLET_TRON = "TX8uk7reHhydGU3pXZRFvzoBVoZs6X5QUa"
+WALLET_BITCOIN = "bc1qf46h7c6gt8z5wjklqjtevjgwzymfet0af8d2kn"
+WALLET_USDT_TRC20 = WALLET_TRON
 # Application definition
 
 INSTALLED_APPS = [

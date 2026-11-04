@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% trans 'Checkout' %} - {{ plan.title }}
+{% endblock title %}
+
+{% block plan_header %}
+    {{ plan }}
+{% endblock plan_header %}
+
+{% block nav %}
+    <li class="{% if '/checkout/' in request.path %}active{% endif %}">
+        <a href="{{ request.path }}">{% trans 'Checkout' %}</a>
+    </li>
+{% endblock nav %}
+
+{% block styles %}
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-blur: blur(12px);
+            --text-main: #ffffff;
+            --text-muted: #cccccc;
+            --accent-blue: #00d2ff;
+            --accent-green: #2ecc71;
+            --accent-yellow: #f1c40f;
+        }
+
+        .checkout-container {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            color: var(--text-main);
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+        }
+
+        /* جدول تسویه‌حساب */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .glass-table {
+            width: 100%;
+            min-width: 500px;
+            border-collapse: collapse;
+        }
+
+        .glass-table th, .glass-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .glass-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        /* گزینه‌های روش پرداخت */
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .method-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .method-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 210, 255, 0.4);
+        }
+
+        .method-card.active {
+            background: rgba(0, 210, 255, 0.1);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        }
+
+        .method-card input[type="radio"] {
+            accent-color: var(--accent-blue);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* خلاصه مالی */
+        .payment-summary {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 20px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .price-row.total {
+            border-top: 1px dashed var(--glass-border);
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #00d2ff, #0072ff);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 14px 0;
+            margin-top: 20px;
+            text-align: center;
+            transition: opacity 0.2s;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.92;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+{% endblock styles %}
+
+{% block body %}
+    <div id="main" class="checkout-container">
+
+        {% if require_login %}
+            <div class="glass-card" style="text-align: center; padding: 40px 20px;">
+                <h3 style="color: var(--accent-blue); margin-bottom: 15px;">{% trans 'Authentication Required' %}</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">{% trans 'Please log in to proceed with payment.' %}</p>
+                <a href="{% url 'register' %}" class="btn-submit"
+                   style="display: inline-block; width: auto; padding: 10px 30px; text-decoration: none;">{% trans 'Login / Register' %}</a>
+            </div>
+        {% else %}
+            <form method="post" action="{% url 'process_checkout' %}">
+                {% csrf_token %}
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+
+                <!-- کارت جدول اطلاعات خریدار و پلان -->
+                <div class="glass-card">
+                    <div class="glass-card-title">{% trans 'Purchase Subscription' %}</div>
+                    <div class="table-responsive">
+                        <table class="glass-table">
+                            <thead>
+                            <tr>
+                                <th>{% trans 'Description' %}</th>
+                                <th>{% trans 'Current Status' %}</th>
+                                <th>{% trans 'New Plan' %}</th>
+                                <th>{% trans 'Final Status After Purchase' %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><strong>{% trans 'Total Volume (GB)' %}</strong></td>
+                                <td>{{ current_data_gb }} GB</td>
+                                <td style="color: var(--accent-green)!important; font-weight: bold;">+ {{ added_data_gb }} GB</td>
+                                <td style="color: var(--accent-blue)!important; font-weight: bold;">{{ final_data_gb }} GB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>{% trans 'Subscription Duration (Days)' %}</strong></td>
+                                <td>{{ current_remaining_days }} {% trans 'Days' %}</td>
+                                <td style="color: var(--accent-green)!important; font-weight: bold;">
+                                    + {{ added_days }} {% trans 'Days' %}</td>
+                                <td style="color: var(--accent-blue)!important; font-weight: bold;">{{ final_days }} {% trans 'Days' %}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- انتخاب روش پرداخت -->
+                <!-- انتخاب روش پرداخت -->
+                <div class="glass-card">
+                    <div class="glass-card-title">{% trans 'Select Payment Method' %}</div>
+
+                    <div class="payment-methods-grid">
+                        <!-- گزینه 1: درگاه اتوماتیک OxaPay -->
+                        <label class="method-card active" onclick="switchMethod(event, 'oxapay')">
+                            <input type="radio" name="payment_method" value="oxapay" checked>
+                            <div>
+                                <strong style="display: block;">{% trans 'Automatic Gateway (OxaPay)' %}</strong>
+                                <small style="color: var(--text-muted);">{% trans 'Instant activation via USDT, TRX...' %}</small>
+                            </div>
+                        </label>
+
+                        <!-- گزینه 2: درگاه زرین‌پال -->
+                        <label class="method-card" onclick="switchMethod(event, 'zarinpal')">
+                            <input type="radio" name="payment_method" value="zarinpal">
+                            <div>
+                                <strong style="display: block;">{% trans 'Zarinpal Gateway (Toman)' %}</strong>
+                                <small style="color: var(--text-muted);">{% trans 'Instant payment with Iranian bank cards' %}</small>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- خلاصه مالی -->
+                    <div class="payment-summary">
+                        <!-- باکس قیمت تومان (مخصوص زرین‌پال) -->
+                        <div id="toman-price-box" class="price-row" style="display: none;">
+                            <span style="color: var(--text-main); font-weight: bold;">{% trans 'Payable Amount' %}:</span>
+                            <div>
+                                <strong style="color: var(--accent-green); font-size: 1.2rem;">{{ toman_price }} {% trans 'Toman' %}</strong>
+                            </div>
+                        </div>
+
+                        <!-- باکس قیمت دلار (مخصوص OxaPay) -->
+                        <div id="crypto-price-box" class="price-row">
+                            <span style="color: var(--text-main); font-weight: bold;">{% trans 'Payable Crypto Amount' %}:</span>
+                            <div>
+                                <strong style="color: var(--accent-blue); font-size: 1.2rem;">${{ usd_price }} USD</strong>
+                                <small style="display: block; color: var(--text-muted); font-size: 0.75rem; text-align: right;">(1 USDT ≈ {{ usdt_rate }} Toman)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">{% trans 'Confirm and Proceed' %}</button>
+                </div>
+            </form>
+        {% endif %}
+
+    </div>
+
+    <!-- اسکریپت مدیریت انتخاب درگاه -->
+    <script>
+        function switchMethod(evt, method) {
+            const cards = document.querySelectorAll('.method-card');
+            cards.forEach(card => card.classList.remove('active'));
+
+            // انتخاب کارت جاری
+            const selectedCard = evt.currentTarget;
+            selectedCard.classList.add('active');
+
+            // تیک زدن رادیو باتن مربوطه
+            const radioInput = selectedCard.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.checked = true;
+            }
+
+            // مدیریت نمایش قیمت‌ها بر اساس درگاه انتخاب‌شده
+            const tomanBox = document.getElementById('toman-price-box');
+            const cryptoBox = document.getElementById('crypto-price-box');
+
+            if (method === 'zarinpal') {
+                tomanBox.style.display = 'flex';
+                cryptoBox.style.display = 'none';
+            } else {
+                tomanBox.style.display = 'none';
+                cryptoBox.style.display = 'flex';
+            }
+        }
+    </script>
+{% endblock body %}

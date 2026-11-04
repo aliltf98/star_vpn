@@ -1,6 +1,11 @@
 import os
 import sys
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
+from market.models import *
+
 from django.contrib.auth.models import User
 from django.db.models import Q
 
@@ -112,7 +117,8 @@ def humanbytes(B):
         return '{0:.2f} TB'.format(B / TB)
 
 
-def subscription(request, username):
+def subscription(request):
+    username = request.user.username
     # ۱. بررسی لاگین بودن کاربر
     if not request.user.is_authenticated:
         return render(request, "subscription.html", {
@@ -170,3 +176,119 @@ def subscription(request, username):
     }
 
     return render(request, "subscription.html", context)
+
+
+@login_required
+def dashboard_view(request):
+    user = request.user
+    context = {}
+
+    # ۱. بررسی دسترسی ادمین (Superuser)
+    if user.is_superuser:
+        context['user_role'] = 'admin'
+
+    # ۲. بررسی اینکه آیا کاربر فروشنده (دارای پروفایل مارکتر) است یا خیر
+    elif hasattr(user, 'marketer_profile'):
+        marketer = user.marketer_profile
+        context['user_role'] = 'seller'
+        context['marketer_profile'] = marketer
+
+        # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند
+        referred_users = marketer.referred_users.select_related('profile').all()
+        context['referred_users'] = referred_users
+        referred_user_users = [ref.profile for ref in referred_users]
+
+        # محاسبه داده‌های نمودار فروش
+        sales_chart_data = (
+            Order.objects.filter(user__in=referred_user_users, status=Order.StatusChoices.COMPLETED)
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(total_sales=Count('id'), total_revenue=Sum('final_amount'))
+            .order_by('month')
+        )
+        context['sales_chart_data'] = list(sales_chart_data)
+
+    # ۳. کاربر عادی سیستم
+    else:
+        context['user_role'] = 'regular'
+
+        # دریافت پروفایل کاربری و اشتراک فعال از دیتابیس
+        user_profile = getattr(user, 'profile', None)
+        active_subscription = user.subscriptions.filter(is_active=True).first()
+
+        context['user_profile'] = user_profile
+        context['active_subscription'] = active_subscription
+
+        # دریافت اطلاعات از پنل (مشابه تابع subscription)
+        panel_info = PanelManager.get_user_info(user.username)
+
+        if panel_info:
+            context['expire'] = panel_info.get('expire')
+            context['data_limit'] = humanbytes(panel_info.get('data_limit', 0))
+            context['note'] = panel_info.get('note')
+            context['status'] = panel_info.get('status')
+            context['used_traffic'] = humanbytes(panel_info.get('lifetime_used_traffic', 0))
+
+        # استخراج لیست دستگاه‌های متصل (مشابه تابع subscription)
+        devices_data = []
+        try:
+            service_prof = ServiceProfile.objects.filter(profile__profile__username=user.username).first()
+            if service_prof:
+                for conn in service_prof.connections.all():
+                    devices_data.append({
+                        "device_id": conn.device_id,
+                        "model_name": conn.model_name,
+                        "is_blocked": conn.is_blocked,
+                        "traffic_used": humanbytes(conn.traffic_used)
+                    })
+        except Exception as e:
+            print("Error fetching devices in dashboard:", e)
+
+        context['devices'] = devices_data
+
+    print(context)
+    return render(request, 'dashboard/index.html', context)
+
+
+@login_required
+def profile_view(request):
+    user = request.user
+    # دریافت یا ایجاد پروفایل کاربری
+    profile = UserProfile.objects.get(profile=user)
+
+    # بررسی اینکه آیا کاربر مارکتر (فروشنده) هست یا خیر
+    # با توجه به related_name='marketer_profile'
+    marketer_profile = getattr(user, 'marketer_profile', None)
+
+    if request.method == 'POST':
+        # دریافت اطلاعات از فرم
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+
+        # به‌روزرسانی اطلاعات مدل پیش‌فرض User
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.save()
+
+        # به‌روزرسانی اطلاعات UserProfile
+        profile.phone_number = phone_number
+        profile.save()
+
+        # اگر کاربر مارکتر بود، اطلاعات بانکی‌اش هم آپدیت شود
+        if marketer_profile:
+            marketer_profile.card_number = request.POST.get('card_number')
+            marketer_profile.shaba_number = request.POST.get('shaba_number')
+            marketer_profile.bank_name = request.POST.get('bank_name')
+            marketer_profile.save()
+
+        messages.success(request, 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد.')
+        return redirect('profile')  # نام آدرس (URL name) صفحه پروفایل خود را اینجا قرار دهید
+
+    context = {
+        'profile': profile,
+        'marketer_profile': marketer_profile,
+    }
+    return render(request, 'dashboard/partials/profile.html', context)

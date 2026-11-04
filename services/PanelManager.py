@@ -7,9 +7,7 @@ class PanelManager:
 
     TOKENS = [
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZXphIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMxMTE2NDB9.D6a_QK6-tNOfAowIjrNtcx1H5qOcnZ82Cq9IJjZV8oM",
-
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbWlyIiwiYWNjZXNzIjoiYWRtaW4iLCJpYXQiOjE3ODMxMjA1OTl9.kbwO7gDPfPabBN9QPTc0R0cxeDhXRZX6SOuzsAck5O8"
-
     ]
 
     _session = None
@@ -39,9 +37,12 @@ class PanelManager:
             try:
                 print(f"TLS-Client Trying Token {index + 1} -> {method} {url}", flush=True)
 
+                payload = json.dumps(json_data) if json_data else None
+
                 if method.upper() == "POST":
-                    payload = json.dumps(json_data) if json_data else None
                     response = session.post(url, headers=cls.get_headers(token), data=payload, timeout_seconds=15)
+                elif method.upper() == "PUT":
+                    response = session.put(url, headers=cls.get_headers(token), data=payload, timeout_seconds=15)
                 else:
                     response = session.get(url, headers=cls.get_headers(token), timeout_seconds=15)
 
@@ -49,11 +50,9 @@ class PanelManager:
 
                 if response.status_code in [200, 201]:
                     return response.json()
-
                 elif response.status_code == 403:
                     print(f" [⚠️] Token {index + 1} has no permission (403). Trying next token...", flush=True)
                     continue
-
                 else:
                     print(f" [!] API Status: {response.status_code} | Body: {response.text}", flush=True)
                     return None
@@ -66,7 +65,7 @@ class PanelManager:
         return None
 
     @classmethod
-    def create_user(cls, username, data_limit_gb=10):
+    def create_user(cls, username, data_limit_gb=10, expire_timestamp=None):
         payload = {
             "username": str(username).strip(),
             "data_limit": int(data_limit_gb) * 1024 * 1024 * 1024,
@@ -77,7 +76,19 @@ class PanelManager:
                 "vmess": ["VMess TCP", "VMess Websocket"]
             }
         }
+        if expire_timestamp:
+            payload["expire"] = int(expire_timestamp)
+
         return cls._safe_request("POST", "user", json_data=payload)
+
+    @classmethod
+    def modify_user(cls, username, data_limit_gb, expire_timestamp):
+        payload = {
+            "data_limit": int(data_limit_gb) * 1024 * 1024 * 1024,
+            "expire": int(expire_timestamp),
+            "status": "active"
+        }
+        return cls._safe_request("PUT", f"user/{str(username).strip()}", json_data=payload)
 
     @classmethod
     def get_user_info(cls, username):

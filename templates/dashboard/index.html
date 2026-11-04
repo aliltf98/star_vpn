@@ -1,0 +1,255 @@
+{% extends 'dashboard/base_panel.html' %}
+{% load static %}
+
+{% block title %}پیشخوان داشبورد{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  {# ==================== ۱. داشبورد کاربر عادی ==================== #}
+  {% if user_role == 'regular' %}
+
+    <!-- بخش اول: کارت اطلاعات کاربری + نمودار شعاعی مصرف (Radial Chart) -->
+    <div class="grid grid-cols-12 gap-4 md:gap-6">
+      <div class="col-span-12 lg:col-span-8 bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">مشخصات حساب کاربری</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+          <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
+            <span class="text-gray-500 dark:text-gray-400 block mb-1">نام کاربری</span>
+            <span class="font-bold text-gray-800 dark:text-white">{{ request.user.username }}</span>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
+            <span class="text-gray-500 dark:text-gray-400 block mb-1">وضعیت حساب</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if status == 'active' or status == 'Active' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400{% else %}bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+              {{ status|default:"نامشخص" }}
+            </span>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
+            <span class="text-gray-500 dark:text-gray-400 block mb-1">تاریخ انقضا</span>
+            <span class="font-bold text-gray-800 dark:text-white">{{ expire|default:"ندارد" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- نمودار Radial Chart برای میزان مصرف پویا -->
+      <div class="col-span-12 lg:col-span-4 bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center">
+        <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">حجم مصرفی: {{ used_traffic|default:"0" }} از {{ data_limit|default:"نامحدود" }}</h3>
+        <div id="usageRadialChart" class="w-full flex justify-center"></div>
+      </div>
+    </div>
+
+    <!-- بخش دوم: دستگاه‌های متصل شده (پویا از پنل) -->
+    <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">دستگاه‌های متصل و میزان مصرف</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-right">
+          <thead class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+            <tr>
+              <th class="p-3 rounded-r-lg">نام و مدل دستگاه</th>
+              <th class="p-3">شناسه دستگاه (ID)</th>
+              <th class="p-3">حجم مصرفی</th>
+              <th class="p-3 rounded-l-lg">وضعیت دسترسی</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
+            {% if devices %}
+              {% for dev in devices %}
+              <tr>
+                <td class="p-3 font-medium {% if 'config' in dev.model_name|lower or 'کانفیگ' in dev.model_name %}text-amber-600 dark:text-amber-400{% endif %}">
+                  {{ dev.model_name|default:"دستگاه ناشناخته" }}
+                </td>
+                <td class="p-3 dir-ltr text-right">#{{ dev.device_id }}</td>
+                <td class="p-3">{{ dev.traffic_used }}</td>
+                <td class="p-3">
+                  {% if dev.is_blocked %}
+                    <span class="text-red-500 font-medium">مسدود</span>
+                  {% else %}
+                    <span class="text-green-500 font-medium">متصل</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="4" class="p-4 text-center text-gray-500 dark:text-gray-400">هیچ دستگاه متصل یا کانفیگ فعالی یافت نشد.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- بخش سوم و چهارم: لیست سرویس‌ها + دکمه خرید و ارتقا -->
+    <div class="grid grid-cols-12 gap-4 md:gap-6">
+      <div class="col-span-12 lg:col-span-8 bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">سرویس‌های انتخاب‌شده شما</h3>
+        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+          <span class="font-medium text-gray-700 dark:text-gray-300">
+            {% if active_subscription %}
+              {{ active_subscription.plan.name|default:"اشتراک فعال" }} - {{ active_subscription.total_volume_gb }} گیگ
+            {% else %}
+              اشتراک فعال فعلی
+            {% endif %}
+          </span>
+          <span class="text-xs bg-brand-500 text-white px-3 py-1 rounded-lg">{% if active_subscription %}فعال{% else %}غیرفعال{% endif %}</span>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-4 bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">ارتقاء سرویس</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400">حجم شما رو به اتمام است؟ پلن خود را تمدید یا ارتقا دهید.</p>
+        </div>
+        <a href="#" class="mt-4 w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-xl text-center transition-colors">
+          خرید / ارتقا پلن
+        </a>
+      </div>
+    </div>
+
+  {# ==================== ۲. داشبورد کاربر فروشنده ==================== #}
+  {% elif user_role == 'seller' %}
+
+
+    <!-- کارت موجودی کیف پول (طرح My Cards مشابه TailAdmin) -->
+    <div class="max-w-2xl relative flex flex-col gap-7 overflow-hidden rounded-2xl  bg-gray-900 p-6 select-none dark:bg-gray-950 text-white shadow-xl mb-6">
+
+      <!-- تصویر پس‌زمینه تزیینی کارت -->
+      <img src="{% static 'tailadmin/images/payment-gateway/card-vector.png' %}" alt="Card Vector" class="pointer-events-none absolute inset-e-0 top-0 h-[95px] w-[122px] rtl:-scale-x-100 opacity-5">
+
+      <!-- هدر کارت: آیکون و وضعیت فعال -->
+      <div class="relative z-1 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <svg class="text-white" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="text-xs tracking-widest text-brand-400 font-bold uppercase">{{ marketer_profile.bank_name }}</span>
+        </div>
+      </div>
+
+      <!-- نام فروشنده و موجودی کیف پول -->
+      <div class="relative z-1 flex justify-between items-end">
+        <div>
+          <p class="text-xs text-gray-400">نام کاربری فروشنده</p>
+          <h4 class="text-lg font-semibold text-white mt-0.5">{{ request.user.username }}</h4>
+        </div>
+        <div class="text-left">
+          <p class="text-xs text-gray-400">موجودی کیف پول</p>
+          <h3 class="text-xl font-bold text-white mt-0.5">{{ marketer_profile.wallet_balance|default:"0" }} <span class="text-xs font-normal text-gray-300">تومان</span></h3>
+        </div>
+      </div>
+
+      <!-- اطلاعات شماره کارت، شبا و کد معرف -->
+      <div class="relative z-1 grid grid-cols-2 gap-4 border-t border-gray-800 pt-4">
+
+        <div>
+          <p class="text-xs text-gray-400">کد معرف / Promo</p>
+          <p class="text-sm font-semibold text-brand-400 mt-0.5">{{ marketer_profile.code }}</p>
+        </div>
+          <div>
+          <p class="text-xs text-gray-400">شماره کارت</p>
+          <p class="text-sm font-mono tracking-wider text-white mt-0.5 text-left" style="direction: ltr">
+            {% if marketer_profile.card_number %}
+              •••• •••• •••• {{ marketer_profile.card_number|slice:"-4:" }}
+            {% else %}
+              ثبت نشده
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- شماره شبا (در صورت وجود) -->
+      {% if marketer_profile.shaba_number %}
+      <div class="relative z-1 text-xs text-gray-400 border-t border-gray-800/60 pt-2 flex justify-between items-center">
+        <span>شماره شبا:</span>
+        <span class="font-mono text-gray-300">IR{{ marketer_profile.shaba_number }}</span>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- جدول کاربران ثبت‌شده توسط فروشنده -->
+    <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">لیست کاربران ثبت‌شده</h3>
+
+        <!-- دکمه ثبت کاربر جدید -->
+        <a href="#" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-xl transition-colors inline-flex items-center gap-2">
+          <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          ثبت کاربر جدید
+        </a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-right">
+          <thead class="text-center dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+            <tr>
+              <th class="p-3 rounded-r-lg">نام کاربری</th>
+              <th class="p-3">وضعیت حساب</th>
+              <th class="p-3">حجم مصرفی</th>
+              <th class="p-3">سن حساب</th>
+              <th class="p-3 rounded-l-lg">پلن فعلی</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y text-center divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
+            {% if referred_users %}
+              {% for ref in referred_users %}
+              <tr>
+                <td class="p-3 font-medium">{{ ref.profile.username }}</td>
+                <td class="p-3"><span class="text-green-500 font-medium">فعال</span></td>
+                <td class="p-3">-</td>
+                <td class="p-3">{{ ref.profile.date_joined|timesince }}</td>
+                <td class="p-3">-</td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5" class="p-4 text-center text-gray-500 dark:text-gray-400">هنوز کاربری توسط شما ثبت نشده است.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {# ==================== ۳. داشبورد ادمین ==================== #}
+  {% elif user_role == 'admin' %}
+    <div class="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-200 dark:border-gray-700 text-center">
+      <h2 class="text-xl font-bold text-gray-700 dark:text-gray-300">پنل مدیریت ادمین</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">این بخش بر اساس نیازهای بعدی طراحی خواهد شد.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- اسکریپت رندر نمودارهای ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const isDarkMode = document.documentElement.classList.contains('dark');
+
+    // Radial Chart (نمودار شعاعی مصرف کاربر عادی)
+    var radialElement = document.querySelector("#usageRadialChart");
+    if (radialElement) {
+      var radialOptions = {
+        series: [45],
+        chart: { type: 'radialBar', height: 200 },
+        plotOptions: {
+          radialBar: {
+            hollow: { size: '65%' },
+            dataLabels: {
+              value: { formatter: function(val) { return val + "%"; }, color: isDarkMode ? '#FFFFFF' : '#111827', fontSize: '18px', show: true }
+            }
+          }
+        },
+        colors: ['#3C50E0'],
+        labels: ['مصرف شده'],
+      };
+      new ApexCharts(radialElement, radialOptions).render();
+    }
+  });
+</script>
+{% endblock %}
