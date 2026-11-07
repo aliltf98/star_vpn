@@ -2,6 +2,7 @@ import os
 import sys
 
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 from market.models import *
@@ -15,7 +16,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
-from services.PanelManager import PanelManager
+
+import datetime
+import time
+from django.utils import timezone
+from services.PanelManager import PanelManager  # ایمپورت پلتفرم مرزبان
 from services.models import ServiceProfile
 
 
@@ -177,11 +182,13 @@ def subscription(request):
 
     return render(request, "subscription.html", context)
 
-
 @login_required
 def dashboard_view(request):
     user = request.user
     context = {}
+
+    # اضافه کردن لیست تمام پلن‌ها به context برای استفاده در مودال «افزودن کاربر»
+    context['available_plans'] = MainPlansLayout.objects.all()
 
     # ۱. بررسی دسترسی ادمین (Superuser)
     if user.is_superuser:
@@ -193,10 +200,30 @@ def dashboard_view(request):
         context['user_role'] = 'seller'
         context['marketer_profile'] = marketer
 
-        # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند
-        referred_users = marketer.referred_users.select_related('profile').all()
-        context['referred_users'] = referred_users
-        referred_user_users = [ref.profile for ref in referred_users]
+        # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند همراه با محاسبه تعداد تمدیدها و آخرین پلن فعال
+        referred_users = marketer.referred_users.select_related('profile').annotate(
+            # شمارش تعداد سفارشات/تمدیدهای موفق هر کاربر
+            calculated_renewal_count=Count(
+                'profile__orders',
+                filter=Q(profile__orders__status=Order.StatusChoices.COMPLETED)
+            )
+        ).all()
+
+        # برای هر کاربر در لیست، پلن فعلی‌اش را هم استخراج می‌کنیم
+        enriched_referred_users = []
+        for ref in referred_users:
+            active_sub = getattr(ref.profile, 'subscriptions', None)
+            active_plan = active_sub.filter(is_active=True).first() if active_sub else None
+
+            enriched_referred_users.append({
+                'profile': ref.profile,
+                'renewal_count': ref.calculated_renewal_count,
+                'active_plan': active_plan.plan.title if (active_plan and hasattr(active_plan, 'plan')) else (
+                    active_plan.title if active_plan else 'بدون پلن فعال')
+            })
+
+        context['referred_users'] = enriched_referred_users
+        referred_user_users = [ref['profile'] for ref in enriched_referred_users]
 
         # محاسبه داده‌های نمودار فروش
         sales_chart_data = (
@@ -292,3 +319,125 @@ def profile_view(request):
         'marketer_profile': marketer_profile,
     }
     return render(request, 'dashboard/partials/profile.html', context)
+
+@login_required
+@transaction.atomic  # تضمین امنیت تراکنش دیتابیس
+def newUser(request):
+    if request.method == 'POST':
+        input_username = request.POST.get('username')
+        password = request.POST.get('password')
+        phone_number = request.POST.get('phone_number')
+        plan_id = request.POST.get('plan_id')
+        has_dashboard_access = request.POST.get('has_dashboard_access') == 'true'
+
+        # ۱. بررسی پروفایل مارکترِ کاربرِ درخواست‌دهنده
+        marketer = getattr(request.user, 'marketer_profile', None)
+
+        # ۲. ساخت نام کاربری نهایی با احتساب کد معرف (اگر سازنده مارکتر باشد)
+        final_username = input_username
+        if marketer:
+            final_username = f"{marketer.code}{input_username}"
+
+        # ۳. اعتبارسنجی دقیق تکراری نبودن نام کاربری نهایی
+        if User.objects.filter(username=final_username).exists():
+            messages.error(request, 'این نام کاربری قبلاً ثبت شده است.')
+            return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+        try:
+            # ۴. دریافت پلن انتخابی و بررسی سقف بدهی مجاز کیف پول مارکتر (تا ۷ میلیون منفی)
+            selected_plan = None
+            plan_price = 0
+            if plan_id:
+                try:
+                    selected_plan = MainPlansLayout.objects.get(id=plan_id)
+                    plan_price = selected_plan.price
+                except MainPlansLayout.DoesNotExist:
+                    pass
+
+            if marketer and selected_plan:
+                projected_balance = marketer.wallet_balance - plan_price
+                if projected_balance < -7000000:
+                    messages.error(request, 'سقف مجاز بدهی کیف پول شما (منفی ۷ میلیون تومان) تکمیل شده است و امکان ثبت این پلن وجود ندارد.')
+                    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+            # تعیین حجم و مدت‌زمان پلن
+            plan_volume = selected_plan.volume_gb if selected_plan else 10
+            plan_duration_days = selected_plan.duration_days if (
+                    selected_plan and hasattr(selected_plan, 'duration_days')) else 30
+
+            # ۵. ایجاد کاربر در پنل مرزبان (Marzban)
+            now_timestamp = int(time.time())
+            expire_timestamp = now_timestamp + (plan_duration_days * 86400)
+
+            marzban_response = PanelManager.create_user(
+                username=final_username,
+                data_limit_gb=plan_volume,
+                expire_timestamp=expire_timestamp
+            )
+
+            if not marzban_response:
+                print("marzban")
+                messages.error(request, 'خطا در ارتباط با پنل مرزبان؛ کاربر ایجاد نشد.')
+                return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+            # ۶. ساخت کاربر در دیتابیس محلی جنگو
+            user = User.objects.create_user(
+                username=final_username,
+                password=password
+            )
+            user.is_staff = has_dashboard_access
+            user.save()
+
+            # ۷. ساخت پروفایل کاربری و اتصال به مارکتر
+            UserProfile.objects.create(
+                profile=user,
+                phone_number=phone_number,
+                referred_by=marketer
+            )
+
+            # ۸. اگر پلنی انتخاب شده باشد: ثبت سفارش، منفی شدن/کسر از کیف پول و ایجاد اشتراک
+            if selected_plan:
+                print(1)
+                expire_dt = datetime.datetime.fromtimestamp(expire_timestamp, tz=datetime.timezone.utc)
+                subscription_url = marzban_response.get('subscription_url')
+                print(2)
+
+                # ثبت سفارش تکمیل‌شده برای کاربر جدید
+                order = Order.objects.create(
+                    user=user,
+                    plan=selected_plan,
+                    plan_price=plan_price,
+                    discount_amount=0,
+                    final_amount=plan_price,
+                    is_first_order=True,
+                    status=Order.StatusChoices.COMPLETED,
+                    gateway_name='market'
+                )
+                print(3)
+                # کسر هزینه از کیف پول مارکتر (اجازه ورود به محدوده منفی تا ۷ میلیون)
+                if marketer:
+                    marketer.wallet_balance -= plan_price
+                    marketer.save()
+                    print(4)
+                print(5)
+
+                # ثبت اشتراک محلی (UserSubscription) با اتصال به سفارش و لینک اشتراک مرزبان
+                UserSubscription.objects.create(
+                    user=user,
+                    plan=selected_plan,
+                    order=order,
+                    expire_date=expire_dt,
+                    total_volume_gb=plan_volume,
+                    is_active=True,
+                    subscription_url=subscription_url
+                )
+                print(6)
+
+            messages.success(request, 'کاربر جدید و اشتراک او با موفقیت ایجاد شد.')
+
+        except Exception as e:
+            print(e)
+
+            messages.error(request, f'خطا در ایجاد کاربر: {e}')
+
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))

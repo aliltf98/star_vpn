@@ -69,12 +69,21 @@ class PanelManager:
         payload = {
             "username": str(username).strip(),
             "data_limit": int(data_limit_gb) * 1024 * 1024 * 1024,
+            "data_limit_reset_strategy": "no_reset",
             "status": "active",
-            "proxies": {"vless": {}, "vmess": {}, "trojan": {}},
-            "inbounds": {
-                "vless": ["VLESS TCP REALITY", "VLESS GRPC REALITY"],
-                "vmess": ["VMess TCP", "VMess Websocket"]
-            }
+             "proxies": {
+        "vless": {
+            "flow": "xtls-rprx-vision"
+        },
+        "vmess": {},
+        "trojan": {}
+    },
+    "inbounds": {
+        "vless": {},
+        "vmess": {},
+        "trojan": {}
+    }
+
         }
         if expire_timestamp:
             payload["expire"] = int(expire_timestamp)
