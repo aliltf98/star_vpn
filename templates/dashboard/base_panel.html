@@ -16,12 +16,11 @@
     <link href="{% static 'tailadmin/css/style.css' %}" rel="stylesheet">
     {% block extra_head %}{% endblock %}
 </head>
-<body style="direction: rtl !important; text-align: right!important;"
-        x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
-        x-init="
+<body x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': true, 'sidebarToggle': true, 'scrollTop': false }"
+      x-init="
          darkMode = JSON.parse(localStorage.getItem('darkMode')) ?? false;
          $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
-        :class="{'dark bg-gray-900': darkMode === true}">
+      :class="{'dark bg-gray-900': darkMode === true}">
 <!-- ===== Preloader Start ===== -->
 <div x-show="loaded" x-init="window.addEventListener('DOMContentLoaded', () => {setTimeout(() => loaded = false, 500)})"
      class="fixed top-0 left-0 z-999999 flex h-screen w-screen items-center justify-center bg-white dark:bg-black">
@@ -45,28 +44,24 @@
 
     <aside
             x-cloak
-            :class="sidebarToggle ? 'translate-x-0 xl:w-22.5' : 'translate-x-full rtl:translate-x-full xl:translate-x-0'"
-            class="sidebar fixed top-0 right-0 z-9999 flex h-screen w-72.5 flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 xl:static xl:translate-x-0 rtl:border-r-0 rtl:border-l dark:border-gray-800 dark:bg-black"
-            @click.outside="if (window.innerWidth < 1280) sidebarToggle = false"
+            :class="sidebarToggle ? 'translate-x-0 xl:w-22.5' : 'translate-x-full xl:translate-x-0 pointer-events-none xl:pointer-events-auto'"
+            class="sidebar fixed top-0 right-0 z-9999 flex h-screen w-72.5 flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 transform xl:static xl:translate-x-0 rtl:border-r-0 rtl:border-l dark:border-gray-800 dark:bg-black"
+            @click.outside="if (window.innerWidth < 1280 && !$event.target.closest('#sidebarToggleBtn')) sidebarToggle = false"
             aria-label="sidebar navigation"
     >
         <!-- Sidebar Header (لوگو) -->
-        <div
-                :class="sidebarToggle ? 'xl:justify-center' : 'justify-between'"
-                class="sidebar-header flex items-center gap-2 py-8"
-        >
+        <div :class="sidebarToggle ? 'xl:justify-center' : 'justify-between'" class="sidebar-header flex items-center gap-2 py-5 xl:justify-center">
             <a href="#">
                 <span class="sr-only">صفحه اصلی</span>
-                <span class="logo" :class="sidebarToggle ? 'xl:hidden' : ''">
-        <img class="h-10 w-37.5 dark:hidden" src="{% static 'tailadmin/images/logo/logo.svg' %}" alt="Logo"/>
-        <img class="hidden h-10 w-37.5 dark:block" src="{% static 'tailadmin/images/logo/logo-dark.svg' %}" alt="Logo"/>
-      </span>
-                <img class="logo-icon size-8" :class="sidebarToggle ? 'xl:block hidden' : 'hidden'"
-                     src="{% static 'tailadmin/images/logo/logo-icon.svg' %}" alt="Logo"/>
+                <span class="logo xl:hidden" :class="sidebarToggle ? 'xl:hidden' : ''">
+                    <img class="h-10 w-37.5 dark:hidden" src="{% static 'tailadmin/images/logo/logo.svg' %}" alt="Logo"/>
+                    <img class="hidden h-10 w-37.5 dark:block" src="{% static 'tailadmin/images/logo/logo-dark.svg' %}" alt="Logo"/>
+                </span>
+                <img class="logo-icon size-8 xl:block hidden" :class="sidebarToggle ? 'xl:block hidden' : 'hidden'" src="{% static 'tailadmin/images/logo/logo-icon.svg' %}" alt="Logo"/>
             </a>
         </div>
 
-        <!-- Sidebar Menu (بدنه اصلی منو با اسکرول) -->
+        <!-- Sidebar Menu -->
         <div class="no-scrollbar flex flex-1 flex-col overflow-y-auto duration-300 ease-linear pb-6">
             <nav x-data="{ selected: '' }" aria-label="sidebar navigation" class="space-y-1">
 
@@ -78,7 +73,7 @@
 
                     <!-- ۱. پیشخوان -->
                     <li>
-                        <a href="/dashboard"
+                        <a href="#"
                            class="group menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
                             <svg class="size-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,7 +87,7 @@
 
                     <!-- ۲. پروفایل -->
                     <li>
-                        <a href="./dashboard/profile"
+                        <a href="#"
                            class="group menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
                             <svg class="size-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -209,7 +204,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
-                    <span class="menu-item-text font-medium" :class="sidebarToggle ? 'xl:hidden' : ''">خروج از حساب</span>
+                    <span class="menu-item-text font-medium"
+                          :class="sidebarToggle ? 'xl:hidden' : ''">خروج از حساب</span>
                 </button>
             </form>
         </div>
@@ -227,18 +223,12 @@
                     <div class="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 xl:border-b-0 dark:border-gray-800">
 
                         <!-- دکمه باز و بسته کردن سایدبار -->
-                        <button type="button" @click.stop="sidebarToggle = !sidebarToggle"
+                        <button type="button" id="sidebarToggleBtn" @click.stop="sidebarToggle = !sidebarToggle"
                                 class="group/button relative inline-flex size-10 shrink-0 items-center justify-center rounded-[10px] border border-gray-300 bg-transparent text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-white">
-                            <!-- آیکون ضربدر (هنگامی که سایدبار باز است) -->
-                            <svg x-show="!sidebarToggle" class="size-6" xmlns="http://www.w3.org/2000/svg" width="24"
-                                 height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                 stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 6L6 18M6 6l12 12"/>
-                            </svg>
 
-                            <!-- آیکون منو/همبرگری (هنگامی که سایدبار بسته است) -->
+                            <!-- آیکون همبرگری (هنگامی که سایدبار بسته است) -->
                             <svg
-                                    x-show="sidebarToggle"
+                                    x-show="!sidebarToggle"
                                     class="size-4"
                                     width="16"
                                     height="12"
@@ -249,23 +239,29 @@
                                       d="M0.583252 1C0.583252 0.585788 0.919038 0.25 1.33325 0.25H14.6666C15.0808 0.25 15.4166 0.585786 15.4166 1C15.4166 1.41421 15.0808 1.75 14.6666 1.75L1.33325 1.75C0.919038 1.75 0.583252 1.41422 0.583252 1ZM0.583252 11C0.583252 10.5858 0.919038 10.25 1.33325 10.25L14.6666 10.25C15.0808 10.25 15.4166 10.5858 15.4166 11C15.4166 11.4142 15.0808 11.75 14.6666 11.75L1.33325 11.75C0.919038 11.75 0.583252 11.4142 0.583252 11ZM1.33325 5.25C0.919038 5.25 0.583252 5.58579 0.583252 6C0.583252 6.41421 0.919038 6.75 1.33325 6.75L7.99992 6.75C8.41413 6.75 8.74992 6.41421 8.74992 6C8.74992 5.58579 8.41413 5.25 7.99992 5.25L1.33325 5.25Z"
                                       fill="currentColor"/>
                             </svg>
+
+                            <!-- آیکون ضربدر (هنگامی که سایدبار باز است) -->
+                            <svg x-show="sidebarToggle" class="size-6" xmlns="http://www.w3.org/2000/svg" width="24"
+                                 height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
                         </button>
 
-                        <!-- بخش سمت راست (نام کاربر و دکمه دارک‌مود در یک کانتینر انعطاف‌پذیر) -->
+                        <!-- بخش سمت راست (نام کاربر و دکمه دارک‌مود) -->
                         <div class="flex items-center gap-3">
                             <button type="button"
                                     @click.prevent="darkMode = !darkMode; document.documentElement.classList.toggle('dark', darkMode); localStorage.setItem('darkMode', JSON.stringify(darkMode))"
                                     class="relative inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] border border-gray-300 bg-transparent text-gray-700 shadow-theme-xs transition-all select-none hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700/50 dark:hover:text-white"
                                     aria-label="Toggle theme">
-                                <!-- آیکون خورشید (نمایش در حالت دارک) -->
+                                <!-- آیکون خورشید -->
                                 <svg x-cloak x-show="darkMode" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                      viewBox="0 0 24 24" fill="none">
                                     <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
                                     <path d="M12 2v2m0 16v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M2 12h2m16 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
                                           stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                 </svg>
-
-                                <!-- آیکون ماه (نمایش در حالت لایت) -->
+                                <!-- آیکون ماه -->
                                 <svg x-cloak x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" width="18"
                                      height="18" viewBox="0 0 20 20" fill="none">
                                     <path d="M6.247 6.668a6.668 6.668 0 0011.207 4.885A7.708 7.708 0 118.03 2.129a6.645 6.645 0 00-1.783 4.54z"
@@ -274,15 +270,12 @@
                                 </svg>
                             </button>
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {% if request.user.get_full_name %}
-                                    {{ request.user.get_full_name|default:"کاربر" }}، خوش آمدید
-                                {% else %}
-                                    {{ request.user.username|default:"کاربر" }}، خوش آمدید
-                                {% endif %}
-                            </span>
-
-                            <!-- دکمه تغییر حالت Dark / Light Mode -->
-
+                    {% if request.user.get_full_name %}
+                        {{ request.user.get_full_name|default:"کاربر" }}، خوش آمدید
+                    {% else %}
+                        {{ request.user.username|default:"کاربر" }}، خوش آمدید
+                    {% endif %}
+                </span>
                         </div>
 
                     </div>
