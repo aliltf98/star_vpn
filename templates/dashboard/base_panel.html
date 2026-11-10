@@ -16,7 +16,8 @@
     <link href="{% static 'tailadmin/css/style.css' %}" rel="stylesheet">
     {% block extra_head %}{% endblock %}
 </head>
-<body x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': true, 'sidebarToggle': true, 'scrollTop': false }"
+<body style="direction: rtl;"
+      x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false, userAddModalOpen: false }"
       x-init="
          darkMode = JSON.parse(localStorage.getItem('darkMode')) ?? false;
          $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
@@ -44,20 +45,21 @@
 
     <aside
             x-cloak
-            :class="sidebarToggle ? 'translate-x-0 xl:w-22.5' : 'translate-x-full xl:translate-x-0 pointer-events-none xl:pointer-events-auto'"
-            class="sidebar fixed top-0 right-0 z-9999 flex h-screen w-72.5 flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 transform xl:static xl:translate-x-0 rtl:border-r-0 rtl:border-l dark:border-gray-800 dark:bg-black"
-            @click.outside="if (window.innerWidth < 1280 && !$event.target.closest('#sidebarToggleBtn')) sidebarToggle = false"
+            x-show="sidebarToggle || window.innerWidth >= 1280"
+            class="sidebar fixed top-0 right-0 z-9999 flex h-screen w-72.5 flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 xl:static rtl:border-r-0 rtl:border-l dark:border-gray-800 dark:bg-black"
+            @click.outside="if (window.innerWidth < 1280) sidebarToggle = false"
             aria-label="sidebar navigation"
     >
         <!-- Sidebar Header (لوگو) -->
-        <div :class="sidebarToggle ? 'xl:justify-center' : 'justify-between'" class="sidebar-header flex items-center gap-2 py-5 xl:justify-center">
+        <div class="sidebar-header flex items-center justify-between py-5 xl:justify-center">
             <a href="#">
                 <span class="sr-only">صفحه اصلی</span>
-                <span class="logo xl:hidden" :class="sidebarToggle ? 'xl:hidden' : ''">
-                    <img class="h-10 w-37.5 dark:hidden" src="{% static 'tailadmin/images/logo/logo.svg' %}" alt="Logo"/>
-                    <img class="hidden h-10 w-37.5 dark:block" src="{% static 'tailadmin/images/logo/logo-dark.svg' %}" alt="Logo"/>
+                <span class="logo">
+                    <img class="h-10 w-37.5 dark:hidden" src="{% static 'tailadmin/images/logo/logo.svg' %}"
+                         alt="Logo"/>
+                    <img class="hidden h-10 w-37.5 dark:block" src="{% static 'tailadmin/images/logo/logo-dark.svg' %}"
+                         alt="Logo"/>
                 </span>
-                <img class="logo-icon size-8 xl:block hidden" :class="sidebarToggle ? 'xl:block hidden' : 'hidden'" src="{% static 'tailadmin/images/logo/logo-icon.svg' %}" alt="Logo"/>
             </a>
         </div>
 
@@ -121,12 +123,19 @@
                                 </svg>
                             </a>
                             <ul x-show="selected === 'users'" x-cloak class="mt-1 space-y-1 pr-9 rtl:pr-9 rtl:pl-0">
-                                <li><a href="#"
-                                       class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">مدیریت
-                                    همه کاربرها</a></li>
-                                <li><a href="#"
-                                       class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">افزودن
-                                    کاربر جدید</a></li>
+                                <li>
+                                    <a href="#"
+                                       class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">
+                                        همه کاربرها
+                                    </a>
+                                </li>
+                                <li>
+                                    <!-- تغییر از کلیک روی مودال به لینک صفحه جدید -->
+                                    <a href="{% url 'new_user' %}"
+                                       class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">
+                                        افزودن کاربر جدید
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     {% endif %}
@@ -223,8 +232,8 @@
                     <div class="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 xl:border-b-0 dark:border-gray-800">
 
                         <!-- دکمه باز و بسته کردن سایدبار -->
-                        <button type="button" id="sidebarToggleBtn" @click.stop="sidebarToggle = !sidebarToggle"
-                                class="group/button relative inline-flex size-10 shrink-0 items-center justify-center rounded-[10px] border border-gray-300 bg-transparent text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-white">
+                        <button type="button" @click.stop="sidebarToggle = !sidebarToggle"
+                                class="group/button relative inline-flex size-10 shrink-0 items-center justify-center rounded-[10px] border border-gray-300 bg-transparent text-gray-500 hover:bg-gray-50 xl:hidden dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-white">
 
                             <!-- آیکون همبرگری (هنگامی که سایدبار بسته است) -->
                             <svg
@@ -299,5 +308,129 @@
 <!-- فایل جاوااسکریپت نهایی کامپایل‌شده -->
 <script defer src="{% static 'tailadmin/js/bundle.js' %}"></script>
 {% block extra_js %}{% endblock %}
+<!-- ===== مودال سراسری افزودن کاربر جدید ===== -->
+<div x-show="userAddModalOpen"
+     x-transition.opacity.duration.200ms
+     class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4"
+     style="display: none;">
+
+    <!-- کارت اصلی مودال -->
+    <div @click.outside="userAddModalOpen = false"
+         class="w-full max-w-lg rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-xl overflow-hidden">
+
+        <!-- هدر مودال -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+            <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">
+                افزودن کاربر جدید به سیستم
+            </h3>
+            <button @click="userAddModalOpen = false"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- فرم ارسال اطلاعات به جنگو -->
+        <form method="POST" action="{% url 'new_user' %}" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto"
+              x-data="{ userType: 'regular' }">
+            {% csrf_token %}
+
+            <!-- نوع کاربر -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    نوع کاربر <span class="text-red-500">*</span>
+                </label>
+                <select name="user_type" x-model="userType" required
+                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                    <option value="regular">کاربر عادی</option>
+                    <option value="seller">فروشنده (مارکتر)</option>
+                    <option value="admin">مدیر (ادمین کل)</option>
+                </select>
+            </div>
+
+            <!-- نام کاربری -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    نام کاربری <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="username" required placeholder="username"
+                       class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+            </div>
+
+            <!-- کلمه عبور -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    کلمه عبور <span class="text-red-500">*</span>
+                </label>
+                <input type="password" name="password" required placeholder="••••••••"
+                       class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+            </div>
+
+            <!-- شماره همراه -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره همراه</label>
+                <input type="text" name="phone_number" placeholder="09123456789"
+                       class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
+            </div>
+
+            <!-- فیلدهای مخصوص کاربر عادی -->
+            <div x-show="userType === 'regular'" class="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">انتخاب پلن</label>
+                    <select name="plan_id"
+                            class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                        <option value="">-- انتخاب پلن سرویس --</option>
+                        {% for plan in available_plans %}
+                            <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.volume_gb }}
+                                گیگ {{ plan.duration_days }} روز)
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" name="has_dashboard_access" id="dashboard_access" value="true" checked
+                           class="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800">
+                    <label for="dashboard_access"
+                           class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                        دسترسی به پنل/داشبورد کاربری
+                    </label>
+                </div>
+            </div>
+
+            <!-- پیام‌های راهنما -->
+            <div x-show="userType === 'admin'"
+                 class="p-3 bg-brand-50 dark:bg-brand-500/10 rounded-xl text-xs text-brand-600 dark:text-brand-400">
+                این کاربر به عنوان مدیر کل ثبت شده و به تمامی بخش‌های پنل دسترسی خواهد داشت.
+            </div>
+
+            <div x-show="userType === 'seller'"
+                 class="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl text-xs text-gray-500 dark:text-gray-400">
+                این کاربر به عنوان همکار/فروشنده ثبت می‌شود و کد معرف اختصاصی دریافت می‌کند.
+            </div>
+
+            <!-- فوتر مودال -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <button type="button" @click="userAddModalOpen = false"
+                        class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                    انصراف
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">
+                    ثبت و ایجاد کاربر
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<ElicitationsGroup message="برای بررسی یا افزودن بخش‌های دیگر به منو:">
+    <Elicitation label="اضافه کردن لینک‌های مدیریتی بیشتر به سایدبار"
+                 query="چطور گزینه‌های دیگری مثل مدیریت مالی یا گزارش‌گیری را به این منوی آبشاری اضافه کنم؟"/>
+    <Elicitation label="مدیریت دسترسی‌های نمایش منو بر اساس نقش"
+                 query="چطور مطمئن شوم منوی مدیریت کاربران فقط برای ادمین‌های کل نمایش داده می‌شود؟"/>
+</ElicitationsGroup>
 </body>
 </html>

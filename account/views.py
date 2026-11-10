@@ -182,6 +182,7 @@ def subscription(request):
 
     return render(request, "subscription.html", context)
 
+
 @login_required
 def dashboard_view(request):
     user = request.user
@@ -190,9 +191,49 @@ def dashboard_view(request):
     # اضافه کردن لیست تمام پلن‌ها به context برای استفاده در مودال «افزودن کاربر»
     context['available_plans'] = MainPlansLayout.objects.all()
 
-    # ۱. بررسی دسترسی ادمین (Superuser)
-    if user.is_superuser:
+    # ۱. بررسی دسترسی ادمین (Superuser یا Staff)
+    if user.is_superuser or user.is_staff:
         context['user_role'] = 'admin'
+
+        # ادمین‌ها نیز پروفایل فروشندگی خود را دارند (برای نمایش کارت مالی در داشبورد ادمین)
+        marketer_profile = getattr(user, 'marketer_profile', None)
+        context['marketer_profile'] = marketer_profile
+
+        # لیست تمامی فروشندگان همراه با شمارش تعداد کاربران زیرمجموعه
+        marketers_list = MarketerProfile.objects.annotate(
+            referred_count=Count('referred_users')
+        ).select_related('user')
+        context['marketers_list'] = marketers_list
+
+        # لیست تمامی کاربران عادی پلتفرم به همراه معرف و پلن فعال
+        all_profiles = UserProfile.objects.select_related('profile', 'referred_by__user').all()
+        all_system_users = []
+        for item in all_profiles:
+            active_sub = item.profile.subscriptions.filter(is_active=True).first() if hasattr(item.profile,
+                                                                                              'subscriptions') else None
+            plan_title = active_sub.plan.title if (active_sub and hasattr(active_sub, 'plan')) else (
+                active_sub.plan.title if active_sub else 'بدون پلن فعال')
+
+            all_system_users.append({
+                'user': item.profile,
+                'referred_by': item.referred_by,
+                'active_plan': plan_title
+            })
+        context['all_system_users'] = all_system_users
+
+        # آمار برای چارت دایره‌ای (تعداد کل کاربران عادی و فروشندگان)
+        context['total_regular_users'] = UserProfile.objects.count()
+        context['total_marketers_count'] = MarketerProfile.objects.count()
+
+        # محاسبه داده‌های نمودار خطی فروش کل سیستم
+        sales_chart_data = (
+            Order.objects.filter(status=Order.StatusChoices.COMPLETED)
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(total_sales=Count('id'), total_revenue=Sum('final_amount'))
+            .order_by('month')
+        )
+        context['sales_chart_data'] = list(sales_chart_data)
 
     # ۲. بررسی اینکه آیا کاربر فروشنده (دارای پروفایل مارکتر) است یا خیر
     elif hasattr(user, 'marketer_profile'):
@@ -202,14 +243,12 @@ def dashboard_view(request):
 
         # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند همراه با محاسبه تعداد تمدیدها و آخرین پلن فعال
         referred_users = marketer.referred_users.select_related('profile').annotate(
-            # شمارش تعداد سفارشات/تمدیدهای موفق هر کاربر
             calculated_renewal_count=Count(
                 'profile__orders',
                 filter=Q(profile__orders__status=Order.StatusChoices.COMPLETED)
             )
         ).all()
 
-        # برای هر کاربر در لیست، پلن فعلی‌اش را هم استخراج می‌کنیم
         enriched_referred_users = []
         for ref in referred_users:
             active_sub = getattr(ref.profile, 'subscriptions', None)
@@ -225,7 +264,7 @@ def dashboard_view(request):
         context['referred_users'] = enriched_referred_users
         referred_user_users = [ref['profile'] for ref in enriched_referred_users]
 
-        # محاسبه داده‌های نمودار فروش
+        # محاسبه داده‌های نمودار فروش اختصاصی فروشنده
         sales_chart_data = (
             Order.objects.filter(user__in=referred_user_users, status=Order.StatusChoices.COMPLETED)
             .annotate(month=TruncMonth('created_at'))
@@ -239,14 +278,12 @@ def dashboard_view(request):
     else:
         context['user_role'] = 'regular'
 
-        # دریافت پروفایل کاربری و اشتراک فعال از دیتابیس
         user_profile = getattr(user, 'profile', None)
         active_subscription = user.subscriptions.filter(is_active=True).first()
 
         context['user_profile'] = user_profile
         context['active_subscription'] = active_subscription
 
-        # دریافت اطلاعات از پنل (مشابه تابع subscription)
         panel_info = PanelManager.get_user_info(user.username)
 
         if panel_info:
@@ -256,7 +293,6 @@ def dashboard_view(request):
             context['status'] = panel_info.get('status')
             context['used_traffic'] = humanbytes(panel_info.get('lifetime_used_traffic', 0))
 
-        # استخراج لیست دستگاه‌های متصل (مشابه تابع subscription)
         devices_data = []
         try:
             service_prof = ServiceProfile.objects.filter(profile__profile__username=user.username).first()
@@ -321,88 +357,106 @@ def profile_view(request):
     return render(request, 'dashboard/partials/profile.html', context)
 
 @login_required
-@transaction.atomic  # تضمین امنیت تراکنش دیتابیس
-def newUser(request):
+@transaction.atomic
+def new_user(request):
+    if request.method == 'GET':
+        context = {
+            'available_plans': MainPlansLayout.objects.all()
+        }
+        return render(request, 'dashboard/partials/new_user.html', context)
+
     if request.method == 'POST':
         input_username = request.POST.get('username')
         password = request.POST.get('password')
         phone_number = request.POST.get('phone_number')
         plan_id = request.POST.get('plan_id')
         has_dashboard_access = request.POST.get('has_dashboard_access') == 'true'
+        user_type = request.POST.get('user_type', 'regular')
+        promo_code = request.POST.get('promo_code', '').strip()
 
-        # ۱. بررسی پروفایل مارکترِ کاربرِ درخواست‌دهنده
-        marketer = getattr(request.user, 'marketer_profile', None)
-
-        # ۲. ساخت نام کاربری نهایی با احتساب کد معرف (اگر سازنده مارکتر باشد)
-        final_username = input_username
-        if marketer:
-            final_username = f"{marketer.code}{input_username}"
-
-        # ۳. اعتبارسنجی دقیق تکراری نبودن نام کاربری نهایی
-        if User.objects.filter(username=final_username).exists():
+        # ۱. بررسی تکراری نبودن نام کاربری
+        if User.objects.filter(username=input_username).exists():
             messages.error(request, 'این نام کاربری قبلاً ثبت شده است.')
-            return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+            return redirect('new_user')
+
+        # ۲. بررسی تکراری نبودن کد معرف (اگر کاربر فروشنده یا ادمین است)
+        if user_type in ['seller', 'admin'] and promo_code:
+            if MarketerProfile.objects.filter(code=promo_code).exists():
+                messages.error(request, 'این کد معرف (Promo Code) قبلاً ثبت شده است. لطفاً کد دیگری وارد کنید.')
+                return redirect('new_user')
 
         try:
-            # ۴. دریافت پلن انتخابی و بررسی سقف بدهی مجاز کیف پول مارکتر (تا ۷ میلیون منفی)
+            # تعیین حجم و زمان برای پنل مرزبان (در صورتی که پلن انتخاب شده باشد)
             selected_plan = None
             plan_price = 0
-            if plan_id:
+            if plan_id and user_type == 'regular':
                 try:
                     selected_plan = MainPlansLayout.objects.get(id=plan_id)
                     plan_price = selected_plan.price
                 except MainPlansLayout.DoesNotExist:
                     pass
 
-            if marketer and selected_plan:
-                projected_balance = marketer.wallet_balance - plan_price
-                if projected_balance < -7000000:
-                    messages.error(request, 'سقف مجاز بدهی کیف پول شما (منفی ۷ میلیون تومان) تکمیل شده است و امکان ثبت این پلن وجود ندارد.')
-                    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
-
-            # تعیین حجم و مدت‌زمان پلن
             plan_volume = selected_plan.volume_gb if selected_plan else 10
             plan_duration_days = selected_plan.duration_days if (
                     selected_plan and hasattr(selected_plan, 'duration_days')) else 30
 
-            # ۵. ایجاد کاربر در پنل مرزبان (Marzban)
-            now_timestamp = int(time.time())
-            expire_timestamp = now_timestamp + (plan_duration_days * 86400)
+            expire_timestamp = int(time.time()) + (plan_duration_days * 86400)
 
+            # ۳. ایجاد کاربر در پنل مرزبان
             marzban_response = PanelManager.create_user(
-                username=final_username,
+                username=input_username,
                 data_limit_gb=plan_volume,
                 expire_timestamp=expire_timestamp
             )
 
             if not marzban_response:
-                print("marzban")
                 messages.error(request, 'خطا در ارتباط با پنل مرزبان؛ کاربر ایجاد نشد.')
-                return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+                return redirect('new_user')
 
-            # ۶. ساخت کاربر در دیتابیس محلی جنگو
+            # ۴. ایجاد کاربر در دیتابیس محلی جنگو
             user = User.objects.create_user(
-                username=final_username,
+                username=input_username,
                 password=password
             )
-            user.is_staff = has_dashboard_access
+
+            # تنظیم سطوح دسترسی
+            if user_type == 'admin':
+                user.is_superuser = True
+                user.is_staff = True
+            else:
+                user.is_staff = has_dashboard_access
             user.save()
 
-            # ۷. ساخت پروفایل کاربری و اتصال به مارکتر
-            UserProfile.objects.create(
-                profile=user,
-                phone_number=phone_number,
-                referred_by=marketer
-            )
+            # ۵. ساخت پروفایل بسته به نوع کاربر
+            if user_type in ['admin', 'seller']:
+                # ساخت پروفایل مارکتر با کد وارد شده توسط ادمین
+                final_code = promo_code if promo_code else f"CODE_{input_username}"
+                MarketerProfile.objects.create(
+                    user=user,
+                    code=final_code,
+                    wallet_balance=0
+                )
+                # اگر ادمین بود، پروفایل UserProfile معمولی نیاز ندارد (یا بسته به ساختار شما اختیاریست)
+                if user_type == 'regular':
+                    UserProfile.objects.create(
+                        profile=user,
+                        phone_number=phone_number,
+                        referred_by=None
+                    )
+            else:
+                # کاربر عادی
+                marketer = getattr(request.user, 'marketer_profile', None)
+                UserProfile.objects.create(
+                    profile=user,
+                    phone_number=phone_number,
+                    referred_by=marketer
+                )
 
-            # ۸. اگر پلنی انتخاب شده باشد: ثبت سفارش، منفی شدن/کسر از کیف پول و ایجاد اشتراک
-            if selected_plan:
-                print(1)
+            # ۶. ثبت سفارش و اشتراک برای کاربر عادی در صورت داشتن پلن
+            if selected_plan and user_type == 'regular':
                 expire_dt = datetime.datetime.fromtimestamp(expire_timestamp, tz=datetime.timezone.utc)
                 subscription_url = marzban_response.get('subscription_url')
-                print(2)
 
-                # ثبت سفارش تکمیل‌شده برای کاربر جدید
                 order = Order.objects.create(
                     user=user,
                     plan=selected_plan,
@@ -413,15 +467,12 @@ def newUser(request):
                     status=Order.StatusChoices.COMPLETED,
                     gateway_name='market'
                 )
-                print(3)
-                # کسر هزینه از کیف پول مارکتر (اجازه ورود به محدوده منفی تا ۷ میلیون)
-                if marketer:
+
+                marketer = getattr(request.user, 'marketer_profile', None)
+                if marketer and not (request.user.is_superuser or request.user.is_staff):
                     marketer.wallet_balance -= plan_price
                     marketer.save()
-                    print(4)
-                print(5)
 
-                # ثبت اشتراک محلی (UserSubscription) با اتصال به سفارش و لینک اشتراک مرزبان
                 UserSubscription.objects.create(
                     user=user,
                     plan=selected_plan,
@@ -431,13 +482,12 @@ def newUser(request):
                     is_active=True,
                     subscription_url=subscription_url
                 )
-                print(6)
 
-            messages.success(request, 'کاربر جدید و اشتراک او با موفقیت ایجاد شد.')
+            messages.success(request, 'کاربر جدید و تنظیمات مربوطه با موفقیت ایجاد شدند.')
+            return redirect('dashboard')
 
         except Exception as e:
-            print(e)
-
+            print("Error in newUser view:", e)
             messages.error(request, f'خطا در ایجاد کاربر: {e}')
 
-    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+    return redirect('dashboard')

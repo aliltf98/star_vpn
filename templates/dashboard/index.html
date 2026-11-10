@@ -188,95 +188,110 @@
                     <!-- دکمه ثبت کاربر جدید -->
                     <div x-data="{ modalIsOpen: false }" class="inline-block">
 
-    <!-- دکمه باز کردن پاپ‌آپ (دقیقاً مطابق با استایل درخواستی شما) -->
-    <button type="button" @click="modalIsOpen = true"
-        class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-theme-xs transition-all outline-none select-none hover:bg-brand-600 focus-visible:ring-3 focus-visible:ring-brand-500/20 focus-visible:outline-hidden active:translate-y-px disabled:pointer-events-none disabled:bg-brand-200 disabled:text-white dark:bg-brand-500 dark:hover:bg-brand-600 dark:disabled:bg-brand-800 dark:disabled:text-brand-400">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
-        افزودن کاربر جدید
-    </button>
+                        <!-- دکمه باز کردن پاپ‌آپ (دقیقاً مطابق با استایل درخواستی شما) -->
+                        <button type="button" @click="modalIsOpen = true"
+                                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-theme-xs transition-all outline-none select-none hover:bg-brand-600 focus-visible:ring-3 focus-visible:ring-brand-500/20 focus-visible:outline-hidden active:translate-y-px disabled:pointer-events-none disabled:bg-brand-200 disabled:text-white dark:bg-brand-500 dark:hover:bg-brand-600 dark:disabled:bg-brand-800 dark:disabled:text-brand-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                            </svg>
+                            افزودن کاربر جدید
+                        </button>
 
-    <!-- ساختار پاپ‌آپ (Modal Dialog) -->
-    <div x-show="modalIsOpen"
-         x-transition.opacity.duration.200ms
-         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4"
-         style="display: none;">
+                        <!-- ساختار پاپ‌آپ (Modal Dialog) -->
+                        <div x-show="modalIsOpen"
+                             x-transition.opacity.duration.200ms
+                             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4"
+                             style="display: none;">
 
-        <!-- کارت اصلی مودال -->
-        <div @click.outside="modalIsOpen = false" style="width: 65%"
-             class=" max-w-lg rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-xl overflow-hidden">
+                            <!-- کارت اصلی مودال -->
+                            <div @click.outside="modalIsOpen = false" style="width: 65%"
+                                 class=" max-w-lg rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-xl overflow-hidden">
 
-            <!-- هدر مودال -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">
-                    افزودن کاربر جدید
-                </h3>
-                <button @click="modalIsOpen = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
+                                <!-- هدر مودال -->
+                                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+                                    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">
+                                        افزودن کاربر جدید
+                                    </h3>
+                                    <button @click="modalIsOpen = false"
+                                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
 
-            <!-- فرم ارسال اطلاعات به جنگو -->
-            <form method="POST" action="dashboard/new_user" class="p-6 space-y-4">
-                {% csrf_token %}
+                                <!-- فرم ارسال اطلاعات به جنگو -->
+                                <form method="POST" action="dashboard/new_user" class="p-6 space-y-4">
+                                    {% csrf_token %}
 
-                <!-- نام کاربری -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام کاربری <span class="text-red-500">*</span></label>
-                    <input type="text" name="username" required placeholder="username"
-                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                </div>
+                                    <!-- نام کاربری -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام
+                                            کاربری <span class="text-red-500">*</span></label>
+                                        <input type="text" name="username" required placeholder="username"
+                                               class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                                    </div>
 
-                <!-- کلمه عبور -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کلمه عبور <span class="text-red-500">*</span></label>
-                    <input type="password" name="password" required placeholder="••••••••"
-                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                </div>
+                                    <!-- کلمه عبور -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کلمه
+                                            عبور <span class="text-red-500">*</span></label>
+                                        <input type="password" name="password" required placeholder="••••••••"
+                                               class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                                    </div>
 
-                <!-- شماره همراه -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره همراه</label>
-                    <input type="text" name="phone_number" placeholder="09123456789"
-                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
-                </div>
+                                    <!-- شماره همراه -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره
+                                            همراه</label>
+                                        <input type="text" name="phone_number" placeholder="09123456789"
+                                               class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
+                                    </div>
 
-                <!-- انتخاب پلن کاربر (Dropdown استاندارد TailAdmin) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">انتخاب پلن</label>
-                    <select name="plan_id"
-                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                        <option value="">-- انتخاب پلن سرویس --</option>
-                        {% for plan in available_plans %}
-                            <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.volume_gb }} گیگ - {{ plan.duration_days }} روز)</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                                    <!-- انتخاب پلن کاربر (Dropdown استاندارد TailAdmin) -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">انتخاب
+                                            پلن</label>
+                                        <select name="plan_id"
+                                                class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                                            <option value="">-- انتخاب پلن سرویس --</option>
+                                            {% for plan in available_plans %}
+                                                <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.volume_gb }} گیگ
+                                                    - {{ plan.duration_days }} روز)
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
 
-                <!-- دسترسی به داشبورد (Boolean / Checkbox) -->
-                <div class="flex items-center gap-3 pt-2">
-                    <input type="checkbox" name="has_dashboard_access" id="dashboard_access" value="true" checked
-                        class="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800">
-                    <label for="dashboard_access" class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                        دسترسی به پنل/داشبورد کاربری
-                    </label>
-                </div>
+                                    <!-- دسترسی به داشبورد (Boolean / Checkbox) -->
+                                    <div class="flex items-center gap-3 pt-2">
+                                        <input type="checkbox" name="has_dashboard_access" id="dashboard_access"
+                                               value="true" checked
+                                               class="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800">
+                                        <label for="dashboard_access"
+                                               class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                                            دسترسی به پنل/داشبورد کاربری
+                                        </label>
+                                    </div>
 
-                <!-- فوتر مودال و دکمه‌های عملیاتی -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-                    <button type="button" @click="modalIsOpen = false"
-                        class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                        انصراف
-                    </button>
-                    <button type="submit"
-                        class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">
-                        ثبت و ایجاد کاربر
-                    </button>
-                </div>
+                                    <!-- فوتر مودال و دکمه‌های عملیاتی -->
+                                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <button type="button" @click="modalIsOpen = false"
+                                                class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                                            انصراف
+                                        </button>
+                                        <button type="submit"
+                                                class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">
+                                            ثبت و ایجاد کاربر
+                                        </button>
+                                    </div>
 
-            </form>
-        </div>
-    </div>
-</div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -336,11 +351,237 @@
 
             {# ==================== ۳. داشبورد ادمین ==================== #}
         {% elif user_role == 'admin' %}
-            <div class="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-200 dark:border-gray-700 text-center">
-                <h2 class="text-xl font-bold text-gray-700 dark:text-gray-300">پنل مدیریت ادمین</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">این بخش بر اساس نیازهای بعدی طراحی خواهد
-                    شد.</p>
+            <div class="space-y-6">
+
+                <!-- ===== بخش اول: کارت مالی ادمین و نمودار دایره‌ای آمار کاربران ===== -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+
+                    <!-- مورد اول: کارت مالی ادمین (دقیقاً مشابه فروشنده) -->
+                    <div class="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gray-900 p-6 select-none dark:bg-gray-950 text-white shadow-xl">
+                        <!-- تصویر پس‌زمینه تزیینی کارت -->
+                        <img src="{% static 'tailadmin/images/payment-gateway/card-vector.png' %}" alt="Card Vector"
+                             class="pointer-events-none absolute inset-e-0 top-0 h-[95px] w-[122px] rtl:-scale-x-100 opacity-5">
+
+                        <!-- هدر کارت: آیکون و نام بانک -->
+                        <div class="relative z-1 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <svg class="text-white" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                          stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-xs tracking-widest text-brand-400 font-bold uppercase">{{ marketer_profile.bank_name|default:"حساب ادمین" }}</span>
+                            </div>
+                        </div>
+
+                        <!-- نام ادمین و موجودی کیف پول -->
+                        <div class="relative z-1 flex justify-between items-end my-4">
+                            <div>
+                                <p class="text-xs text-gray-400">نام کاربری مدیریت</p>
+                                <h4 class="text-lg font-semibold text-white mt-0.5">{{ request.user.username }}</h4>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-xs text-gray-400">موجودی کیف پول</p>
+                                <h3 class="text-xl font-bold text-white mt-0.5">{{ marketer_profile.wallet_balance|default:"0" }}
+                                    <span class="text-xs font-normal text-gray-300">تومان</span></h3>
+                            </div>
+                        </div>
+
+                        <!-- اطلاعات شماره کارت، شبا و کد معرف -->
+                        <div class="relative z-1 grid grid-cols-2 gap-4 border-t border-gray-800 pt-4">
+                            <div>
+                                <p class="text-xs text-gray-400">کد معرف / Promo</p>
+                                <p class="text-sm font-semibold text-brand-400 mt-0.5">{{ marketer_profile.code|default:"ADMIN" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">شماره کارت</p>
+                                <p class="text-sm font-mono tracking-wider text-white mt-0.5 text-left"
+                                   style="direction: ltr">
+                                    {% if marketer_profile.card_number %}
+                                        •••• •••• •••• {{ marketer_profile.card_number|slice:"-4:" }}
+                                    {% else %}
+                                        ثبت نشده
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if marketer_profile.shaba_number %}
+                            <div class="relative z-1 text-xs text-gray-400 border-t border-gray-800/60 pt-2 flex justify-between items-center">
+                                <span>شماره شبا:</span>
+                                <span class="font-mono text-gray-300">IR{{ marketer_profile.shaba_number }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- مورد دوم: Pie Chart آمار کاربران -->
+                    <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">آمار کاربران</h3>
+                        </div>
+                        <!-- کانتینر چارت دایره‌ای (Pie Chart) -->
+                        <div class="flex items-center justify-center h-64">
+                            <canvas id="usersPieChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- ===== بخش دوم: نمودار خطی آمار کلی فروش (Line Chart) ===== -->
+                <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">آمار کلی فروش و درآمد</h3>
+                    </div>
+                    <div class="h-72">
+                        <canvas id="salesLineChart"></canvas>
+                    </div>
+                </div>
+
+
+                <!-- ===== بخش سوم: لیست فروشندگان زیرمجموعه ===== -->
+                <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">لیست همکاران و فروشندگان</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="text-center dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+                            <tr>
+                                <th class="p-3 rounded-r-lg">نام کاربری</th>
+                                <th class="p-3">تعداد کاربران ثبت‌شده</th>
+                                <th class="p-3">موجودی حساب</th>
+                                <th class="p-3 rounded-l-lg">کد معرف</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y text-center divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
+                            {% if marketers_list %}
+                                {% for mark in marketers_list %}
+                                    <tr>
+                                        <td class="p-3 font-medium text-gray-800 dark:text-white/90">{{ mark.user.username }}</td>
+                                        <td class="p-3">{{ mark.referred_count }} کاربر</td>
+                                        <td class="p-3 font-semibold">{{ mark.wallet_balance }} تومان</td>
+                                        <td class="p-3 text-brand-500 font-semibold">{{ mark.code }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-gray-500">هیچ فروشنده‌ای ثبت نشده است.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <!-- ===== بخش چهارم: لیست تمام کاربران عادی سیستم ===== -->
+                <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">لیست تمامی کاربران پلتفرم</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="text-center dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+                            <tr>
+                                <th class="p-3 rounded-r-lg">نام کاربری</th>
+                                <th class="p-3">فروشنده معرف</th>
+                                <th class="p-3">وضعیت</th>
+                                <th class="p-3">تاریخ عضویت</th>
+                                <th class="p-3 rounded-l-lg">پلن فعلی</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y text-center divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
+                            {% if all_system_users %}
+                                {% for item in all_system_users %}
+                                    <tr>
+                                        <td class="p-3 font-medium text-gray-800 dark:text-white/90">{{ item.user.username }}</td>
+                                        <td class="p-3">
+                                            {% if item.referred_by %}
+                                                <span class="text-brand-500 font-medium">{{ item.referred_by.user.username }}</span>
+                                            {% else %}
+                                                <span class="text-gray-400">مستقیم / ادمین</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="p-3"><span class="text-green-500 font-medium">فعال</span></td>
+                                        <td class="p-3 text-gray-500">{{ item.user.date_joined|timesince }} پیش</td>
+                                        <td class="p-3">
+                                  <span class="px-2.5 py-1 text-xs font-medium bg-brand-50 text-brand-600 rounded-full dark:bg-sky-500/15 dark:text-white/60">
+                                      {{ item.active_plan }}
+                                  </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-gray-500">کاربری یافت نشد.</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
+
+            <!-- اسکریپت بارگذاری نمودارهای Chart.js (چارت دایره‌ای و خطی) -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    // ۱. تنظیمات Pie Chart آمار کاربران
+                    const pieCtx = document.getElementById('usersPieChart').getContext('2d');
+                    new Chart(pieCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['کاربران عادی', 'فروشندگان'],
+                            datasets: [{
+                                data: [{{ total_regular_users|default:0 }}, {{ total_marketers_count|default:0 }}],
+                                backgroundColor: ['#337FFA', '#10B981'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {position: 'bottom', labels: {color: '#9CA3AF'}}
+                            }
+                        }
+                    });
+
+                    // ۲. تنظیمات Line Chart آمار فروش
+                    const lineCtx = document.getElementById('salesLineChart').getContext('2d');
+                    new Chart(lineCtx, {
+                        type: 'line',
+                        data: {
+                            labels: [{% for s in sales_chart_data %}"{{ s.month|date:'M Y' }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+                            datasets: [{
+                                label: 'درآمد کل (تومان)',
+                                data: [{% for s in sales_chart_data %}{{ s.total_revenue|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                                borderColor: '#337FFA',
+                                backgroundColor: 'rgba(51, 127, 250, 0.1)',
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {ticks: {color: '#9CA3AF'}, grid: {color: 'rgba(156, 163, 175, 0.1)'}},
+                                x: {ticks: {color: '#9CA3AF'}, grid: {display: false}}
+                            },
+                            plugins: {
+                                legend: {display: false}
+                            }
+                        }
+                    });
+                });
+            </script>
         {% endif %}
 
     </div>

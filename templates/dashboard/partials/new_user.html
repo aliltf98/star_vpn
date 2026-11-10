@@ -1,0 +1,111 @@
+{% extends 'dashboard/base_panel.html' %}
+{% load static %}
+
+{% block title %}افزودن کاربر جدید{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl">
+    <!-- کارت اصلی صفحه فرم -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-sm overflow-hidden p-6 md:p-8">
+
+        <!-- هدر صفحه -->
+        <div class="flex items-center justify-between pb-6 mb-6 border-b border-gray-100 dark:border-gray-800">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">افزودن کاربر جدید به سیستم</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">مشخصات و سطح دسترسی کاربر جدید را وارد کنید.</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
+                بازگشت به داشبورد
+            </a>
+        </div>
+
+        <!-- فرم ارسال اطلاعات -->
+        <form method="POST" action="{% url 'new_user' %}" class="space-y-5" x-data="{ userType: 'regular' }">
+            {% csrf_token %}
+
+            <!-- نوع کاربر -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    نوع کاربر <span class="text-red-500">*</span>
+                </label>
+                <select name="user_type" x-model="userType" required
+                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                    <option value="regular">کاربر عادی</option>
+                    <option value="seller">فروشنده (مارکتر)</option>
+                    <option value="admin">مدیر (ادمین کل)</option>
+                </select>
+            </div>
+
+            <!-- نام کاربری -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    نام کاربری <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="username" required placeholder="username"
+                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+            </div>
+
+            <!-- کلمه عبور -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    کلمه عبور <span class="text-red-500">*</span>
+                </label>
+                <input type="password" name="password" required placeholder="••••••••"
+                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+            </div>
+
+            <!-- شماره همراه -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">شماره همراه</label>
+                <input type="text" name="phone_number" placeholder="09123456789"
+                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
+            </div>
+
+            <!-- فیلد کد معرف (فقط برای ادمین یا فروشنده نمایش داده می‌شود) -->
+            <div x-show="userType === 'seller' || userType === 'admin'" class="space-y-1.5">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    کد معرف / Promo Code <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="promo_code" placeholder="مثال: MK100 یا ADMIN_CODE"
+                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
+                <p class="text-xs text-gray-500 dark:text-gray-400">این کد به عنوان شناسه اختصاصی مارکتر برای این کاربر ثبت خواهد شد.</p>
+            </div>
+
+            <!-- فیلدهای مخصوص کاربر عادی -->
+            <div x-show="userType === 'regular'" class="space-y-5 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">انتخاب پلن</label>
+                    <select name="plan_id"
+                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                        <option value="">-- انتخاب پلن سرویس --</option>
+                        {% for plan in available_plans %}
+                            <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.volume_gb }} گیگ {{ plan.duration_days }} روز)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" name="has_dashboard_access" id="dashboard_access" value="true" checked
+                        class="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800">
+                    <label for="dashboard_access" class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                        دسترسی به پنل/داشبورد کاربری
+                    </label>
+                </div>
+            </div>
+
+            <!-- دکمه ثبت نهایی -->
+            <div class="flex items-center justify-end gap-3 pt-5 border-t border-gray-100 dark:border-gray-800">
+                <a href="{% url 'dashboard' %}"
+                    class="px-5 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
+                    انصراف
+                </a>
+                <button type="submit"
+                    class="px-6 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">
+                    ثبت و ایجاد کاربر جدید
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
