@@ -356,6 +356,7 @@ def profile_view(request):
     }
     return render(request, 'dashboard/partials/profile.html', context)
 
+
 @login_required
 @transaction.atomic
 def new_user(request):
@@ -366,20 +367,38 @@ def new_user(request):
         return render(request, 'dashboard/partials/new_user.html', context)
 
     if request.method == 'POST':
-        input_username = request.POST.get('username')
+        input_username = request.POST.get('username', '').strip()
         password = request.POST.get('password')
-        phone_number = request.POST.get('phone_number')
+
+        # مدیریت شماره تلفن برای جلوگیری از تداخل فیلد unique
+        phone_number = request.POST.get('phone_number', '').strip()
+        phone_number = phone_number if phone_number else None
+
         plan_id = request.POST.get('plan_id')
         has_dashboard_access = request.POST.get('has_dashboard_access') == 'true'
         user_type = request.POST.get('user_type', 'regular')
         promo_code = request.POST.get('promo_code', '').strip()
 
-        # ۱. بررسی تکراری نبودن نام کاربری
-        if User.objects.filter(username=input_username).exists():
-            messages.error(request, 'این نام کاربری قبلاً ثبت شده است.')
+        is_admin_creator = request.user.is_superuser or request.user.is_staff
+        marketer = getattr(request.user, 'marketer_profile', None)
+
+        # تعیین نام کاربری نهایی (اگر سازنده فروشنده باشد، کد معرف به عنوان پیشوند اضافه می‌شود)
+        if is_admin_creator:
+            final_username = input_username
+            referred_by_marketer = None
+        elif marketer:
+            final_username = f"{marketer.code}{input_username}"
+            referred_by_marketer = marketer
+        else:
+            final_username = input_username
+            referred_by_marketer = None
+
+        # ۱. بررسی تکراری نبودن نام کاربری نهایی
+        if User.objects.filter(username=final_username).exists():
+            messages.error(request, 'این نام کاربری قبلاً در سیستم ثبت شده است.')
             return redirect('new_user')
 
-        # ۲. بررسی تکراری نبودن کد معرف (اگر کاربر فروشنده یا ادمین است)
+        # ۲. بررسی تکراری نبودن کد معرف (اگر کاربر جدید فروشنده یا ادمین است)
         if user_type in ['seller', 'admin'] and promo_code:
             if MarketerProfile.objects.filter(code=promo_code).exists():
                 messages.error(request, 'این کد معرف (Promo Code) قبلاً ثبت شده است. لطفاً کد دیگری وارد کنید.')
@@ -402,9 +421,16 @@ def new_user(request):
 
             expire_timestamp = int(time.time()) + (plan_duration_days * 86400)
 
-            # ۳. ایجاد کاربر در پنل مرزبان
+            # بررسی اعتبار کیف پول فروشنده (در صورت وجود پلن)
+            if marketer and not is_admin_creator and selected_plan:
+                projected_balance = marketer.wallet_balance - plan_price
+                if projected_balance < -7000000:
+                    messages.error(request, 'سقف مجاز بدهی کیف پول شما تکمیل شده است.')
+                    return redirect('new_user')
+
+            # ۳. ایجاد کاربر در پنل مرزبان با نام کاربری نهایی
             marzban_response = PanelManager.create_user(
-                username=input_username,
+                username=final_username,
                 data_limit_gb=plan_volume,
                 expire_timestamp=expire_timestamp
             )
@@ -415,7 +441,7 @@ def new_user(request):
 
             # ۴. ایجاد کاربر در دیتابیس محلی جنگو
             user = User.objects.create_user(
-                username=input_username,
+                username=final_username,
                 password=password
             )
 
@@ -427,30 +453,22 @@ def new_user(request):
                 user.is_staff = has_dashboard_access
             user.save()
 
-            # ۵. ساخت پروفایل بسته به نوع کاربر
+            # ۵. ساخت پروفایل‌های مرتبط بر اساس نوع کاربر
             if user_type in ['admin', 'seller']:
-                # ساخت پروفایل مارکتر با کد وارد شده توسط ادمین
                 final_code = promo_code if promo_code else f"CODE_{input_username}"
                 MarketerProfile.objects.create(
                     user=user,
                     code=final_code,
                     wallet_balance=0
                 )
-                # اگر ادمین بود، پروفایل UserProfile معمولی نیاز ندارد (یا بسته به ساختار شما اختیاریست)
-                if user_type == 'regular':
-                    UserProfile.objects.create(
-                        profile=user,
-                        phone_number=phone_number,
-                        referred_by=None
-                    )
-            else:
-                # کاربر عادی
-                marketer = getattr(request.user, 'marketer_profile', None)
-                UserProfile.objects.create(
-                    profile=user,
-                    phone_number=phone_number,
-                    referred_by=marketer
-                )
+
+            # ساخت UserProfile با مدل جدید (شامل type و referred_by)
+            UserProfile.objects.create(
+                profile=user,
+                phone_number=phone_number,
+                type=user_type,
+                referred_by=referred_by_marketer if user_type == 'regular' else None
+            )
 
             # ۶. ثبت سفارش و اشتراک برای کاربر عادی در صورت داشتن پلن
             if selected_plan and user_type == 'regular':
@@ -468,8 +486,7 @@ def new_user(request):
                     gateway_name='market'
                 )
 
-                marketer = getattr(request.user, 'marketer_profile', None)
-                if marketer and not (request.user.is_superuser or request.user.is_staff):
+                if marketer and not is_admin_creator:
                     marketer.wallet_balance -= plan_price
                     marketer.save()
 
@@ -487,7 +504,7 @@ def new_user(request):
             return redirect('dashboard')
 
         except Exception as e:
-            print("Error in newUser view:", e)
+            print("Error in new_user view:", e)
             messages.error(request, f'خطا در ایجاد کاربر: {e}')
 
     return redirect('dashboard')
