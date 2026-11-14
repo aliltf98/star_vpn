@@ -34,7 +34,7 @@
                 </div>
                 <div class="text-left">
                     <p class="text-xs text-gray-400">موجودی کیف پول</p>
-                    <h3 class="text-xl font-bold text-white mt-0.5">{{ marketer_profile.wallet_balance|default:"0" }}
+                    <h3 style="direction: ltr" class="text-xl font-bold text-white mt-0.5">{{ marketer_profile.wallet_balance|default:"0" }}
                         <span class="text-xs font-normal text-gray-300">تومان</span></h3>
                 </div>
             </div>
@@ -112,7 +112,7 @@
                         <tr>
                             <td class="p-3 font-medium text-gray-800 dark:text-white/90">{{ mark.user.username }}</td>
                             <td class="p-3">{{ mark.referred_count }} کاربر</td>
-                            <td class="p-3 font-semibold">{{ mark.wallet_balance }} تومان</td>
+                            <td style="direction: ltr" class="p-3 font-semibold">{{ mark.wallet_balance }} تومان</td>
                             <td class="p-3 text-brand-500 font-semibold">{{ mark.code }}</td>
                         </tr>
                     {% endfor %}
@@ -157,7 +157,7 @@
                                 {% endif %}
                             </td>
                             <td class="p-3"><span class="text-green-500 font-medium">فعال</span></td>
-                            <td class="p-3 text-gray-500">{{ item.user.date_joined|timesince }} پیش</td>
+                            <td class="p-3 text-gray-500">{{ item.user.date_joined|timesince }}</td>
                             <td class="p-3">
                                   <span class="px-2.5 py-1 text-xs font-medium bg-brand-50 text-brand-600 rounded-full dark:bg-sky-500/15 dark:text-white/60">
                                       {{ item.active_plan }}

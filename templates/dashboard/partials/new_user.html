@@ -23,18 +23,27 @@
         <form method="POST" action="{% url 'new_user' %}" class="space-y-5" x-data="{ userType: 'regular' }">
             {% csrf_token %}
 
-            <!-- نوع کاربر -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    نوع کاربر <span class="text-red-500">*</span>
-                </label>
-                <select name="user_type" x-model="userType" required
-                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                    <option value="regular">کاربر عادی</option>
-                    <option value="seller">فروشنده (مارکتر)</option>
-                    <option value="admin">مدیر (ادمین کل)</option>
-                </select>
-            </div>
+            <!-- نوع کاربر: اگر ادمین باشد منوی انتخاب نمایش داده می‌شود، اگر فروشنده باشد مقدار ثابت کاربر عادی ارسال می‌شود -->
+            {% if is_admin %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        نوع کاربر <span class="text-red-500">*</span>
+                    </label>
+                    <select name="user_type" x-model="userType" required
+                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
+                        <option value="regular">کاربر عادی</option>
+                        <option value="seller">فروشنده (مارکتر)</option>
+                        <option value="admin">مدیر (ادمین کل)</option>
+                    </select>
+                </div>
+            {% else %}
+                <input type="hidden" name="user_type" value="regular">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">نوع کاربر</label>
+                    <input type="text" value="کاربر عادی" disabled
+                        class="h-11 w-full rounded-[10px] border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                </div>
+            {% endif %}
 
             <!-- نام کاربری -->
             <div>
@@ -61,7 +70,8 @@
                     class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
             </div>
 
-            <!-- فیلد کد معرف (فقط برای ادمین یا فروشنده نمایش داده می‌شود) -->
+            <!-- فیلد کد معرف (فقط برای ادمین در صورت انتخاب نوع فروشنده/ادمین نمایش داده می‌شود) -->
+            {% if is_admin %}
             <div x-show="userType === 'seller' || userType === 'admin'" class="space-y-1.5">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     کد معرف / Promo Code <span class="text-red-500">*</span>
@@ -70,9 +80,10 @@
                     class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
                 <p class="text-xs text-gray-500 dark:text-gray-400">این کد به عنوان شناسه اختصاصی مارکتر برای این کاربر ثبت خواهد شد.</p>
             </div>
+            {% endif %}
 
-            <!-- فیلدهای مخصوص کاربر عادی -->
-            <div x-show="userType === 'regular'" class="space-y-5 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <!-- فیلدهای مخصوص کاربر عادی (برای فروشنده همیشه نمایش داده می‌شود، برای ادمین به شرط انتخاب regular) -->
+            <div {% if is_admin %}x-show="userType === 'regular'"{% endif %} class="space-y-5 pt-3 border-t border-gray-100 dark:border-gray-800">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">انتخاب پلن</label>
                     <select name="plan_id"

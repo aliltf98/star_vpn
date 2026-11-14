@@ -208,8 +208,8 @@ def dashboard_view(request):
         ).select_related('user')
         context['marketers_list'] = marketers_list
 
-        # لیست تمامی کاربران عادی پلتفرم به همراه معرف و پلن فعال
-        all_profiles = UserProfile.objects.select_related('profile', 'referred_by__user').all()
+        # [تغییر داده‌شده]: ۱۰ نفر از آخرین کاربران ثبت‌شده کل پلتفرم
+        all_profiles = UserProfile.objects.select_related('profile', 'referred_by__user').order_by('-profile__date_joined')[:10]
         all_system_users = []
         for item in all_profiles:
             active_sub = item.profile.subscriptions.filter(is_active=True).first() if hasattr(item.profile, 'subscriptions') else None
@@ -243,13 +243,13 @@ def dashboard_view(request):
         context['user_role'] = 'seller'
         context['marketer_profile'] = marketer
 
-        # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند
+        # [تغییر داده‌شده]: ۱۰ نفر از آخرین کاربران ثبت‌شده‌ی زیرمجموعه این فروشنده
         referred_users = marketer.referred_users.select_related('profile').annotate(
             calculated_renewal_count=Count(
                 'profile__orders',
                 filter=Q(profile__orders__status=Order.StatusChoices.COMPLETED)
             )
-        ).all()
+        ).order_by('-profile__date_joined')[:10]
 
         enriched_referred_users = []
         for ref in referred_users:
@@ -358,34 +358,34 @@ def profile_view(request):
 @login_required
 @transaction.atomic
 def new_user(request):
+    user_profile = getattr(request.user, 'profile', None)
+    is_real_admin = request.user.is_superuser or (
+            user_profile and user_profile.type == UserProfile.UserType.ADMIN
+    )
+
     if request.method == 'GET':
         context = {
-            'available_plans': MainPlansLayout.objects.all()
+            'available_plans': MainPlansLayout.objects.all(),
+            'is_admin': is_real_admin,  # ارسال وضعیت ادمین بودن به قالب
         }
         return render(request, 'dashboard/partials/new_user.html', context)
 
     if request.method == 'POST':
         input_username = request.POST.get('username', '').strip()
         password = request.POST.get('password')
-
-        # مدیریت شماره تلفن برای جلوگیری از تداخل فیلد unique
         phone_number = request.POST.get('phone_number', '').strip()
         phone_number = phone_number if phone_number else None
 
         plan_id = request.POST.get('plan_id')
         has_dashboard_access = request.POST.get('has_dashboard_access') == 'true'
-        user_type = request.POST.get('user_type', 'regular')
-        promo_code = request.POST.get('promo_code', '').strip()
 
-        # بررسی اینکه آیا کاربر سازنده واقعاً ادمین کل است یا خیر
-        is_real_admin = request.user.is_superuser or (
-                hasattr(request.user, 'profile') and request.user.profile.type == UserProfile.UserType.ADMIN
-        )
+        # اگر کاربر ادمین واقعی باشد، نوع ارسالی را می‌خوانیم، در غیر این صورت اجباراً regular است
+        user_type = request.POST.get('user_type', 'regular') if is_real_admin else 'regular'
+        promo_code = request.POST.get('promo_code', '').strip() if is_real_admin else ''
 
-        # دریافت پروفایل مارکتر کاربر لاگین‌شده (فروشنده)
         marketer = getattr(request.user, 'marketer_profile', None)
 
-        # تعیین نام کاربری نهایی و معرف (فقط برای کاربران عادی زیرمجموعه مارکترها)
+        # تعیین نام کاربری نهایی و معرف
         if user_type == 'regular' and marketer:
             final_username = f"{marketer.code}_{input_username}"
             referred_by_marketer = marketer
@@ -398,14 +398,13 @@ def new_user(request):
             messages.error(request, 'این نام کاربری قبلاً در سیستم ثبت شده است.')
             return redirect('new_user')
 
-        # ۲. بررسی تکراری نبودن کد معرف (اگر کاربر جدید فروشنده یا ادمین است)
-        if user_type in ['seller', 'admin'] and promo_code:
+        # ۲. بررسی تکراری نبودن کد معرف (فقط برای ادمین در صورت ساخت فروشنده/ادمین جدید)
+        if user_type in ['seller', 'admin'] and promo_code and is_real_admin:
             if MarketerProfile.objects.filter(code=promo_code).exists():
                 messages.error(request, 'این کد معرف (Promo Code) قبلاً ثبت شده است. لطفاً کد دیگری وارد کنید.')
                 return redirect('new_user')
 
         try:
-            # تعیین حجم و زمان برای پنل مرزبان (در صورتی که پلن انتخاب شده باشد)
             selected_plan = None
             plan_price = 0
             if plan_id and user_type == 'regular':
@@ -421,7 +420,7 @@ def new_user(request):
 
             expire_timestamp = int(time.time()) + (plan_duration_days * 86400)
 
-            # بررسی اعتبار کیف پول فروشنده (در صورت وجود پلن و عدم دسترسی ادمین کل)
+            # بررسی اعتبار کیف پول (برای فروشنده یا ادمینی که مارکتر است)
             if marketer and selected_plan:
                 projected_balance = marketer.wallet_balance - plan_price
                 if projected_balance < -7000000:
@@ -454,7 +453,7 @@ def new_user(request):
             user.save()
 
             # ۵. ساخت پروفایل‌های مرتبط بر اساس نوع کاربر
-            if user_type in ['admin', 'seller']:
+            if user_type in ['admin', 'seller'] and is_real_admin:
                 final_code = promo_code if promo_code else f"CODE_{input_username}"
                 MarketerProfile.objects.create(
                     user=user,
@@ -462,7 +461,7 @@ def new_user(request):
                     wallet_balance=0
                 )
 
-            # ساخت UserProfile با مدل جدید (شامل type و referred_by)
+            # ساخت UserProfile با مدل جدید
             UserProfile.objects.create(
                 profile=user,
                 phone_number=phone_number,
@@ -486,9 +485,8 @@ def new_user(request):
                     gateway_name='market'
                 )
 
-                if marketer and not is_real_admin:
-                    marketer.wallet_balance -= plan_price
-                    marketer.save()
+                marketer.wallet_balance -= plan_price
+                marketer.save()
 
                 UserSubscription.objects.create(
                     user=user,

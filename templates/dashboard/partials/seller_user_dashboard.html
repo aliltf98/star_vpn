@@ -29,7 +29,7 @@
         </div>
         <div class="text-left">
             <p class="text-xs text-gray-400">موجودی کیف پول</p>
-            <h3 class="text-xl font-bold text-white mt-0.5">{{ marketer_profile.wallet_balance|default:"0" }}
+            <h3 style="direction: ltr" class="text-xl font-bold text-white mt-0.5">{{ marketer_profile.wallet_balance|default:"0" }}
                 <span class="text-xs font-normal text-gray-300">تومان</span></h3>
         </div>
     </div>
@@ -69,112 +69,112 @@
         <h3 class="text-lg font-semibold text-gray-800 dark:text-white">لیست کاربران ثبت‌شده</h3>
 
         <!-- دکمه ثبت کاربر جدید -->
-        <div x-data="{ modalIsOpen: false }" class="inline-block">
-
-            <!-- دکمه باز کردن پاپ‌آپ (دقیقاً مطابق با استایل درخواستی شما) -->
-            <button type="button" @click="modalIsOpen = true"
-                    class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-theme-xs transition-all outline-none select-none hover:bg-brand-600 focus-visible:ring-3 focus-visible:ring-brand-500/20 focus-visible:outline-hidden active:translate-y-px disabled:pointer-events-none disabled:bg-brand-200 disabled:text-white dark:bg-brand-500 dark:hover:bg-brand-600 dark:disabled:bg-brand-800 dark:disabled:text-brand-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
-                </svg>
-                افزودن کاربر جدید
-            </button>
-
-            <!-- ساختار پاپ‌آپ (Modal Dialog) -->
-            <div x-show="modalIsOpen"
-                 x-transition.opacity.duration.200ms
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4"
-                 style="display: none;">
-
-                <!-- کارت اصلی مودال -->
-                <div @click.outside="modalIsOpen = false" style="width: 65%"
-                     class=" max-w-lg rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-xl overflow-hidden">
-
-                    <!-- هدر مودال -->
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                        <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">
-                            افزودن کاربر جدید
-                        </h3>
-                        <button @click="modalIsOpen = false"
-                                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                                 viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- فرم ارسال اطلاعات به جنگو -->
-                    <form method="POST" action="{% url 'new_user' %}" class="p-6 space-y-4">
-                        {% csrf_token %}
-
-                        <!-- نام کاربری -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام
-                                کاربری <span class="text-red-500">*</span></label>
-                            <input type="text" name="username" required placeholder="username"
-                                   class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                        </div>
-
-                        <!-- کلمه عبور -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کلمه
-                                عبور <span class="text-red-500">*</span></label>
-                            <input type="password" name="password" required placeholder="••••••••"
-                                   class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                        </div>
-
-                        <!-- شماره همراه -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره
-                                همراه</label>
-                            <input type="text" name="phone_number" placeholder="09123456789"
-                                   class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">
-                        </div>
-
-                        <!-- انتخاب پلن کاربر (Dropdown استاندارد TailAdmin) -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">انتخاب
-                                پلن</label>
-                            <select name="plan_id"
-                                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                                <option value="">-- انتخاب پلن سرویس --</option>
-                                {% for plan in available_plans %}
-                                    <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.volume_gb }} گیگ
-                                        - {{ plan.duration_days }} روز)
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- دسترسی به داشبورد (Boolean / Checkbox) -->
-                        <div class="flex items-center gap-3 pt-2">
-                            <input type="checkbox" name="has_dashboard_access" id="dashboard_access"
-                                   value="true" checked
-                                   class="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800">
-                            <label for="dashboard_access"
-                                   class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                                دسترسی به پنل/داشبورد کاربری
-                            </label>
-                        </div>
-
-                        <!-- فوتر مودال و دکمه‌های عملیاتی -->
-                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-                            <button type="button" @click="modalIsOpen = false"
-                                    class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                                انصراف
-                            </button>
-                            <button type="submit"
-                                    class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">
-                                ثبت و ایجاد کاربر
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-        </div>
+{#        <div x-data="{ modalIsOpen: false }" class="inline-block">#}
+{##}
+{#            <!-- دکمه باز کردن پاپ‌آپ (دقیقاً مطابق با استایل درخواستی شما) -->#}
+{#            <button type="button" @click="modalIsOpen = true"#}
+{#                    class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-brand-500 px-4 py-2 text-sm font-medium whitespace-nowrap text-white shadow-theme-xs transition-all outline-none select-none hover:bg-brand-600 focus-visible:ring-3 focus-visible:ring-brand-500/20 focus-visible:outline-hidden active:translate-y-px disabled:pointer-events-none disabled:bg-brand-200 disabled:text-white dark:bg-brand-500 dark:hover:bg-brand-600 dark:disabled:bg-brand-800 dark:disabled:text-brand-400">#}
+{#                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">#}
+{#                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>#}
+{#                </svg>#}
+{#                افزودن کاربر جدید#}
+{#            </button>#}
+{##}
+{#            <!-- ساختار پاپ‌آپ (Modal Dialog) -->#}
+{#            <div x-show="modalIsOpen"#}
+{#                 x-transition.opacity.duration.200ms#}
+{#                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-xs p-4"#}
+{#                 style="display: none;">#}
+{##}
+{#                <!-- کارت اصلی مودال -->#}
+{#                <div @click.outside="modalIsOpen = false" style="width: 65%"#}
+{#                     class=" max-w-lg rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 shadow-xl overflow-hidden">#}
+{##}
+{#                    <!-- هدر مودال -->#}
+{#                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">#}
+{#                        <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">#}
+{#                            افزودن کاربر جدید#}
+{#                        </h3>#}
+{#                        <button @click="modalIsOpen = false"#}
+{#                                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">#}
+{#                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"#}
+{#                                 viewBox="0 0 24 24">#}
+{#                                <path stroke-linecap="round" stroke-linejoin="round"#}
+{#                                      d="M6 18L18 6M6 6l12 12"></path>#}
+{#                            </svg>#}
+{#                        </button>#}
+{#                    </div>#}
+{##}
+{#                    <!-- فرم ارسال اطلاعات به جنگو -->#}
+{#                    <form method="POST" action="{% url 'new_user' %}" class="p-6 space-y-4">#}
+{#                        {% csrf_token %}#}
+{##}
+{#                        <!-- نام کاربری -->#}
+{#                        <div>#}
+{#                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام#}
+{#                                کاربری <span class="text-red-500">*</span></label>#}
+{#                            <input type="text" name="username" required placeholder="username"#}
+{#                                   class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">#}
+{#                        </div>#}
+{##}
+{#                        <!-- کلمه عبور -->#}
+{#                        <div>#}
+{#                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کلمه#}
+{#                                عبور <span class="text-red-500">*</span></label>#}
+{#                            <input type="password" name="password" required placeholder="••••••••"#}
+{#                                   class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">#}
+{#                        </div>#}
+{##}
+{#                        <!-- شماره همراه -->#}
+{#                        <div>#}
+{#                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره#}
+{#                                همراه</label>#}
+{#                            <input type="text" name="phone_number" placeholder="09123456789"#}
+{#                                   class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 text-left dir-ltr">#}
+{#                        </div>#}
+{##}
+{#                        <!-- انتخاب پلن کاربر (Dropdown استاندارد TailAdmin) -->#}
+{#                        <div>#}
+{#                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">انتخاب#}
+{#                                پلن</label>#}
+{#                            <select name="plan_id"#}
+{#                                    class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs outline-hidden focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">#}
+{#                                <option value="">-- انتخاب پلن سرویس --</option>#}
+{#                                {% for plan in available_plans %}#}
+{#                                    <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.volume_gb }} گیگ#}
+{#                                        - {{ plan.duration_days }} روز)#}
+{#                                    </option>#}
+{#                                {% endfor %}#}
+{#                            </select>#}
+{#                        </div>#}
+{##}
+{#                        <!-- دسترسی به داشبورد (Boolean / Checkbox) -->#}
+{#                        <div class="flex items-center gap-3 pt-2">#}
+{#                            <input type="checkbox" name="has_dashboard_access" id="dashboard_access"#}
+{#                                   value="true" checked#}
+{#                                   class="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800">#}
+{#                            <label for="dashboard_access"#}
+{#                                   class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">#}
+{#                                دسترسی به پنل/داشبورد کاربری#}
+{#                            </label>#}
+{#                        </div>#}
+{##}
+{#                        <!-- فوتر مودال و دکمه‌های عملیاتی -->#}
+{#                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">#}
+{#                            <button type="button" @click="modalIsOpen = false"#}
+{#                                    class="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">#}
+{#                                انصراف#}
+{#                            </button>#}
+{#                            <button type="submit"#}
+{#                                    class="px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition-all shadow-sm">#}
+{#                                ثبت و ایجاد کاربر#}
+{#                            </button>#}
+{#                        </div>#}
+{##}
+{#                    </form>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
     </div>
 
     <div class="overflow-x-auto">
