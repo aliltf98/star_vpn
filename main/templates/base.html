@@ -202,7 +202,7 @@
         {% else %}
             {% if user.is_authenticated %}
                 <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
-                   href="/admin/" class="logo">{% trans 'Account management' %}</a>
+                   href="./dashboard" class="logo">{% trans 'Account management' %}</a>
             {% else %}
                 <a style="font-family: Vazir; border-color: rgba(120,120,120,0.77); border-radius: 16px; transition: all 0.5s ease-in-out; backdrop-filter: blur(8px)"
                    href="{% url 'register' %}" class="logo">{% trans 'Login / Register' %}</a>

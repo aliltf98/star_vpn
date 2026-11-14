@@ -182,20 +182,23 @@ def subscription(request):
 
     return render(request, "subscription.html", context)
 
-
 @login_required
 def dashboard_view(request):
     user = request.user
     context = {}
 
+    # گرفتن پروفایل کاربری برای بررسی نقش
+    user_profile = getattr(user, 'profile', None)
+    user_type = user_profile.type if user_profile else UserProfile.UserType.REGULAR
+
     # اضافه کردن لیست تمام پلن‌ها به context برای استفاده در مودال «افزودن کاربر»
     context['available_plans'] = MainPlansLayout.objects.all()
 
-    # ۱. بررسی دسترسی ادمین (Superuser یا Staff)
-    if user.is_superuser or user.is_staff:
+    # ==================== ۱. پنل ادمین کل ==================== #
+    if user_type == UserProfile.UserType.ADMIN or user.is_superuser:
         context['user_role'] = 'admin'
 
-        # ادمین‌ها نیز پروفایل فروشندگی خود را دارند (برای نمایش کارت مالی در داشبورد ادمین)
+        # ادمین‌ها نیز پروفایل فروشندگی/مالی خود را دارند
         marketer_profile = getattr(user, 'marketer_profile', None)
         context['marketer_profile'] = marketer_profile
 
@@ -209,20 +212,19 @@ def dashboard_view(request):
         all_profiles = UserProfile.objects.select_related('profile', 'referred_by__user').all()
         all_system_users = []
         for item in all_profiles:
-            active_sub = item.profile.subscriptions.filter(is_active=True).first() if hasattr(item.profile,
-                                                                                              'subscriptions') else None
-            plan_title = active_sub.plan.title if (active_sub and hasattr(active_sub, 'plan')) else (
-                active_sub.plan.title if active_sub else 'بدون پلن فعال')
+            active_sub = item.profile.subscriptions.filter(is_active=True).first() if hasattr(item.profile, 'subscriptions') else None
+            plan_title = active_sub.plan.title if (active_sub and hasattr(active_sub, 'plan')) else 'بدون پلن فعال'
 
             all_system_users.append({
                 'user': item.profile,
                 'referred_by': item.referred_by,
-                'active_plan': plan_title
+                'active_plan': plan_title,
+                'user_type': item.type
             })
         context['all_system_users'] = all_system_users
 
         # آمار برای چارت دایره‌ای (تعداد کل کاربران عادی و فروشندگان)
-        context['total_regular_users'] = UserProfile.objects.count()
+        context['total_regular_users'] = UserProfile.objects.filter(type=UserProfile.UserType.REGULAR).count()
         context['total_marketers_count'] = MarketerProfile.objects.count()
 
         # محاسبه داده‌های نمودار خطی فروش کل سیستم
@@ -235,13 +237,13 @@ def dashboard_view(request):
         )
         context['sales_chart_data'] = list(sales_chart_data)
 
-    # ۲. بررسی اینکه آیا کاربر فروشنده (دارای پروفایل مارکتر) است یا خیر
-    elif hasattr(user, 'marketer_profile'):
+    # ==================== ۲. پنل فروشنده (Seller) ==================== #
+    elif user_type == UserProfile.UserType.SELLER and hasattr(user, 'marketer_profile'):
         marketer = user.marketer_profile
         context['user_role'] = 'seller'
         context['marketer_profile'] = marketer
 
-        # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند همراه با محاسبه تعداد تمدیدها و آخرین پلن فعال
+        # لیست کاربرانی که توسط این فروشنده دعوت شده‌اند
         referred_users = marketer.referred_users.select_related('profile').annotate(
             calculated_renewal_count=Count(
                 'profile__orders',
@@ -257,8 +259,7 @@ def dashboard_view(request):
             enriched_referred_users.append({
                 'profile': ref.profile,
                 'renewal_count': ref.calculated_renewal_count,
-                'active_plan': active_plan.plan.title if (active_plan and hasattr(active_plan, 'plan')) else (
-                    active_plan.title if active_plan else 'بدون پلن فعال')
+                'active_plan': active_plan.plan.title if (active_plan and hasattr(active_plan, 'plan')) else 'بدون پلن فعال'
             })
 
         context['referred_users'] = enriched_referred_users
@@ -274,11 +275,10 @@ def dashboard_view(request):
         )
         context['sales_chart_data'] = list(sales_chart_data)
 
-    # ۳. کاربر عادی سیستم
+    # ==================== ۳. پنل کاربر عادی (Regular) ==================== #
     else:
         context['user_role'] = 'regular'
 
-        user_profile = getattr(user, 'profile', None)
         active_subscription = user.subscriptions.filter(is_active=True).first()
 
         context['user_profile'] = user_profile
@@ -309,9 +309,7 @@ def dashboard_view(request):
 
         context['devices'] = devices_data
 
-    print(context)
     return render(request, 'dashboard/index.html', context)
-
 
 @login_required
 def profile_view(request):
@@ -379,15 +377,17 @@ def new_user(request):
         user_type = request.POST.get('user_type', 'regular')
         promo_code = request.POST.get('promo_code', '').strip()
 
-        is_admin_creator = request.user.is_superuser or request.user.is_staff
+        # بررسی اینکه آیا کاربر سازنده واقعاً ادمین کل است یا خیر
+        is_real_admin = request.user.is_superuser or (
+                hasattr(request.user, 'profile') and request.user.profile.type == UserProfile.UserType.ADMIN
+        )
+
+        # دریافت پروفایل مارکتر کاربر لاگین‌شده (فروشنده)
         marketer = getattr(request.user, 'marketer_profile', None)
 
-        # تعیین نام کاربری نهایی (اگر سازنده فروشنده باشد، کد معرف به عنوان پیشوند اضافه می‌شود)
-        if is_admin_creator:
-            final_username = input_username
-            referred_by_marketer = None
-        elif marketer:
-            final_username = f"{marketer.code}{input_username}"
+        # تعیین نام کاربری نهایی و معرف (فقط برای کاربران عادی زیرمجموعه مارکترها)
+        if user_type == 'regular' and marketer:
+            final_username = f"{marketer.code}_{input_username}"
             referred_by_marketer = marketer
         else:
             final_username = input_username
@@ -421,8 +421,8 @@ def new_user(request):
 
             expire_timestamp = int(time.time()) + (plan_duration_days * 86400)
 
-            # بررسی اعتبار کیف پول فروشنده (در صورت وجود پلن)
-            if marketer and not is_admin_creator and selected_plan:
+            # بررسی اعتبار کیف پول فروشنده (در صورت وجود پلن و عدم دسترسی ادمین کل)
+            if marketer and selected_plan:
                 projected_balance = marketer.wallet_balance - plan_price
                 if projected_balance < -7000000:
                     messages.error(request, 'سقف مجاز بدهی کیف پول شما تکمیل شده است.')
@@ -467,7 +467,7 @@ def new_user(request):
                 profile=user,
                 phone_number=phone_number,
                 type=user_type,
-                referred_by=referred_by_marketer if user_type == 'regular' else None
+                referred_by=referred_by_marketer
             )
 
             # ۶. ثبت سفارش و اشتراک برای کاربر عادی در صورت داشتن پلن
@@ -486,7 +486,7 @@ def new_user(request):
                     gateway_name='market'
                 )
 
-                if marketer and not is_admin_creator:
+                if marketer and not is_real_admin:
                     marketer.wallet_balance -= plan_price
                     marketer.save()
 
