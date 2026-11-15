@@ -1,0 +1,139 @@
+{% extends 'dashboard/base_panel.html' %}
+{% load static %}
+
+{% block title %}مدیریت کیف پول و تراکنش‌ها{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- ===== بخش اول: کارت موجودی کیف پول و فرم شارژ ===== -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- کارت نمایش موجودی -->
+        <div class="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gray-700 p-6 select-none dark:bg-gray-900 text-white shadow-xl lg:col-span-1">
+            <img src="{% static 'tailadmin/images/payment-gateway/card-vector.png' %}" alt="Card Vector"
+                 class="pointer-events-none absolute inset-e-0 top-0 h-[95px] w-[122px] rtl:-scale-x-100 opacity-5">
+
+            <div class="relative z-1 flex items-center justify-between">
+                <span class="text-xs tracking-widest text-brand-400 font-bold uppercase">کیف پول اختصاصی</span>
+                <svg class="text-white" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                          stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                          stroke-linejoin="round"></path>
+                </svg>
+            </div>
+
+            <div class="relative z-1 my-6">
+                <p class="text-xs text-gray-400">موجودی فعلی حساب</p>
+                <h3 class="text-2xl font-bold mt-1 {% if marketer_profile.wallet_balance < 0 %}text-red-400{% else %}text-white{% endif %}">
+                    {{ marketer_profile.wallet_balance|default:"0" }} <span
+                        class="text-xs font-normal text-gray-300">تومان</span>
+                </h3>
+                {% if marketer_profile.wallet_balance < 0 %}
+                    <span class="inline-block mt-2 px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded-md">حساب شما دارای بدهی است (با شارژ حساب تسویه می‌شود)</span>
+                {% endif %}
+            </div>
+
+            <div class="relative z-1 border-t border-gray-800 pt-4 text-xs text-gray-400 flex justify-between">
+                <span>شناسه کیف پول:</span>
+                <span class="font-mono text-gray-200">{{ marketer_profile.code }}</span>
+            </div>
+        </div>
+
+        <!-- فرم یکپارچه شارژ کیف پول و انتخاب درگاه -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm lg:col-span-2 flex flex-col justify-between">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">شارژ حساب و افزایش موجودی</h3>
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- فیلد مبلغ -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">مبلغ شارژ
+                            (تومان) <span class="text-red-500">*</span></label>
+                        <input type="number" name="amount" min="1000" required placeholder="مثال: 500000"
+                               class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 text-sm text-gray-800 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                    </div>
+
+                    <!-- انتخاب درگاه پرداخت -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">انتخاب
+                            درگاه پرداخت <span class="text-red-500">*</span></label>
+                        <select name="gateway_name" required
+                                class="h-11 w-full rounded-[10px] border border-gray-300 bg-white px-4 text-sm text-gray-800 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                            <option value="zarinpal">زرین‌پال (Zarinpal)</option>
+                            <option value="oxapay">اوکسایپی (Oxapay)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                            class="w-full sm:w-auto px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-medium transition-all shadow-sm">
+                        پرداخت و شارژ کیف پول
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- ===== بخش دوم: لیست تراکنش‌ها ===== -->
+    <div class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">لیست تراکنش‌ها و سوابق مالی</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-center ">
+                <thead class="bg-gray-400/50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+                <tr>
+                    <th class="p-3 rounded-r-lg">شناسه / کد پیگیری</th>
+                    <th class="p-3">مبلغ (تومان)</th>
+                    <th class="p-3">درگاه پرداخت</th>
+                    <th class="p-3">وضعیت</th>
+                    <th class="p-3">عملیات</th>
+                    <th class="p-3 rounded-l-lg">تاریخ ایجاد</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
+                {% if transactions %}
+                    {% for tx in transactions %}
+                        <tr>
+                            <td class="p-3 font-mono text-xs">{{ tx.ref_id|default:tx.id }}</td>
+                            <td class="p-3 font-semibold">{{ tx.final_amount }}</td>
+                            <td class="p-3 uppercase font-medium text-xs">{{ tx.get_gateway_name_display|default:tx.gateway_name }}</td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 text-xs font-medium rounded-full
+                                    {% if tx.status == 'completed' %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400
+                                    {% elif tx.status == 'pending' %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400
+                                    {% else %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+                                    {{ tx.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="p-3">
+                                {% if tx.status == 'pending' %}
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="#" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded-lg font-medium">پرداخت</a>
+                                        <a href="#" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded-lg font-medium">لغو</a>
+                                    </div>
+                                {% else %}
+                                    <span class="text-xs text-gray-400">تکمیل شده</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-3 text-gray-500 text-xs">{{ tx.created_at|date:"Y/m/d H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="p-4 text-center text-gray-500 dark:text-gray-400">هیچ تراکنشی یافت نشد.</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

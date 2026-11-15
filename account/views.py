@@ -506,3 +506,126 @@ def new_user(request):
             messages.error(request, f'خطا در ایجاد کاربر: {e}')
 
     return redirect('dashboard')
+
+
+@login_required
+@transaction.atomic
+def dashboard_wallet(request):
+    user = request.user
+
+    # تضمین داشتن پروفایل مارکتر/کیف پول برای تمامی کاربران (ادمین، فروشنده، عادی)
+    marketer_profile = MarketerProfile.objects.get(
+        user=user,
+    )
+
+    if request.method == 'POST':
+        try:
+            amount = int(request.POST.get('amount', 0))
+            gateway_name = request.POST.get('gateway_name', Order.GatewayChoices.ZARINPAL)
+
+            if amount > 0:
+                # افزایش موجودی کیف پول (اگر منفی باشد، بدهی کسر/تسویه می‌شود)
+                marketer_profile.wallet_balance += amount
+                marketer_profile.save()
+
+                # ثبت تراکنش با درگاه انتخابی کاربر
+                Order.objects.create(
+                    user=user,
+                    plan_price=amount,
+                    final_amount=amount,
+                    status=Order.StatusChoices.COMPLETED,  # یا PENDING بر اساس منطق اتصال به درگاه واقعی
+                    gateway_name=gateway_name,
+                    ref_id=f"WLT-{uuid.uuid4().hex[:8].upper()}"
+                )
+                messages.success(request, f'کیف پول شما با موفقیت به مبلغ {amount:,} تومان شارژ شد.')
+            else:
+                messages.error(request, 'مبلغ وارد شده باید بزرگتر از صفر باشد.')
+        except ValueError:
+            messages.error(request, 'لطفاً یک عدد معتبر وارد کنید.')
+
+        return redirect('dashboard_wallet')
+
+    # لیست تراکنش‌ها
+    transactions = Order.objects.filter(user=user).order_by('-created_at')
+
+    context = {
+        'marketer_profile': marketer_profile,
+        'transactions': transactions,
+        'gateway_choices': Order.GatewayChoices.choices,  # ارسال انتخاب درگاه‌ها به قالب
+    }
+    return render(request, 'dashboard/partials/dashboard_wallet.html', context)
+
+
+@login_required
+def dashboard_subscription(request):
+    user = request.user
+    user_profile = getattr(user, 'profile', None)
+
+    # دریافت اطلاعات پنل مرزبان مشابه منطق قبلی
+    panel_info = PanelManager.get_user_info(user.username)
+
+    context = {
+        'target_user': user.username,
+        'status': panel_info.get('status', 'active') if panel_info else 'active',
+        'data_limit': humanbytes(panel_info.get('data_limit', 0)) if panel_info else 'نامحدود',
+        'used_traffic': humanbytes(panel_info.get('lifetime_used_traffic', 0)) if panel_info else '0',
+        'expire': panel_info.get('expire'),
+        'note': panel_info.get('note', ''),
+    }
+
+    devices_data = []
+    try:
+        service_prof = ServiceProfile.objects.filter(profile__profile__username=user.username).first()
+        if service_prof:
+            for conn in service_prof.connections.all():
+                devices_data.append({
+                    "device_id": conn.device_id,
+                    "model_name": conn.model_name,
+                    "is_blocked": conn.is_blocked,
+                    "traffic_used": humanbytes(conn.traffic_used)
+                })
+    except Exception as e:
+        print("Error fetching devices in subscription view:", e)
+
+    context['devices'] = devices_data
+    return render(request, 'dashboard/partials/dashboard_subscription.html', context)
+
+
+@login_required
+def new_service_order(request):
+    # نمایش لیست پلن‌ها برای سفارش سرویس جدید
+    plans = MainPlansLayout.objects.all()
+    context = {
+        'available_plans': plans
+    }
+    return render(request, 'dashboard/partials/new_service_order.html', context)
+
+
+@login_required
+@transaction.atomic
+def select_plan_order(request, plan_id):
+    try:
+        plan = MainPlansLayout.objects.get(id=plan_id)
+
+        # بررسی اینکه آیا این اولین سفارش کاربر است یا خیر
+        is_first = not Order.objects.filter(user=request.user, status=Order.StatusChoices.COMPLETED).exists()
+
+        # ایجاد سفارش با وضعیت PENDING (در انتظار پرداخت)
+        order = Order.objects.create(
+            user=request.user,
+            plan=plan,
+            plan_price=plan.price,
+            discount_amount=0,
+            final_amount=plan.price,
+            is_first_order=is_first,
+            status=Order.StatusChoices.PENDING,
+            gateway_name=Order.GatewayChoices.MARKET
+        )
+
+        messages.success(request,
+                         f'سفارش پلن {plan.title} با موفقیت ثبت شد. می‌توانید فرایند پرداخت یا تسویه را تکمیل کنید.')
+        return redirect('dashboard_wallet')
+
+    except MainPlansLayout.DoesNotExist:
+        messages.error(request, 'پلن مورد نظر یافت نشد.')
+        return redirect('new_service_order')

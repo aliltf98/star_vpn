@@ -1,0 +1,200 @@
+{% extends 'dashboard/base_panel.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans 'Subscription' %} - {{ target_user|default:user }}{% endblock %}
+
+{% block extra_head %}
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-blur: blur(12px);
+            --text-main: #ffffff;
+            --text-muted: #cccccc;
+            --accent-blue: #00d2ff;
+            --accent-green: #2ecc71;
+            --accent-red: #ff7675;
+        }
+        .sub-container {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            color: var(--text-main);
+            padding: 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        .glass-card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .info-value {
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .glass-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .glass-table th, .glass-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid var(--glass-border);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .glass-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .device-id-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            direction: ltr;
+        }
+        .glass-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-active {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+        .badge-blocked {
+            background: rgba(255, 118, 117, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 118, 117, 0.3);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="sub-container">
+        <div class="glass-card">
+            <div class="glass-card-title">{% trans 'User account details' %}</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">{% trans 'Username' %}</div>
+                    <div class="info-value">{{ target_user }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans 'Account status' %}</div>
+                    <div class="info-value">
+                        {% if status == 'active' %}
+                            <span class="glass-badge badge-active">{% trans 'Active' %}</span>
+                        {% else %}
+                            <span class="glass-badge badge-blocked">{{ status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans 'Total allocated volume' %}</div>
+                    <div class="info-value">{{ data_limit }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans 'Volume consumed (total)' %}</div>
+                    <div class="info-value" style="color: var(--accent-red);">{{ used_traffic }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans 'Expire Date' %}</div>
+                    <div class="info-value">
+                        {% if expire %}
+                            {{ expire }}
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.9rem;">{% trans 'Unlimited' %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if note %}
+                <div class="info-item" style="margin-top: 16px; text-align: right;">
+                    <div class="info-label">{% trans 'Note' %}</div>
+                    <div class="info-value" style="font-size: 0.95rem;">{{ note }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="glass-card">
+            <div class="glass-card-title">{% trans 'Connected devices and the volume consumption of each' %}</div>
+            {% if devices %}
+                <div class="table-responsive">
+                    <table class="glass-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>{% trans 'Device name and model' %}</th>
+                            <th>{% trans 'Device ID' %}</th>
+                            <th>{% trans 'Device consumption volume' %}</th>
+                            <th>{% trans 'Access status' %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for device in devices %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><strong style="color: #fff;">{{ device.model_name }}</strong></td>
+                                <td><span class="device-id-text">{{ device.device_id }}</span></td>
+                                <td dir="ltr" style="font-weight: bold; color: var(--text-main);">
+                                    {{ device.traffic_used }}
+                                </td>
+                                <td>
+                                    {% if device.is_blocked %}
+                                        <span class="glass-badge badge-blocked">{% trans 'Blocked' %}</span>
+                                    {% else %}
+                                        <span class="glass-badge badge-active">{% trans 'Allowed' %}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: var(--text-muted); padding: 20px 0;">{% trans 'There are no devices connected to this account.' %}</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -46,13 +46,13 @@
     <aside
             x-cloak
             x-show="sidebarToggle || window.innerWidth >= 1280"
-            class="sidebar fixed top-0 right-0 z-9999 flex h-screen w-72.5 flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 xl:static rtl:border-r-0 rtl:border-l dark:border-gray-800 dark:bg-black"
+            class="sidebar fixed top-0 right-0 z-9999 flex h-screen w-72.5 flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 xl:static rtl:border-r-0 rtl:border-l dark:border-gray-800 dark:bg-black "
             @click.outside="if (window.innerWidth < 1280) sidebarToggle = false"
             aria-label="sidebar navigation"
     >
         <!-- Sidebar Header (لوگو) -->
-        <div class="sidebar-header flex items-center justify-between py-5 xl:justify-center">
-            <a href="#">
+        <div class=" flex items-center justify-between py-5 xl:justify-center ">
+            <a href="{% url 'dashboard' %}">
                 <span class="sr-only">صفحه اصلی</span>
                 <span class="logo">
                     <img class="h-10 w-37.5 dark:hidden" src="{% static 'tailadmin/images/logo/logo.svg' %}"
@@ -160,12 +160,10 @@
                             </svg>
                         </a>
                         <ul x-show="selected === 'wallet'" x-cloak class="mt-1 space-y-1 pr-9 rtl:pr-9 rtl:pl-0">
-                            <li><a href="#"
+                            <li><a href="{% url 'dashboard_wallet' %}"
                                    class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">مدیریت
                                 کیف پول</a></li>
-                            <li><a href="#"
-                                   class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">لیست
-                                تراکنش‌ها</a></li>
+
                         </ul>
                     </li>
 
@@ -189,10 +187,10 @@
                             </svg>
                         </a>
                         <ul x-show="selected === 'services'" x-cloak class="mt-1 space-y-1 pr-9 rtl:pr-9 rtl:pl-0">
-                            <li><a href="#"
+                            <li><a href="{% url 'dashboard_subscription' %}"
                                    class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">اشتراک</a>
                             </li>
-                            <li><a href="#"
+                            <li><a href="{% url 'new_service_order' %}"
                                    class="block py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-500">سفارش
                                 سرویس جدید</a></li>
                         </ul>
@@ -294,7 +292,7 @@
 
             <!-- ===== Dynamic Content Block ===== -->
             <div class="mx-auto max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6">
-            {% if messages %}
+                {% if messages %}
                     <div class="space-y-3 mb-6">
                         {% for message in messages %}
                             <div x-data="{ open: true }"
@@ -315,20 +313,28 @@
                                 <div class="flex items-center gap-3">
                                     <!-- آیکون‌های متناسب با نوع پیام -->
                                     {% if message.tags == 'success' %}
-                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M5 13l4 4L19 7"></path>
                                         </svg>
                                     {% elif message.tags == 'error' or message.tags == 'danger' %}
-                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     {% elif message.tags == 'warning' %}
-                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                         </svg>
                                     {% else %}
-                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                     {% endif %}
 
@@ -336,9 +342,11 @@
                                 </div>
 
                                 <!-- دکمه ضربدر برای بستن هشدار -->
-                                <button @click="open = false" class="opacity-75 hover:opacity-100 transition-opacity p-1 rounded-lg">
+                                <button @click="open = false"
+                                        class="opacity-75 hover:opacity-100 transition-opacity p-1 rounded-lg">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                 </button>
                             </div>

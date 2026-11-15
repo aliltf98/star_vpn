@@ -1,0 +1,53 @@
+{% extends 'dashboard/base_panel.html' %}
+{% load static %}
+
+{% block title %}سفارش سرویس جدید{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white">انتخاب و سفارش پلن جدید</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">لطفاً پلن مورد نظر خود را انتخاب کنید تا به صفحه پرداخت و کیف پول هدایت شوید.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% if available_plans %}
+            {% for plan in available_plans %}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ plan.name }}</h3>
+                            <span class="px-2.5 py-1 text-xs font-medium bg-brand-50 text-brand-600 rounded-full dark:bg-sky-500/15 dark:text-white/60">
+                                {{ plan.duration_days }} روزه
+                            </span>
+                        </div>
+                        <p class="text-2xl font-extrabold text-brand-600 dark:text-brand-400 mb-4">
+                            {{ plan.price }} <span class="text-xs font-normal text-gray-500">تومان</span>
+                        </p>
+                        <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                حجم اختصاصی: {{ plan.volume_gb }} گیگابایت
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                مدت زمان اعتبار: {{ plan.duration_days }} روز
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'select_plan_order' plan.id %}" 
+                       class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-center text-sm font-medium transition-colors shadow-sm">
+                        انتخاب و ادامه خرید
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+                هیچ پلنی برای سفارش موجود نیست.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
