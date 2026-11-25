@@ -8,6 +8,7 @@ from django.conf.urls.i18n import i18n_patterns
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
+    path('', include('services.urls')),
 ]
 
 # ۲. مسیرهای دو زبانه سایت
@@ -15,7 +16,6 @@ urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('', include('account.urls')),
-    path('', include('services.urls')),
     path('', include('market.urls')),
     prefix_default_language=True
 )
