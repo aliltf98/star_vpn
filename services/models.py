@@ -28,24 +28,34 @@ class UriCode(models.Model):
         return f"{self.category.title} - {self.id}"
 
 
+
+
+class ServiceProfile(models.Model):
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    configs = models.ManyToManyField(UriCode, blank=True)
+    Logs = models.ManyToManyField(ConnectionsLog, blank=True)
+
+    def __str__(self):
+        return self.profile.profile.username
+
 class Connection(models.Model):
-    subscription = models.ForeignKey(UserSubscription, on_delete=models.CASCADE, related_name='connections', null=True,
-                                     blank=True)
+    service_profile = models.ForeignKey(
+        ServiceProfile,
+        on_delete=models.CASCADE,
+        related_name='connections',
+        null=True,
+        blank=True
+    )
+    subscription = models.ForeignKey(UserSubscription, on_delete=models.CASCADE, related_name='connections', null=True, blank=True)
     device_id = models.CharField(max_length=255)
     model_name = models.CharField(max_length=255)
     is_blocked = models.BooleanField(default=False)
     traffic_used = models.BigIntegerField(default=0)
     last_login = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        # هر دستگاه برای هر پروفایل سرویس فقط یک رکورد یکتا دارد
+        unique_together = ('service_profile', 'device_id')
+
     def __str__(self):
         return f"{self.model_name} ({self.device_id})"
-
-
-class ServiceProfile(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    configs = models.ManyToManyField(UriCode)
-    connections = models.ManyToManyField(Connection)
-    Logs = models.ManyToManyField(ConnectionsLog)
-
-    def __str__(self):
-        return self.profile.profile.username

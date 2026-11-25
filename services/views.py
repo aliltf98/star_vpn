@@ -90,19 +90,24 @@ class Signin(APIView):
             token, _ = Token.objects.get_or_create(user=user)
 
             if device_id:
-                connection, created = Connection.objects.get_or_create(
-                    device_id=device_id,
-                    defaults={'model_name': model_name or "Unknown"}
-                )
-                if not created and model_name:
-                    connection.model_name = model_name
-                    connection.save()
-
                 user_profile = UserProfile.objects.filter(profile=user).first()
                 if user_profile:
                     service_prof, _ = ServiceProfile.objects.get_or_create(profile=user_profile)
-                    if connection not in service_prof.connections.all():
-                        service_prof.connections.add(connection)
+                    connection, created = Connection.objects.get_or_create(
+                        service_profile=service_prof,
+                        device_id=device_id,
+                        defaults={'model_name': model_name or "Unknown"}
+                    )
+                    if not created and model_name:
+                        connection.model_name = model_name
+                        connection.save()
+
+                    # اگر دستگاه در این اکانت مسدود شده بود، اجازه اتصال ندهیم
+                    if connection.is_blocked:
+                        return Response(
+                            {"message": "دسترسی این دستگاه به این حساب کاربری مسدود شده است."},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
 
             links = panel_info.get('links', [])
             total_limit = panel_info.get('data_limit', 0)
@@ -279,7 +284,12 @@ class DeviceSessionView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
 class ToggleBlockDeviceView(APIView):
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -287,8 +297,19 @@ class ToggleBlockDeviceView(APIView):
         if not device_id:
             return Response({"error": "Device ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # پیدا کردن پروفایل سرویس کاربر لاگین‌شده
+        target_username = request.data.get("username")
+        if target_username and (request.user.is_staff or request.user.is_superuser):
+            service_prof = ServiceProfile.objects.filter(profile__profile__username=target_username).first()
+        else:
+            service_prof = ServiceProfile.objects.filter(profile__profile=request.user).first()
+
+        if not service_prof:
+            return Response({"error": "پروفایل سرویس یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+
         try:
-            connection = Connection.objects.get(device_id=device_id)
+            # جستجو دقیقاً در دستگاه‌های همین اکانت
+            connection = Connection.objects.get(service_profile=service_prof, device_id=device_id)
             connection.is_blocked = not connection.is_blocked
             connection.save()
 
@@ -297,7 +318,7 @@ class ToggleBlockDeviceView(APIView):
                 "is_blocked": connection.is_blocked
             }, status=status.HTTP_200_OK)
         except Connection.DoesNotExist:
-            return Response({"error": "دستگاه یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "دستگاه در این حساب کاربری یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class UpdateDeviceUsageView(APIView):
