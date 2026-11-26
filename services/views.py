@@ -396,6 +396,19 @@ class ChangePasswordView(APIView):
 
 
 class AppSignupView(APIView):
+    def get(self, request):
+        plans = MainPlansLayout.objects.filter(is_active=True).order_by('price')
+        plans_data = [
+            {
+                "id": p.id,
+                "title": p.title,
+                "price": p.price,
+                "duration_days": p.duration_days,
+                "volume_gb": p.volume_gb
+            }
+            for p in plans
+        ]
+        return Response({"plans": plans_data}, status=status.HTTP_200_OK)
     def post(self, request):
         serializer = AppSignupSerializer(data=request.data)
         if not serializer.is_valid():
