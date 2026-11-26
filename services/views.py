@@ -2,14 +2,11 @@ import os
 import sys
 import urllib.parse
 import re
-import requests
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, update_session_auth_hash
 from django.db import transaction
-from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -347,3 +344,27 @@ class UpdateDeviceUsageView(APIView):
             print(e)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ChangePasswordView(APIView):
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            user = request.user
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+
+            # حفظ نشست در صورت استفاده از مرورگر
+            update_session_auth_hash(request, user)
+
+            # بازتولید توکن امنیتی برای اپلیکیشن موبایل
+            Token.objects.filter(user=user).delete()
+            new_token = Token.objects.create(user=user)
+
+            return Response({
+                "message": "رمز عبور با موفقیت تغییر کرد.",
+                "token": new_token.key
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

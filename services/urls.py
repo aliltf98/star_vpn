@@ -11,5 +11,6 @@ urlpatterns = [
     path('api/v1/devices/toggle-block/', ToggleBlockDeviceView.as_view(), name='toggle_block_device'),
 
     path('api/v1/devices/<str:username>/', DeviceSessionView.as_view(), name='device_sessions'),
+    path('api/v1/change-password/', ChangePasswordView.as_view(), name='api_change_password'),
 
 ]
