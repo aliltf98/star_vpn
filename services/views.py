@@ -192,15 +192,21 @@ class UserVolumeStatus(APIView):
             return Response({"status": "error", "message": "Internal Server Error"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class UserProfileView(APIView):
     def get(self, request, username):
         try:
-            user_profile = UserProfile.objects.filter(profile__username=username).first()
+            user_profile = UserProfile.objects.select_related('profile', 'referred_by__user').filter(
+                profile__username=username
+            ).first()
 
             panel_info = PanelManager.get_user_info(username)
             if not panel_info:
                 return Response({"error": "سرویس شما یافت نشد"}, status=status.HTTP_404_NOT_FOUND)
+
+            # دریافت آخرین اشتراک ثبت‌شده کاربر
+            subscription = UserSubscription.objects.select_related('plan').filter(
+                user__username=username
+            ).order_by('-start_date').first()
 
             links = panel_info.get('links', [])
             total_limit = panel_info.get('data_limit', 0)
@@ -246,10 +252,22 @@ class UserProfileView(APIView):
                     "country": country
                 })
 
+            # آماده‌سازی اطلاعات اشتراک کاربر
+            subscription_data = None
+            if subscription:
+                subscription_data = {
+                    "plan": subscription.plan.title if subscription.plan else None,
+                    "start_date": subscription.start_date.isoformat() if subscription.start_date else None,
+                    "expire_date": subscription.expire_date.isoformat() if subscription.expire_date else None,
+                    "is_active": subscription.is_active,
+                }
+
             return Response({
                 "username": username,
-                "phone_number": str(user_profile.phone_number) if user_profile else "بدون شماره",
-                "subscription_url": panel_info.get("subscription_url", ""),
+                "phone_number": str(user_profile.phone_number) if (user_profile and user_profile.phone_number) else "بدون شماره",
+                "type": user_profile.type if user_profile else UserProfile.UserType.REGULAR,
+                "referred_by": user_profile.referred_by.code if (user_profile and user_profile.referred_by) else None,
+                "subscription": subscription_data,
                 "data_limit": total_limit,
                 "used_traffic": used_traffic,
                 "configs": configs,
@@ -260,6 +278,7 @@ class UserProfileView(APIView):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(exc_type, fname, exc_tb.tb_lineno)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class DeviceSessionView(APIView):
     def get(self, request, username):
         try:
