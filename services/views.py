@@ -2,7 +2,8 @@ import os
 import sys
 import urllib.parse
 import re
-
+import time
+import datetime
 from django.contrib.auth import authenticate, update_session_auth_hash
 from django.db import transaction
 from rest_framework import status
@@ -12,6 +13,11 @@ from rest_framework.views import APIView
 
 from .PanelManager import PanelManager
 from .serializers import *
+from account.models import UserProfile
+from main.models import MainPlansLayout
+from market.models import Order, UserSubscription, MarketerProfile
+from .models import Connection, ServiceProfile
+from .serializers import AppSignupSerializer
 
 
 class Signup(APIView):
@@ -387,3 +393,202 @@ class ChangePasswordView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AppSignupView(APIView):
+    def post(self, request):
+        serializer = AppSignupSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+        username = data['username']
+        password = data['password']
+        phone_number = data.get('phone_number')
+        plan = MainPlansLayout.objects.get(id=data['plan_id'])
+        referral_code = data.get('referral_code')
+        device_id = data['device_id'].strip()
+        model_name = data.get('model_name', 'Unknown')
+
+        is_free_plan = (plan.price == 0)
+
+        # ۱. بررسی محدودیت ساخت فقط یک اکانت رایگان به ازای هر گوشی (device_id)
+        if is_free_plan:
+            has_used_free_trial = Connection.objects.filter(
+                device_id=device_id,
+                service_profile__profile__profile__orders__plan_price=0
+            ).exists()
+
+            if has_used_free_trial:
+                return Response({
+                    "message": "با این دستگاه قبلاً یک اشتراک رایگان ایجاد شده است. لطفاً یکی از پلن‌های تجاری را انتخاب کنید."
+                }, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            with transaction.atomic():
+                # ۲. پیدا کردن بازاریاب معرف (در صورت ارسال کد)
+                marketer = None
+                if referral_code:
+                    marketer = MarketerProfile.objects.filter(code=referral_code, is_active=True).first()
+
+                # ۳. ساخت کاربر در جنگو و UserProfile
+                user = User.objects.create_user(username=username, password=password)
+                user_profile = UserProfile.objects.create(
+                    profile=user,
+                    phone_number=phone_number,
+                    type=UserProfile.UserType.REGULAR,
+                    referred_by=marketer
+                )
+
+                # ۴. ثبت دستگاه برای پروفایل سرویس کاربر
+                service_prof, _ = ServiceProfile.objects.get_or_create(profile=user_profile)
+                Connection.objects.get_or_create(
+                    service_profile=service_prof,
+                    device_id=device_id,
+                    defaults={'model_name': model_name}
+                )
+
+                # ۵. محاسبه قیمت و تخفیف معرف
+                plan_price = plan.price
+                discount_amount = 0
+                if marketer and not is_free_plan:
+                    discount_amount = (plan_price * marketer.discount_rate) / 100
+                final_amount = max(0, plan_price - discount_amount)
+
+                # صدور توکن احراز هویت برای اپلیکیشن
+                token, _ = Token.objects.get_or_create(user=user)
+
+                # ========================================================
+                # حالت الف: پلن رایگان -> فعال‌سازی فوری در مرزبان و سیستم
+                # ========================================================
+                if is_free_plan:
+                    now_ts = int(time.time())
+                    expire_ts = now_ts + (plan.duration_days * 86400)
+
+                    marzban_res = PanelManager.create_user(
+                        username=username,
+                        data_limit_gb=plan.volume_gb,
+                        expire_timestamp=expire_ts
+                    )
+
+                    if not marzban_res:
+                        raise Exception("خطا در ارتباط با سرور زیرساخت جهت فعال‌سازی پلن رایگان.")
+
+                    # ثبت سفارش تکمیل‌شده با مبلغ صفر (جهت ثبت سابقه استفاده از طرح رایگان)
+                    order = Order.objects.create(
+                        user=user,
+                        plan=plan,
+                        plan_price=0,
+                        discount_amount=0,
+                        final_amount=0,
+                        is_first_order=True,
+                        status=Order.StatusChoices.COMPLETED,
+                        gateway_name=Order.GatewayChoices.MARKET
+                    )
+
+                    expire_dt = datetime.datetime.fromtimestamp(expire_ts, tz=datetime.timezone.utc)
+                    UserSubscription.objects.create(
+                        user=user,
+                        plan=plan,
+                        order=order,
+                        expire_date=expire_dt,
+                        total_volume_gb=plan.volume_gb,
+                        is_active=True,
+                        subscription_url=marzban_res.get('subscription_url')
+                    )
+
+                    # استخراج کانفیگ‌ها برای ارسال مستقیم به اپلیکیشن
+                    configs = self._extract_configs(marzban_res)
+
+                    return Response({
+                        "message": "ثبت‌نام انجام شد و اشتراک رایگان شما با موفقیت فعال گردید.",
+                        "is_free": True,
+                        "requires_payment": False,
+                        "token": token.key,
+                        "username": user.username,
+                        "order_id": str(order.id),
+                        "configs": configs
+                    }, status=status.HTTP_201_CREATED)
+
+                # ========================================================
+                # حالت ب: پلن غیررایگان -> ثبت در لیست سفارش‌ها (Pending)
+                # ========================================================
+                else:
+                    order = Order.objects.create(
+                        user=user,
+                        plan=plan,
+                        plan_price=plan_price,
+                        discount_amount=discount_amount,
+                        final_amount=final_amount,
+                        is_first_order=True,
+                        status=Order.StatusChoices.PENDING,
+                        gateway_name=Order.GatewayChoices.ZARINPAL
+                    )
+
+                    return Response({
+                        "message": "ثبت‌نام با موفقیت انجام شد. سفارش شما در لیست انتظار پرداخت ثبت گردید.",
+                        "is_free": False,
+                        "requires_payment": True,
+                        "token": token.key,
+                        "username": user.username,
+                        "order": {
+                            "id": str(order.id),
+                            "plan_title": plan.title,
+                            "plan_price": plan_price,
+                            "discount_amount": discount_amount,
+                            "final_amount": final_amount,
+                            "status": order.status
+                        },
+                        "configs": []
+                    }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"message": f"خطا در فرآیند ثبت‌نام: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _extract_configs(self, panel_info):
+        """تابع کمکی استخراج لینک‌های اتصال از پاسخ مرزبان"""
+        links = panel_info.get('links', [])
+        total_limit = panel_info.get('data_limit', 0)
+        used_traffic = panel_info.get('used_traffic', 0)
+        remaining_bytes = max(0, total_limit - used_traffic) if total_limit > 0 else 0
+        remaining_gb = round(remaining_bytes / (1024 ** 3), 2) if total_limit else 0
+
+        country_map = {
+            "GE": "Germany", "NL": "Netherlands", "TR": "Turkey",
+            "US": "United States", "FI": "Finland"
+        }
+
+        configs = []
+        for index, link in enumerate(links):
+            category = "V2Ray"
+            if link.startswith("vless://"): category = "VLESS"
+            elif link.startswith("vmess://"): category = "VMESS"
+            elif link.startswith("trojan://"): category = "Trojan"
+
+            parsed_url = urllib.parse.urlparse(link)
+            fragment = parsed_url.fragment
+            server_name = f"Server {index + 1}"
+            country = "Unknown"
+
+            if fragment:
+                decoded_fragment = urllib.parse.unquote(fragment)
+                match = re.search(r'\((.*?)\)', decoded_fragment)
+                if match:
+                    country_code = match.group(1).upper()
+                    country = country_map.get(country_code, country_code)
+                    server_name = decoded_fragment.split(" (")[0]
+                else:
+                    server_name = decoded_fragment
+
+            configs.append({
+                "id": index,
+                "value": link,
+                "category_name": category,
+                "remainingVolume": remaining_gb,
+                "server_name": server_name,
+                "country": country
+            })
+        return configs
