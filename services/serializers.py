@@ -1,4 +1,3 @@
-from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import *
 
@@ -24,7 +23,7 @@ class UriCodeSerializer(serializers.ModelSerializer):
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True, write_only=True)
-    new_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True, min_length=4)
     confirm_password = serializers.CharField(required=True, write_only=True)
 
     def validate_old_password(self, value):
@@ -40,6 +39,4 @@ class ChangePasswordSerializer(serializers.Serializer):
         if data['old_password'] == data['new_password']:
             raise serializers.ValidationError({"new_password": "رمز عبور جدید نباید با رمز فعلی یکسان باشد."})
 
-        # اعمال اعتبارسنج‌های امنیتی تعریف‌شده در settings.py
-        validate_password(data['new_password'], self.context['request'].user)
         return data
